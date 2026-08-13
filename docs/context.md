@@ -1,8 +1,8 @@
-# Context: Xoxo — Employee & Channel Partner Rewards & Recognition Platform
+# Context: Kudos — Employee & Channel Partner Rewards & Recognition Platform
 
 ## What Is This?
 
-Xoxo is a **web-based SaaS platform** that enables organizations to create, manage, and track **reward and recognition (R&R) programs** for employees and channel partners. It is a portfolio-scope implementation inspired by platforms like Xoxoday, Empuls, and Bonusly — focused on demonstrating the **core product loop end-to-end**.
+Kudos is a **web-based SaaS platform** that enables organizations to create, manage, and track **reward and recognition (R&R) programs** for employees and channel partners. It is a portfolio-scope implementation inspired by platforms like Kudosday, Empuls, and Bonusly — focused on demonstrating the **core product loop end-to-end**.
 
 ---
 

@@ -56,7 +56,7 @@ export default function Sidebar({ isOpen, onClose }) {
           <div className="flex items-center gap-2 text-[var(--color-primary-600)]">
             <Sparkles className="w-6 h-6" />
             <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-emerald-500">
-              Xoxo
+              Kudos
             </span>
           </div>
           <button

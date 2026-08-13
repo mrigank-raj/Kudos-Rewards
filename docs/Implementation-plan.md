@@ -1,8 +1,8 @@
-# Implementation Plan: Xoxo — Rewards & Recognition Platform
+# Implementation Plan: Kudos — Rewards & Recognition Platform
 
 ## Overview
 
-This plan breaks the Xoxo MVP into **6 sequential phases**, each producing a working, testable increment. Phases are ordered by dependency — foundation first, features second, polish last.
+This plan breaks the Kudos MVP into **6 sequential phases**, each producing a working, testable increment. Phases are ordered by dependency — foundation first, features second, polish last.
 
 **Estimated Total Duration**: 12–15 working days (solo developer)
 
@@ -12,8 +12,8 @@ This plan is designed to be used alongside two companion documents that define *
 
 | Document | Purpose |
 |----------|---------|
-| [Edge-Case.md](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) | 80+ edge case scenarios across 8 categories — referenced in each phase's testing checklist |
-| [evals.md](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/evals.md) | Evaluation rubric with functional test IDs, UX scoring, performance benchmarks, and end-to-end test scripts |
+| [Edge-Case.md](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) | 80+ edge case scenarios across 8 categories — referenced in each phase's testing checklist |
+| [evals.md](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/evals.md) | Evaluation rubric with functional test IDs, UX scoring, performance benchmarks, and end-to-end test scripts |
 
 Each phase below includes **Edge Cases to Test** and **Eval Test IDs** that should be verified before marking the phase complete.
 
@@ -23,7 +23,7 @@ Each phase below includes **Edge Cases to Test** and **Eval Test IDs** that shou
 
 ```mermaid
 gantt
-    title Xoxo Implementation Phases
+    title Kudos Implementation Phases
     dateFormat  YYYY-MM-DD
     axisFormat  %b %d
 
@@ -129,17 +129,17 @@ Run the following SQL migrations in order via Supabase SQL Editor:
 
 | Ref | Scenario | Source |
 |-----|----------|--------|
-| 8.5 | Supabase service temporarily unavailable — app shows error state, not crash | [Edge-Case.md §8](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 7.7 | Dark mode toggle mid-animation — transition is smooth | [Edge-Case.md §7](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| DATA-04 | RLS enforcement — cross-org queries return empty, not error | [Edge-Case.md §8](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
+| 8.5 | Supabase service temporarily unavailable — app shows error state, not crash | [Edge-Case.md §8](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 7.7 | Dark mode toggle mid-animation — transition is smooth | [Edge-Case.md §7](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| DATA-04 | RLS enforcement — cross-org queries return empty, not error | [Edge-Case.md §8](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
 
 ### Phase 1 — Eval Criteria
 
 | Eval ID | Criteria | Source |
 |---------|----------|--------|
-| DATA-04 | RLS enforcement — admin from Org A cannot see Org B | [evals.md §3.2](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/evals.md) |
-| DATA-05 | RLS enforcement — recipient cannot access admin-only data | [evals.md §3.2](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/evals.md) |
-| Code Structure | Clear separation: pages / components / hooks / config / lib | [evals.md §3.1](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/evals.md) |
+| DATA-04 | RLS enforcement — admin from Org A cannot see Org B | [evals.md §3.2](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/evals.md) |
+| DATA-05 | RLS enforcement — recipient cannot access admin-only data | [evals.md §3.2](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/evals.md) |
+| Code Structure | Clear separation: pages / components / hooks / config / lib | [evals.md §3.1](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/evals.md) |
 
 ---
 
@@ -227,21 +227,21 @@ App.jsx
 
 | Ref | Scenario | Source |
 |-----|----------|--------|
-| 1.1 | Signup with an existing email — clear error message | [Edge-Case.md §1](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 1.2 | Wrong password — generic error (no field enumeration) | [Edge-Case.md §1](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 1.3 | Session expires mid-interaction — redirect to login | [Edge-Case.md §1](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 1.4 | Logout in one tab — both tabs reflect logged-out state | [Edge-Case.md §1](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 1.5 | Recipient navigates to `/admin/*` — silent redirect | [Edge-Case.md §1](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 1.7 | Auth loading state — show spinner, never flash login page | [Edge-Case.md §1](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 1.8 | Empty name on signup — inline validation error | [Edge-Case.md §1](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 1.10 | Rapid clicks on Sign Up button — only one request | [Edge-Case.md §1](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
+| 1.1 | Signup with an existing email — clear error message | [Edge-Case.md §1](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 1.2 | Wrong password — generic error (no field enumeration) | [Edge-Case.md §1](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 1.3 | Session expires mid-interaction — redirect to login | [Edge-Case.md §1](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 1.4 | Logout in one tab — both tabs reflect logged-out state | [Edge-Case.md §1](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 1.5 | Recipient navigates to `/admin/*` — silent redirect | [Edge-Case.md §1](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 1.7 | Auth loading state — show spinner, never flash login page | [Edge-Case.md §1](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 1.8 | Empty name on signup — inline validation error | [Edge-Case.md §1](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 1.10 | Rapid clicks on Sign Up button — only one request | [Edge-Case.md §1](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
 
 ### Phase 2 — Eval Test IDs
 
 | Eval ID | Criteria | Source |
 |---------|----------|--------|
-| AUTH-01 to AUTH-10 | Full auth test suite (signup, login, logout, route protection, session persistence) | [evals.md §1.1](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/evals.md) |
-| E2E-04 | Role isolation — recipient cannot access admin routes | [evals.md §6](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/evals.md) |
+| AUTH-01 to AUTH-10 | Full auth test suite (signup, login, logout, route protection, session persistence) | [evals.md §1.1](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/evals.md) |
+| E2E-04 | Role isolation — recipient cannot access admin routes | [evals.md §6](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/evals.md) |
 
 ---
 
@@ -325,29 +325,29 @@ App.jsx
 
 | Ref | Scenario | Source |
 |-----|----------|--------|
-| 2.1 | Credit 0 points — blocked | [Edge-Case.md §2](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 2.2 | Credit negative points — blocked | [Edge-Case.md §2](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 2.3 | Debit more than balance — block or warn | [Edge-Case.md §2](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 2.4 | Two admins credit same user simultaneously — both apply | [Edge-Case.md §2](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 2.7 | Transaction + balance update atomicity | [Edge-Case.md §2](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 2.9 | Credit without reason — blocked | [Edge-Case.md §2](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 3.1 | Create program with 0 points — blocked | [Edge-Case.md §3](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 3.2 | Rule-based program with empty metric — blocked | [Edge-Case.md §3](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 3.4 | Deactivate program with existing transactions — history preserved | [Edge-Case.md §3](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 3.8 | Empty program list — encouraging empty state | [Edge-Case.md §3](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 6.5 | Accidental credit to wrong user — admin can debit to correct | [Edge-Case.md §6](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 6.9 | Admin from Org A cannot see Org B's users | [Edge-Case.md §6](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
+| 2.1 | Credit 0 points — blocked | [Edge-Case.md §2](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 2.2 | Credit negative points — blocked | [Edge-Case.md §2](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 2.3 | Debit more than balance — block or warn | [Edge-Case.md §2](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 2.4 | Two admins credit same user simultaneously — both apply | [Edge-Case.md §2](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 2.7 | Transaction + balance update atomicity | [Edge-Case.md §2](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 2.9 | Credit without reason — blocked | [Edge-Case.md §2](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 3.1 | Create program with 0 points — blocked | [Edge-Case.md §3](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 3.2 | Rule-based program with empty metric — blocked | [Edge-Case.md §3](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 3.4 | Deactivate program with existing transactions — history preserved | [Edge-Case.md §3](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 3.8 | Empty program list — encouraging empty state | [Edge-Case.md §3](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 6.5 | Accidental credit to wrong user — admin can debit to correct | [Edge-Case.md §6](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 6.9 | Admin from Org A cannot see Org B's users | [Edge-Case.md §6](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
 
 ### Phase 3 — Eval Test IDs
 
 | Eval ID | Criteria | Source |
 |---------|----------|--------|
-| PROG-01 to PROG-08 | Full program management test suite | [evals.md §1.2](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/evals.md) |
-| PPL-01 to PPL-08 | Full people management test suite | [evals.md §1.3](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/evals.md) |
-| DATA-01 | Credit + balance atomicity | [evals.md §3.2](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/evals.md) |
-| DATA-03 | Balance consistency check | [evals.md §3.2](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/evals.md) |
-| DATA-07 | Input validation — no 0-point programs or transactions | [evals.md §3.2](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/evals.md) |
-| E2E-01 | Admin creates program and credits points — full flow | [evals.md §6](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/evals.md) |
+| PROG-01 to PROG-08 | Full program management test suite | [evals.md §1.2](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/evals.md) |
+| PPL-01 to PPL-08 | Full people management test suite | [evals.md §1.3](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/evals.md) |
+| DATA-01 | Credit + balance atomicity | [evals.md §3.2](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/evals.md) |
+| DATA-03 | Balance consistency check | [evals.md §3.2](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/evals.md) |
+| DATA-07 | Input validation — no 0-point programs or transactions | [evals.md §3.2](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/evals.md) |
+| E2E-01 | Admin creates program and credits points — full flow | [evals.md §6](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/evals.md) |
 
 ---
 
@@ -445,25 +445,25 @@ Click "Redeem" → RedeemModal opens → User confirms →
 
 | Ref | Scenario | Source |
 |-----|----------|--------|
-| 4.1 | Balance drops between clicking Redeem and confirming — server-side rejection | [Edge-Case.md §4](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 4.2 | Rapid 5x clicks on Redeem — only one redemption processes | [Edge-Case.md §4](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 4.3 | 0 balance — Redeem buttons disabled with tooltip | [Edge-Case.md §4](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 4.4 | Redeem entire balance — all buttons disabled after | [Edge-Case.md §4](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 4.5 | Catalog image fails to load — placeholder shown | [Edge-Case.md §4](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 4.6 | Empty catalog — "No rewards available" empty state | [Edge-Case.md §4](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 4.7 | Reward costs more than user has ever earned — show progress | [Edge-Case.md §4](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 4.10 | Close modal before animation completes — state is consistent | [Edge-Case.md §4](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 7.9 | Press Escape — modal closes | [Edge-Case.md §7](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 7.10 | Click outside modal — modal closes | [Edge-Case.md §7](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
+| 4.1 | Balance drops between clicking Redeem and confirming — server-side rejection | [Edge-Case.md §4](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 4.2 | Rapid 5x clicks on Redeem — only one redemption processes | [Edge-Case.md §4](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 4.3 | 0 balance — Redeem buttons disabled with tooltip | [Edge-Case.md §4](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 4.4 | Redeem entire balance — all buttons disabled after | [Edge-Case.md §4](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 4.5 | Catalog image fails to load — placeholder shown | [Edge-Case.md §4](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 4.6 | Empty catalog — "No rewards available" empty state | [Edge-Case.md §4](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 4.7 | Reward costs more than user has ever earned — show progress | [Edge-Case.md §4](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 4.10 | Close modal before animation completes — state is consistent | [Edge-Case.md §4](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 7.9 | Press Escape — modal closes | [Edge-Case.md §7](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 7.10 | Click outside modal — modal closes | [Edge-Case.md §7](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
 
 ### Phase 4 — Eval Test IDs
 
 | Eval ID | Criteria | Source |
 |---------|----------|--------|
-| DASH-01 to DASH-05 | Full recipient dashboard test suite | [evals.md §1.4](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/evals.md) |
-| CAT-01 to CAT-08 | Full catalog and redemption test suite | [evals.md §1.5](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/evals.md) |
-| DATA-02 | Redeem + balance atomicity | [evals.md §3.2](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/evals.md) |
-| E2E-02 | Recipient redeems a reward — full flow (8 steps) | [evals.md §6](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/evals.md) |
+| DASH-01 to DASH-05 | Full recipient dashboard test suite | [evals.md §1.4](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/evals.md) |
+| CAT-01 to CAT-08 | Full catalog and redemption test suite | [evals.md §1.5](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/evals.md) |
+| DATA-02 | Redeem + balance atomicity | [evals.md §3.2](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/evals.md) |
+| E2E-02 | Recipient redeems a reward — full flow (8 steps) | [evals.md §6](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/evals.md) |
 
 ---
 
@@ -526,21 +526,21 @@ Click "Redeem" → RedeemModal opens → User confirms →
 
 | Ref | Scenario | Source |
 |-----|----------|--------|
-| 5.1 | No transactions — charts show empty state, not broken | [Edge-Case.md §5](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 5.2 | All transactions in single day — chart renders a single point | [Edge-Case.md §5](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 5.3 | Very large transaction volumes (10k+) — loads within 2s | [Edge-Case.md §5](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 5.4 | Redemption rate exceeds 100% — display handles gracefully | [Edge-Case.md §5](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 5.7 | All points to one person — pie chart shows one full slice | [Edge-Case.md §5](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 5.8 | Very narrow browser (<375px) — charts resize without overlap | [Edge-Case.md §5](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 5.9 | Analytics RPC timeout — error state with retry button | [Edge-Case.md §5](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 5.10 | Rapid page switching — stale queries cancelled | [Edge-Case.md §5](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
+| 5.1 | No transactions — charts show empty state, not broken | [Edge-Case.md §5](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 5.2 | All transactions in single day — chart renders a single point | [Edge-Case.md §5](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 5.3 | Very large transaction volumes (10k+) — loads within 2s | [Edge-Case.md §5](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 5.4 | Redemption rate exceeds 100% — display handles gracefully | [Edge-Case.md §5](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 5.7 | All points to one person — pie chart shows one full slice | [Edge-Case.md §5](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 5.8 | Very narrow browser (<375px) — charts resize without overlap | [Edge-Case.md §5](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 5.9 | Analytics RPC timeout — error state with retry button | [Edge-Case.md §5](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 5.10 | Rapid page switching — stale queries cancelled | [Edge-Case.md §5](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
 
 ### Phase 5 — Eval Test IDs
 
 | Eval ID | Criteria | Source |
 |---------|----------|--------|
-| ANA-01 to ANA-08 | Full analytics dashboard test suite | [evals.md §1.6](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/evals.md) |
-| E2E-03 | Analytics reflect real activity — 5-point accuracy check | [evals.md §6](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/evals.md) |
+| ANA-01 to ANA-08 | Full analytics dashboard test suite | [evals.md §1.6](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/evals.md) |
+| E2E-03 | Analytics reflect real activity — 5-point accuracy check | [evals.md §6](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/evals.md) |
 
 ---
 
@@ -612,26 +612,26 @@ Click "Redeem" → RedeemModal opens → User confirms →
 
 | Ref | Scenario | Source |
 |-----|----------|--------|
-| 7.1 | JavaScript disabled — `<noscript>` message shown | [Edge-Case.md §7](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 7.2 | Network offline during mutation — error toast | [Edge-Case.md §7](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 7.3 | Browser resize during chart render — smooth reflow | [Edge-Case.md §7](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 7.5 | Very long user name — truncated with ellipsis | [Edge-Case.md §7](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 8.1 | Modified anon key in DevTools — RLS still enforces | [Edge-Case.md §8](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 8.2 | Direct Supabase REST call bypassing UI — RLS blocks | [Edge-Case.md §8](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 8.3 | SQL injection via form fields — parameterized queries block it | [Edge-Case.md §8](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
-| 8.7 | XSS via reason/message field — React escaping neutralizes | [Edge-Case.md §8](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) |
+| 7.1 | JavaScript disabled — `<noscript>` message shown | [Edge-Case.md §7](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 7.2 | Network offline during mutation — error toast | [Edge-Case.md §7](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 7.3 | Browser resize during chart render — smooth reflow | [Edge-Case.md §7](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 7.5 | Very long user name — truncated with ellipsis | [Edge-Case.md §7](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 8.1 | Modified anon key in DevTools — RLS still enforces | [Edge-Case.md §8](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 8.2 | Direct Supabase REST call bypassing UI — RLS blocks | [Edge-Case.md §8](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 8.3 | SQL injection via form fields — parameterized queries block it | [Edge-Case.md §8](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
+| 8.7 | XSS via reason/message field — React escaping neutralizes | [Edge-Case.md §8](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) |
 
 ### Phase 6 — Eval Criteria (Full Evaluation)
 
 | Category | Weight | Key Checks | Source |
 |----------|--------|------------|--------|
-| Functional Completeness | 30% | All AUTH, PROG, PPL, DASH, CAT, ANA test IDs pass | [evals.md §1](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/evals.md) |
-| User Experience & Design | 25% | Visual quality rubric ≥4/5; responsive at 375px, 768px, 1280px | [evals.md §2](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/evals.md) |
-| Technical Quality | 20% | DATA-01–07 pass; no console errors; RLS verified | [evals.md §3](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/evals.md) |
-| Performance | 10% | FCP <1.5s, LCP <2.5s, bundle <300KB | [evals.md §4](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/evals.md) |
-| Product Thinking | 15% | Demo readiness ≥4/5; case study complete with 3+ decisions | [evals.md §5](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/evals.md) |
-| **E2E Scenarios** | — | E2E-01 through E2E-04 all pass | [evals.md §6](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/evals.md) |
-| **Quick Checklist** | — | All 14 items pass | [evals.md §8](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/evals.md) |
+| Functional Completeness | 30% | All AUTH, PROG, PPL, DASH, CAT, ANA test IDs pass | [evals.md §1](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/evals.md) |
+| User Experience & Design | 25% | Visual quality rubric ≥4/5; responsive at 375px, 768px, 1280px | [evals.md §2](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/evals.md) |
+| Technical Quality | 20% | DATA-01–07 pass; no console errors; RLS verified | [evals.md §3](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/evals.md) |
+| Performance | 10% | FCP <1.5s, LCP <2.5s, bundle <300KB | [evals.md §4](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/evals.md) |
+| Product Thinking | 15% | Demo readiness ≥4/5; case study complete with 3+ decisions | [evals.md §5](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/evals.md) |
+| **E2E Scenarios** | — | E2E-01 through E2E-04 all pass | [evals.md §6](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/evals.md) |
+| **Quick Checklist** | — | All 14 items pass | [evals.md §8](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/evals.md) |
 
 ---
 
@@ -686,7 +686,7 @@ graph TD
 
 ## Edge Case Coverage by Phase
 
-Summary of which [Edge-Case.md](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/Edge-Case.md) sections are covered in each phase:
+Summary of which [Edge-Case.md](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/Edge-Case.md) sections are covered in each phase:
 
 | Phase | Edge Case Sections | Scenarios Tested |
 |-------|-------------------|-----------------|
@@ -704,7 +704,7 @@ Summary of which [Edge-Case.md](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/
 
 ## Evaluation Integration
 
-Summary of how [evals.md](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/evals.md) maps to the implementation phases:
+Summary of how [evals.md](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/evals.md) maps to the implementation phases:
 
 ```mermaid
 graph LR

@@ -1,8 +1,8 @@
-# Deployment Plan: Xoxo — Rewards & Recognition Platform
+# Deployment Plan: Kudos — Rewards & Recognition Platform
 
 ## Overview
 
-This document covers the complete deployment pipeline — from local development through production launch. Xoxo uses a **two-service architecture**: a static React frontend on **Vercel** and a managed backend on **Supabase Cloud**. There are no custom servers to provision or manage.
+This document covers the complete deployment pipeline — from local development through production launch. Kudos uses a **two-service architecture**: a static React frontend on **Vercel** and a managed backend on **Supabase Cloud**. There are no custom servers to provision or manage.
 
 ```mermaid
 graph LR
@@ -56,7 +56,7 @@ git --version     # ≥ 2.x
 | 1 | Log in to [supabase.com/dashboard](https://supabase.com/dashboard) |
 | 2 | Click **"New Project"** |
 | 3 | **Organization**: Select or create one |
-| 4 | **Project name**: `xoxo-rewards` |
+| 4 | **Project name**: `kudos-rewards` |
 | 5 | **Database password**: Generate a strong password → **save it securely** |
 | 6 | **Region**: Choose closest to target users (e.g., `ap-south-1` for India, `us-east-1` for US) |
 | 7 | Click **"Create new project"** → wait ~2 minutes for provisioning |
@@ -158,12 +158,12 @@ Upload 6–8 reward images → copy their public URLs → update `catalog_items.
 # From the project root
 git init
 git add .
-git commit -m "Initial commit: Xoxo R&R Platform MVP"
+git commit -m "Initial commit: Kudos R&R Platform MVP"
 
 # Create repo on GitHub (via CLI or web)
-gh repo create xoxo-rewards --public --source=. --push
+gh repo create kudos-rewards --public --source=. --push
 # OR
-git remote add origin https://github.com/<username>/xoxo-rewards.git
+git remote add origin https://github.com/<username>/kudos-rewards.git
 git push -u origin main
 ```
 
@@ -247,7 +247,7 @@ VITE_APP_ENV=development
 |------|--------|
 | 1 | Log in to [vercel.com/dashboard](https://vercel.com/dashboard) |
 | 2 | Click **"Add New Project"** |
-| 3 | Select **"Import Git Repository"** → choose `xoxo-rewards` |
+| 3 | Select **"Import Git Repository"** → choose `kudos-rewards` |
 | 4 | **Framework Preset**: Vite (auto-detected) |
 | 5 | **Root Directory**: `./` (default) |
 | 6 | **Build Command**: `npm run build` |
@@ -314,9 +314,9 @@ After deployment, verify at the production URL:
 
 | Check | URL | Expected |
 |-------|-----|----------|
-| Home page loads | `https://xoxo-rewards.vercel.app/` | Redirect to `/login` |
-| Login page renders | `https://xoxo-rewards.vercel.app/login` | Login form visible |
-| Direct route access | `https://xoxo-rewards.vercel.app/admin/dashboard` | Redirect to `/login` (if not authenticated) |
+| Home page loads | `https://kudos-rewards.vercel.app/` | Redirect to `/login` |
+| Login page renders | `https://kudos-rewards.vercel.app/login` | Login form visible |
+| Direct route access | `https://kudos-rewards.vercel.app/admin/dashboard` | Redirect to `/login` (if not authenticated) |
 | Supabase connection | Open DevTools → Network | No failed API calls to `supabase.co` |
 | No console errors | Open DevTools → Console | Zero errors |
 
@@ -341,7 +341,7 @@ After deployment, verify at the production URL:
 | Step | Action |
 |------|--------|
 | 1 | Vercel Dashboard → Project → Settings → Domains |
-| 2 | Add custom domain (e.g., `xoxo.yourdomain.com`) |
+| 2 | Add custom domain (e.g., `kudos.yourdomain.com`) |
 | 3 | Configure DNS: Add CNAME record pointing to `cname.vercel-dns.com` |
 | 4 | Wait for DNS propagation (~5–30 minutes) |
 | 5 | Vercel auto-provisions SSL certificate (Let's Encrypt) |
@@ -350,7 +350,7 @@ After deployment, verify at the production URL:
 
 | Type | Host | Value | TTL |
 |------|------|-------|-----|
-| CNAME | `xoxo` | `cname.vercel-dns.com` | 300 |
+| CNAME | `kudos` | `cname.vercel-dns.com` | 300 |
 
 OR for apex domain:
 
@@ -368,8 +368,8 @@ Navigate to **Supabase Dashboard → Authentication → URL Configuration**:
 
 | Setting | Value |
 |---------|-------|
-| **Site URL** | `https://xoxo-rewards.vercel.app` (or custom domain) |
-| **Redirect URLs** | `https://xoxo-rewards.vercel.app/**` |
+| **Site URL** | `https://kudos-rewards.vercel.app` (or custom domain) |
+| **Redirect URLs** | `https://kudos-rewards.vercel.app/**` |
 | **Additional redirect URLs** | `http://localhost:5173/**` (for local dev) |
 
 > [!IMPORTANT]
@@ -402,9 +402,9 @@ graph TD
 
 | Trigger | Environment | URL |
 |---------|-------------|-----|
-| Push to `main` | Production | `xoxo-rewards.vercel.app` |
-| Push to any other branch | Preview | `xoxo-rewards-<hash>.vercel.app` |
-| Pull Request | Preview | `xoxo-rewards-<pr-number>.vercel.app` |
+| Push to `main` | Production | `kudos-rewards.vercel.app` |
+| Push to any other branch | Preview | `kudos-rewards-<hash>.vercel.app` |
+| Pull Request | Preview | `kudos-rewards-<pr-number>.vercel.app` |
 
 ### 7.2 Build Validation Script
 
@@ -462,9 +462,9 @@ jobs:
 
 | Environment | Supabase Project | Vercel Target | Purpose |
 |-------------|-----------------|---------------|---------|
-| **Local Dev** | `xoxo-dev` (or shared) | N/A | Development + testing |
-| **Preview** | `xoxo-dev` | Vercel Preview | PR review + QA |
-| **Production** | `xoxo-prod` | Vercel Production | Live demo + portfolio |
+| **Local Dev** | `kudos-dev` (or shared) | N/A | Development + testing |
+| **Preview** | `kudos-dev` | Vercel Preview | PR review + QA |
+| **Production** | `kudos-prod` | Vercel Production | Live demo + portfolio |
 
 > [!TIP]
 > For a portfolio project, a single Supabase project shared across all environments is acceptable. For a real product, use separate projects for dev/staging/production.
@@ -613,7 +613,7 @@ GRANT ALL ON SCHEMA public TO public;
 | **SSL** | Check browser padlock icon | Valid HTTPS certificate |
 | **SEO** | View page source | `<title>`, `<meta description>` present |
 | **Performance** | Run Lighthouse in Chrome DevTools | Score ≥ 80 for Performance |
-| **E2E flow** | Run E2E-01 + E2E-02 from [evals.md](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Xoxo/evals.md) | Both pass |
+| **E2E flow** | Run E2E-01 + E2E-02 from [evals.md](file:///c:/Users/KIIT0001/Desktop/PM%20Projects/Kudos/evals.md) | Both pass |
 | **Cross-browser** | Test in Chrome, Firefox, Safari | No layout breaks |
 | **Mobile** | Test on actual phone or Chrome mobile emulation | All pages usable |
 
@@ -713,7 +713,7 @@ Add to `vercel.json`:
 
 ### Free Tier Limits (Sufficient for Portfolio)
 
-| Service | Free Tier Limit | Xoxo Estimated Usage | Headroom |
+| Service | Free Tier Limit | Kudos Estimated Usage | Headroom |
 |---------|----------------|----------------------|----------|
 | **Supabase DB** | 500 MB | ~5 MB (seed + demo usage) | 99% |
 | **Supabase Auth** | 50,000 MAU | ~10–50 users | 99.9% |

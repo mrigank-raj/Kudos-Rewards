@@ -1,6 +1,6 @@
 -- ============================================================
 -- 002_rls_policies.sql
--- Xoxo R&R Platform — Row Level Security Policies
+-- Kudos R&R Platform — Row Level Security Policies
 -- ============================================================
 
 -- Enable RLS on all tables

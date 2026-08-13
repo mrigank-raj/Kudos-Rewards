@@ -1,4 +1,4 @@
-# Edge Cases: Xoxo — Rewards & Recognition Platform
+# Edge Cases: Kudos — Rewards & Recognition Platform
 
 This document catalogs edge cases across every feature area of the platform. Each entry describes the scenario, expected behavior, and recommended handling strategy.
 

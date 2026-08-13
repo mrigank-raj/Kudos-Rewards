@@ -1,8 +1,8 @@
-# Architecture: Xoxo — Rewards & Recognition Platform
+# Architecture: Kudos — Rewards & Recognition Platform
 
 ## 1. System Overview
 
-Xoxo follows a **client-heavy, BaaS-backed** architecture. The React frontend owns all UI logic, routing, and state, while Supabase provides authentication, a PostgreSQL database, and Row Level Security (RLS) — eliminating the need for a custom backend server.
+Kudos follows a **client-heavy, BaaS-backed** architecture. The React frontend owns all UI logic, routing, and state, while Supabase provides authentication, a PostgreSQL database, and Row Level Security (RLS) — eliminating the need for a custom backend server.
 
 ```mermaid
 graph TB
@@ -62,7 +62,7 @@ graph TB
 ## 3. Project Structure
 
 ```
-xoxo/
+kudos/
 ├── public/
 │   └── favicon.svg
 ├── src/
@@ -719,7 +719,7 @@ These server-side functions ensure atomicity for multi-step operations:
 
 ## 11. Seeding Strategy
 
-The app must feel **alive on first load** for portfolio demonstrations. The seed script ([003_seed_data.sql](file:///c:/Users/KIIT0001/Desktop/PM Projects/Xoxo/supabase/migrations/003_seed_data.sql)) will populate:
+The app must feel **alive on first load** for portfolio demonstrations. The seed script ([003_seed_data.sql](file:///c:/Users/KIIT0001/Desktop/PM Projects/Kudos/supabase/migrations/003_seed_data.sql)) will populate:
 
 | Entity | Count | Notes |
 |--------|-------|-------|

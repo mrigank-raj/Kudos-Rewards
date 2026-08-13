@@ -5,7 +5,7 @@ const ThemeContext = createContext(null);
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('xoxo-theme');
+      const saved = localStorage.getItem('kudos-theme');
       if (saved) return saved;
       return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
@@ -19,7 +19,7 @@ export function ThemeProvider({ children }) {
     } else {
       root.classList.remove('dark');
     }
-    localStorage.setItem('xoxo-theme', theme);
+    localStorage.setItem('kudos-theme', theme);
   }, [theme]);
 
   const toggleTheme = () => {

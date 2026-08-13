@@ -1,6 +1,6 @@
-# Evaluation Criteria: Xoxo — Rewards & Recognition Platform
+# Evaluation Criteria: Kudos — Rewards & Recognition Platform
 
-This document defines how the Xoxo platform will be evaluated across **functional correctness**, **user experience**, **technical quality**, **performance**, and **product thinking**. Each section includes specific test scenarios, acceptance criteria, and a scoring rubric.
+This document defines how the Kudos platform will be evaluated across **functional correctness**, **user experience**, **technical quality**, **performance**, and **product thinking**. Each section includes specific test scenarios, acceptance criteria, and a scoring rubric.
 
 ---
 

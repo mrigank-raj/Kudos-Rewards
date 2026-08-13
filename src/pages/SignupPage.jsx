@@ -112,7 +112,7 @@ export default function SignupPage() {
           <div className="flex items-center justify-center mb-6">
             <Sparkles className="w-12 h-12" />
           </div>
-          <h1 className="text-4xl font-bold mb-4">Join Xoxo</h1>
+          <h1 className="text-4xl font-bold mb-4">Join Kudos</h1>
           <p className="text-lg text-indigo-100 leading-relaxed">
             Create your account and start building a culture of recognition today.
           </p>
@@ -126,7 +126,7 @@ export default function SignupPage() {
           <div className="lg:hidden text-center mb-8">
             <div className="inline-flex items-center gap-2 text-[var(--color-primary-600)]">
               <Sparkles className="w-8 h-8" />
-              <span className="text-2xl font-bold">Xoxo</span>
+              <span className="text-2xl font-bold">Kudos</span>
             </div>
           </div>
 

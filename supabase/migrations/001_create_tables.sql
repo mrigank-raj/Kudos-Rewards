@@ -1,6 +1,6 @@
 -- ============================================================
 -- 001_create_tables.sql
--- Xoxo R&R Platform — Database Schema
+-- Kudos R&R Platform — Database Schema
 -- ============================================================
 
 -- Organizations

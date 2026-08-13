@@ -64,7 +64,7 @@ export default function LoginPage() {
           <div className="flex items-center justify-center mb-6">
             <Sparkles className="w-12 h-12" />
           </div>
-          <h1 className="text-4xl font-bold mb-4">Xoxo Rewards</h1>
+          <h1 className="text-4xl font-bold mb-4">Kudos Rewards</h1>
           <p className="text-lg text-indigo-100 leading-relaxed">
             Recognize, reward, and retain your best people with a platform built for modern teams.
           </p>
@@ -81,7 +81,7 @@ export default function LoginPage() {
           <div className="lg:hidden text-center mb-8">
             <div className="inline-flex items-center gap-2 text-[var(--color-primary-600)]">
               <Sparkles className="w-8 h-8" />
-              <span className="text-2xl font-bold">Xoxo</span>
+              <span className="text-2xl font-bold">Kudos</span>
             </div>
           </div>
 

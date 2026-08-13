@@ -1,6 +1,6 @@
 -- ============================================================
 -- 004_seed_data.sql
--- Xoxo R&R Platform — Realistic Demo Data
+-- Kudos R&R Platform — Realistic Demo Data
 -- ============================================================
 -- IMPORTANT: Before running this script, you MUST manually create 
 -- admin1@acme.com and priya@acme.com in the Supabase Authentication dashboard!
