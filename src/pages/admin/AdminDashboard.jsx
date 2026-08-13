@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import StatCard from '@/components/shared/StatCard';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import Badge from '@/components/shared/Badge';
+import KudosFeed from '@/components/dashboard/KudosFeed';
 import {
   LayoutDashboard, Users, Trophy, Zap, Gift,
   ArrowUpCircle, ArrowDownCircle,
@@ -115,55 +116,64 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Recent Activity */}
-      <div>
-        <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">Recent Activity</h2>
+      {/* Lower Section: Activity & Kudos */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Recent Ledger Activity */}
+        <div>
+          <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">Recent Ledger Activity</h2>
 
-        {txLoading ? (
-          <LoadingSpinner className="py-8" />
-        ) : !recentTx || recentTx.length === 0 ? (
-          <div className="p-6 rounded-2xl border border-dashed border-[var(--border-primary)] bg-[var(--bg-elevated)] text-center">
-            <p className="text-sm text-[var(--text-tertiary)]">No transactions yet. Credit some points to get started!</p>
-          </div>
-        ) : (
-          <div className="bg-[var(--bg-elevated)] rounded-2xl border border-[var(--border-primary)] divide-y divide-[var(--border-secondary)] shadow-sm overflow-hidden">
-            {recentTx.map((tx) => {
-              const config = typeConfig[tx.type] || typeConfig.earn;
-              const Icon = config.icon;
+          {txLoading ? (
+            <LoadingSpinner className="py-8" />
+          ) : !recentTx || recentTx.length === 0 ? (
+            <div className="p-6 rounded-2xl border border-dashed border-[var(--border-primary)] bg-[var(--bg-elevated)] text-center">
+              <p className="text-sm text-[var(--text-tertiary)]">No transactions yet. Credit some points to get started!</p>
+            </div>
+          ) : (
+            <div className="bg-[var(--bg-elevated)] rounded-2xl border border-[var(--border-primary)] divide-y divide-[var(--border-secondary)] shadow-sm overflow-hidden">
+              {recentTx.map((tx) => {
+                const config = typeConfig[tx.type] || typeConfig.earn;
+                const Icon = config.icon;
 
-              return (
-                <div key={tx.id} className="flex items-center gap-3 px-5 py-3 hover:bg-[var(--bg-tertiary)] transition-colors">
-                  <div className={`p-2 rounded-lg flex-shrink-0 ${
-                    config.variant === 'success' ? 'bg-[var(--color-secondary-50)] text-[var(--color-secondary-600)] dark:bg-emerald-900/30 dark:text-emerald-400' :
-                    config.variant === 'danger' ? 'bg-[var(--color-danger-50)] text-[var(--color-danger-600)] dark:bg-rose-900/30 dark:text-rose-400' :
-                    'bg-[var(--color-warning-50)] text-[var(--color-warning-600)] dark:bg-amber-900/30 dark:text-amber-400'
-                  }`}>
-                    <Icon className="w-4 h-4" />
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-[var(--text-primary)]">
-                      <span className="font-medium">{tx.users?.name || 'Unknown'}</span>
-                      {' '}
-                      <span className="text-[var(--text-tertiary)]">
-                        {tx.reason || config.label}
-                      </span>
-                    </p>
-                  </div>
-
-                  <div className="text-right flex-shrink-0">
-                    <p className={`text-sm font-semibold ${
-                      tx.points > 0 ? 'text-[var(--color-secondary-600)]' : 'text-[var(--color-danger-600)]'
+                return (
+                  <div key={tx.id} className="flex items-center gap-3 px-5 py-3 hover:bg-[var(--bg-tertiary)] transition-colors">
+                    <div className={`p-2 rounded-lg flex-shrink-0 ${
+                      config.variant === 'success' ? 'bg-[var(--color-secondary-50)] text-[var(--color-secondary-600)] dark:bg-emerald-900/30 dark:text-emerald-400' :
+                      config.variant === 'danger' ? 'bg-[var(--color-danger-50)] text-[var(--color-danger-600)] dark:bg-rose-900/30 dark:text-rose-400' :
+                      'bg-[var(--color-warning-50)] text-[var(--color-warning-600)] dark:bg-amber-900/30 dark:text-amber-400'
                     }`}>
-                      {tx.points > 0 ? '+' : ''}{tx.points?.toLocaleString()} pts
-                    </p>
-                    <p className="text-xs text-[var(--text-tertiary)]">{formatDate(tx.created_at)}</p>
+                      <Icon className="w-4 h-4" />
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-[var(--text-primary)]">
+                        <span className="font-medium">{tx.users?.name || 'Unknown'}</span>
+                        {' '}
+                        <span className="text-[var(--text-tertiary)]">
+                          {tx.reason || config.label}
+                        </span>
+                      </p>
+                    </div>
+
+                    <div className="text-right flex-shrink-0">
+                      <p className={`text-sm font-semibold ${
+                        tx.points > 0 ? 'text-[var(--color-secondary-600)]' : 'text-[var(--color-danger-600)]'
+                      }`}>
+                        {tx.points > 0 ? '+' : ''}{tx.points?.toLocaleString()} pts
+                      </p>
+                      <p className="text-xs text-[var(--text-tertiary)]">{formatDate(tx.created_at)}</p>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Company Kudos Feed */}
+        <div>
+          <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">Company Recognition Feed</h2>
+          <KudosFeed />
+        </div>
       </div>
     </div>
   );

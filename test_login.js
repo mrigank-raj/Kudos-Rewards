@@ -13,7 +13,7 @@ async function test() {
   });
 
   if (authError) {
-    console.error("Auth Error:", authError.message);
+    console.error("Auth Error Object:", JSON.stringify(authError, null, 2));
     return;
   }
 

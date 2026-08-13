@@ -31,27 +31,26 @@ export function useRedemptions() {
  */
 export function useRedeemReward() {
   const queryClient = useQueryClient();
-  const { user } = useAuth();
+  const { user, refreshProfile } = useAuth();
 
   return useMutation({
-    mutationFn: async ({ catalogItemId, pointsCost }) => {
+    mutationFn: async ({ catalogItemId }) => {
       const { data, error } = await supabase.rpc('redeem_reward', {
         p_user_id: user.id,
         p_catalog_item_id: catalogItemId,
-        p_points: pointsCost,
       });
 
       if (error) throw error;
       return data;
     },
     onSuccess: () => {
-      // Invalidate everything that depends on the user's balance
+      // Invalidate query caches
       queryClient.invalidateQueries({ queryKey: ['redemptions'] });
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       queryClient.invalidateQueries({ queryKey: ['user-transactions'] });
 
-      // Force re-fetch the auth profile to get the updated balance
-      queryClient.invalidateQueries({ queryKey: ['people'] });
+      // Refresh auth profile state to update points balance instantly
+      refreshProfile();
     },
   });
 }

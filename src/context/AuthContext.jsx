@@ -132,6 +132,9 @@ export function AuthProvider({ children }) {
     signUp,
     signIn,
     signOut,
+    refreshProfile: () => {
+      if (session?.user?.id) fetchProfile(session.user.id);
+    },
     isAuthenticated: !!session?.user,
     isAdmin: profile?.role === 'admin',
     isRecipient: profile?.role === 'recipient',
