@@ -1,0 +1,520 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Kudos Admin Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary-container": "#fffbff",
+                      "background": "#fcf8ff",
+                      "secondary-fixed-dim": "#ddb7ff",
+                      "on-primary-fixed": "#07006c",
+                      "on-error-container": "#93000a",
+                      "on-primary-container": "#fffbff",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary-fixed-variant": "#6900b3",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container-highest": "#e4e1ed",
+                      "outline-variant": "#c7c4d7",
+                      "surface-container-low": "#f5f2fe",
+                      "on-surface": "#1b1b23",
+                      "tertiary": "#904900",
+                      "error-container": "#ffdad6",
+                      "inverse-surface": "#303038",
+                      "on-secondary": "#ffffff",
+                      "on-primary": "#ffffff",
+                      "tertiary-fixed-dim": "#ffb783",
+                      "inverse-primary": "#c0c1ff",
+                      "secondary-container": "#9c48ea",
+                      "on-secondary-fixed": "#2c0051",
+                      "on-tertiary-container": "#fffbff",
+                      "on-error": "#ffffff",
+                      "tertiary-fixed": "#ffdcc5",
+                      "primary-fixed-dim": "#c0c1ff",
+                      "secondary": "#8127cf",
+                      "secondary-fixed": "#f0dbff",
+                      "surface-container-high": "#e9e6f3",
+                      "on-primary-fixed-variant": "#2f2ebe",
+                      "inverse-on-surface": "#f2effb",
+                      "primary-fixed": "#e1e0ff",
+                      "on-background": "#1b1b23",
+                      "on-tertiary-fixed-variant": "#703700",
+                      "primary-container": "#6063ee",
+                      "tertiary-container": "#b55d00",
+                      "primary": "#4648d4",
+                      "surface-variant": "#e4e1ed",
+                      "surface-dim": "#dbd8e4",
+                      "error": "#ba1a1a",
+                      "on-surface-variant": "#464554",
+                      "surface": "#fcf8ff",
+                      "surface-bright": "#fcf8ff",
+                      "surface-container": "#efecf8",
+                      "on-tertiary-fixed": "#301400",
+                      "surface-tint": "#494bd6",
+                      "outline": "#767586"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "container-max": "1440px",
+                      "sm": "8px",
+                      "lg": "24px",
+                      "xs": "4px",
+                      "3xl": "64px",
+                      "xl": "32px",
+                      "md": "16px",
+                      "unit": "4px",
+                      "2xl": "48px",
+                      "gutter": "24px"
+              },
+              "fontFamily": {
+                      "headline-lg-mobile": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "title-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "display-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "body-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "body-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "label-md": [
+                              "Plus Jakarta Sans"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "title-lg": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .soft-shadow {
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+        }
+      </style>
+</head>
+<body class="min-h-screen flex overflow-hidden">
+<!-- SideNav -->
+<nav class="fixed left-0 top-0 h-full w-64 bg-surface/80 dark:bg-inverse-surface/80 backdrop-blur-xl border-r border-outline-variant/30 shadow-xl flex flex-col py-lg px-md z-50">
+<div class="mb-2xl flex items-center gap-sm px-md">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">stars</span>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">Kudos</h1>
+<p class="font-label-md text-label-md text-on-surface-variant">Enterprise Rewards</p>
+</div>
+</div>
+<div class="flex-1 space-y-xs">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-primary dark:text-primary-fixed-dim font-semibold border-r-2 border-primary bg-primary/5" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-outline hover:text-primary hover:bg-primary/5 transition-colors active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined">military_tech</span>
+<span class="font-body-md text-body-md">Programs</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-outline hover:text-primary hover:bg-primary/5 transition-colors active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-body-md text-body-md">People</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-outline hover:text-primary hover:bg-primary/5 transition-colors active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-body-md text-body-md">Analytics</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-outline hover:text-primary hover:bg-primary/5 transition-colors active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined">redeem</span>
+<span class="font-body-md text-body-md">Catalog</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-outline hover:text-primary hover:bg-primary/5 transition-colors active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-body-md text-body-md">History</span>
+</a>
+</div>
+<div class="mt-auto space-y-xs pb-lg">
+<button class="w-full bg-primary text-on-primary font-title-lg text-title-lg py-sm rounded-lg shadow-sm hover:bg-primary/90 transition-colors mb-lg flex justify-center items-center gap-sm">
+<span class="material-symbols-outlined text-sm">add</span> Give Kudos
+            </button>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-outline hover:text-primary hover:bg-primary/5 transition-colors active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-md text-body-md">Settings</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-outline hover:text-primary hover:bg-primary/5 transition-colors active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-body-md text-body-md">Help</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="ml-64 flex-1 flex flex-col h-screen relative bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-surface-container-low via-background to-background">
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 left-64 h-16 bg-surface/60 dark:bg-inverse-surface/60 backdrop-blur-lg border-b border-outline-variant/20 shadow-sm flex justify-between items-center px-lg z-40">
+<div class="flex items-center gap-md flex-1">
+<div class="relative w-96 hidden md:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-lowest border border-outline-variant rounded-full font-body-md text-body-md focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" placeholder="Search users, programs..." type="text">
+</div>
+</div>
+<div class="flex items-center gap-lg">
+<button class="text-on-surface-variant hover:text-primary transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="h-8 w-8 rounded-full overflow-hidden border-2 border-surface-container-highest cursor-pointer">
+<img alt="Manager Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a corporate manager smiling warmly in a bright, modern glass-walled office setting with soft natural light." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBO9jiEqDY77y31A6fWiQdKZHWBkbjOuV5fQe3I8GMyvLFQryTaQxSaC4DvKOMnSP1-W338lJJeWToYgokdixBuhTez-DjpuKkmd9exDIfJeDLea2azYQzO8J5CABQ_AushAWmWpATfbx_36UGa6YWS02pCckpCjpAtqmx4YvUgrMb8qIirwMsgHRlKqgMU-oumVJYQ50BFuI-DOEEE8jxwCtB1YpchTWjRHTRJrrySkEsJkPLYTn8U">
+</div>
+</div>
+</header>
+<!-- Scrollable Canvas -->
+<main class="flex-1 overflow-y-auto pt-24 px-2xl pb-2xl w-full max-w-container-max mx-auto">
+<div class="mb-lg flex justify-between items-end">
+<div>
+<h2 class="font-display-lg text-display-lg text-on-background">Overview</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-sm">Welcome back. Here's what's happening today.</p>
+</div>
+<div class="flex gap-sm">
+<button class="px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface flex items-center gap-xs hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-sm">calendar_month</span> Last 30 Days
+                    </button>
+<button class="px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface flex items-center gap-xs hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-sm">download</span> Export
+                    </button>
+</div>
+</div>
+<!-- KPI Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter mb-xl">
+<!-- KPI 1 -->
+<div class="glass-card rounded-xl p-md soft-shadow">
+<div class="flex justify-between items-start mb-sm">
+<p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Total Users</p>
+<div class="p-sm bg-primary-container/20 rounded-lg text-primary">
+<span class="material-symbols-outlined text-lg">group</span>
+</div>
+</div>
+<div class="flex items-baseline gap-sm">
+<h3 class="font-headline-lg text-headline-lg text-on-background">12,450</h3>
+<span class="font-label-md text-label-md text-[#16a34a] flex items-center bg-[#16a34a]/10 px-2 py-0.5 rounded-full"><span class="material-symbols-outlined text-[10px] mr-1">trending_up</span>+12%</span>
+</div>
+<p class="font-body-md text-body-md text-outline mt-1">vs last month</p>
+</div>
+<!-- KPI 2 -->
+<div class="glass-card rounded-xl p-md soft-shadow">
+<div class="flex justify-between items-start mb-sm">
+<p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Points Issued</p>
+<div class="p-sm bg-tertiary-container/20 rounded-lg text-tertiary">
+<span class="material-symbols-outlined text-lg">toll</span>
+</div>
+</div>
+<div class="flex items-baseline gap-sm">
+<h3 class="font-headline-lg text-headline-lg text-on-background">845K</h3>
+<span class="font-label-md text-label-md text-[#16a34a] flex items-center bg-[#16a34a]/10 px-2 py-0.5 rounded-full"><span class="material-symbols-outlined text-[10px] mr-1">trending_up</span>+5.2%</span>
+</div>
+<p class="font-body-md text-body-md text-outline mt-1">vs last month</p>
+</div>
+<!-- KPI 3 -->
+<div class="glass-card rounded-xl p-md soft-shadow">
+<div class="flex justify-between items-start mb-sm">
+<p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Active Programs</p>
+<div class="p-sm bg-secondary-container/20 rounded-lg text-secondary">
+<span class="material-symbols-outlined text-lg">campaign</span>
+</div>
+</div>
+<div class="flex items-baseline gap-sm">
+<h3 class="font-headline-lg text-headline-lg text-on-background">24</h3>
+<span class="font-label-md text-label-md text-outline flex items-center bg-surface-variant px-2 py-0.5 rounded-full"><span class="material-symbols-outlined text-[10px] mr-1">horizontal_rule</span>0%</span>
+</div>
+<p class="font-body-md text-body-md text-outline mt-1">vs last month</p>
+</div>
+<!-- KPI 4 -->
+<div class="glass-card rounded-xl p-md soft-shadow">
+<div class="flex justify-between items-start mb-sm">
+<p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Redemptions</p>
+<div class="p-sm bg-error-container/40 rounded-lg text-on-error-container">
+<span class="material-symbols-outlined text-lg">shopping_bag</span>
+</div>
+</div>
+<div class="flex items-baseline gap-sm">
+<h3 class="font-headline-lg text-headline-lg text-on-background">3,210</h3>
+<span class="font-label-md text-label-md text-error flex items-center bg-error-container/50 px-2 py-0.5 rounded-full"><span class="material-symbols-outlined text-[10px] mr-1">trending_down</span>-2.1%</span>
+</div>
+<p class="font-body-md text-body-md text-outline mt-1">vs last month</p>
+</div>
+</div>
+<!-- Two Column Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<!-- Left Column: Ledger Activity -->
+<div class="lg:col-span-2 glass-panel rounded-xl soft-shadow p-lg flex flex-col h-[600px]">
+<div class="flex justify-between items-center mb-md pb-md border-b border-outline-variant/30">
+<h3 class="font-title-lg text-title-lg text-on-background">Recent Ledger Activity</h3>
+<button class="font-label-md text-label-md text-primary hover:underline">View All</button>
+</div>
+<div class="flex-1 overflow-auto pr-2">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant/20">
+<th class="py-sm font-label-md text-label-md text-on-surface-variant uppercase">Transaction</th>
+<th class="py-sm font-label-md text-label-md text-on-surface-variant uppercase">Sender/Receiver</th>
+<th class="py-sm font-label-md text-label-md text-on-surface-variant uppercase">Amount</th>
+<th class="py-sm font-label-md text-label-md text-on-surface-variant uppercase">Date</th>
+<th class="py-sm font-label-md text-label-md text-on-surface-variant uppercase text-right">Status</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-body-md">
+<tr class="border-b border-outline-variant/10 hover:bg-primary/5 transition-colors group cursor-pointer">
+<td class="py-md">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-sm">auto_awesome</span>
+</div>
+<div>
+<p class="font-semibold text-on-surface">Peer Recognition</p>
+<p class="text-outline text-xs truncate w-32">"Great work on Q3..."</p>
+</div>
+</div>
+</td>
+<td class="py-md">
+<div class="flex items-center gap-2">
+<img class="w-6 h-6 rounded-full object-cover" data-alt="A tiny portrait photo of a professional man in a blue shirt smiling against a light gray background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrtzBqDMq2iqUnv66qbWdj2-LYphsvKbBxOdg6XJoepn8JLmVuvRCv0lctrIh6roWy0TTU1758pip8dcTvRmlp9pCdsws9hqmVXSIflhc-M0eWTaXx9FObP7anIDU6dJkfFgEGbtpp263pG7us5FjwMU5WQuDMtg-1hQWMqCt3u6W9NUIwWy1KmkMG8gtU6gsGlC1f3q-uyA7N4kFG143uSrlH3vDVxCBcOqIegPDpf_Jbm5ynRh2-">
+<span class="material-symbols-outlined text-outline text-xs">arrow_forward</span>
+<img class="w-6 h-6 rounded-full object-cover" data-alt="A tiny portrait photo of a professional woman with glasses smiling warmly against a bright window." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5EcRDvnFJcmp7Iu-vMvO_yXZgvcFYtHpe-6byJzUvbCP3uVMkJ8yvu8LhKJyHf8YyZhkxk1Lp_ncWldu5Cn5ZkxpiL0vL3s99gPVO0W_zXoVG4v6WhGQ_xVqNrXZsQEcMYeQha5I8KAr5F5Ce4lSFmygVoaqDsmJTfGJuN4wpt07H9po9tcppIiE3PnguklZmo11khgtIotzokWfQALGquQB1rZ2y9P_EorHApPLrT8WVx24mCtvb">
+</div>
+</td>
+<td class="py-md font-semibold text-on-surface">+500 pts</td>
+<td class="py-md text-on-surface-variant">2 mins ago</td>
+<td class="py-md text-right">
+<span class="inline-block px-2 py-1 rounded-full bg-[#16a34a]/10 text-[#16a34a] font-label-md text-[10px]">Settled</span>
+</td>
+</tr>
+<tr class="border-b border-outline-variant/10 hover:bg-primary/5 transition-colors group cursor-pointer">
+<td class="py-md">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-sm">cake</span>
+</div>
+<div>
+<p class="font-semibold text-on-surface">Work Anniversary</p>
+<p class="text-outline text-xs truncate w-32">Automated system grant</p>
+</div>
+</div>
+</td>
+<td class="py-md">
+<div class="flex items-center gap-2 text-on-surface-variant text-sm">
+<span>System</span>
+<span class="material-symbols-outlined text-outline text-xs">arrow_forward</span>
+<img class="w-6 h-6 rounded-full object-cover" data-alt="A tiny portrait photo of an older professional man looking confident in a well-lit office." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB928qo7vkXdw3wAbKBzDn_BOzfRXgjXfGlIbdpTUrk-1whL0eGR0dbdFfymU6loynNN1Ht7jMJ2hbivWvRGzgm7n1NxwDdJ_82XY3OmCTWrTT2CDPN2RswPVNrouNLShEItaeogFiBVUq-TLSUv7dGq3-MSo5auWyapIa9g2sUtkCEc0cKrGI_MNF_zpe2B4hipbTlh-EBOPdkZt1wBUSaYXdzC3EKYW3_g9vnRq1EIiDPcLbXQ32b">
+</div>
+</td>
+<td class="py-md font-semibold text-on-surface">+2500 pts</td>
+<td class="py-md text-on-surface-variant">1 hr ago</td>
+<td class="py-md text-right">
+<span class="inline-block px-2 py-1 rounded-full bg-[#16a34a]/10 text-[#16a34a] font-label-md text-[10px]">Settled</span>
+</td>
+</tr>
+<tr class="border-b border-outline-variant/10 hover:bg-primary/5 transition-colors group cursor-pointer">
+<td class="py-md">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-tertiary/10 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-sm">storefront</span>
+</div>
+<div>
+<p class="font-semibold text-on-surface">Reward Redemption</p>
+<p class="text-outline text-xs truncate w-32">Amazon $50 Gift Card</p>
+</div>
+</div>
+</td>
+<td class="py-md">
+<div class="flex items-center gap-2">
+<img class="w-6 h-6 rounded-full object-cover" data-alt="A tiny portrait photo of a young professional woman in a modern startup office environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpb_aH93mfQr-uqNCoofznddt1rlUTM2stvA4xNmtiwRUu3nD4Mh8LAGUbV0OBn1Bi7OIlZW8yoDBnq3_28Nfitl3SMpm3qOm81NnI6q6-L3VnF3dMlzupTYVj5YJqAdx9dCAcwU9gjRIb8wSy7h3bUGuLDrmjcuVf1w3C1gjsXVUku_akjJgI7ZUIzvOrkt2CRj81UzAIznGe8OZq73zvE0NTJACHTJT_YgcL1M4zSpNWaO5Vpqdb">
+<span class="material-symbols-outlined text-outline text-xs">arrow_forward</span>
+<span class="text-on-surface-variant text-sm">Vendor</span>
+</div>
+</td>
+<td class="py-md font-semibold text-error">-1000 pts</td>
+<td class="py-md text-on-surface-variant">3 hrs ago</td>
+<td class="py-md text-right">
+<span class="inline-block px-2 py-1 rounded-full bg-outline-variant/30 text-on-surface-variant font-label-md text-[10px]">Pending</span>
+</td>
+</tr>
+<tr class="border-b border-outline-variant/10 hover:bg-primary/5 transition-colors group cursor-pointer">
+<td class="py-md">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-sm">auto_awesome</span>
+</div>
+<div>
+<p class="font-semibold text-on-surface">Manager Award</p>
+<p class="text-outline text-xs truncate w-32">"Exemplary leadership..."</p>
+</div>
+</div>
+</td>
+<td class="py-md">
+<div class="flex items-center gap-2">
+<img class="w-6 h-6 rounded-full object-cover" data-alt="A tiny portrait photo of a male executive in a sharp suit against a white wall." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuVKqKm1HcEPyPfQOQxcBIU3klTAcWh_1shLn1U9dHnD5ggr6F-YcL19xbQWuDH7qArx_0SvuHi8ZCKv4_TgMA4nHJoA3wtJRSRGelFUcNq7dTtJweJNLD00QbZVJ618r8uXiMEcHMYg1M3e4gftpXKC_eSv2LsQhbPxrOoEuTHJdA4AqtRkzQFlm6dwvCkpA6g9DpdvlLq3p5xZ9RkVg7K2kBtFliWtCZ0Fza-7Duat6neC0QCywb">
+<span class="material-symbols-outlined text-outline text-xs">arrow_forward</span>
+<img class="w-6 h-6 rounded-full object-cover" data-alt="A tiny portrait photo of a professional woman with glasses smiling warmly against a bright window." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQVRIBO5Fki5cDjieDWzvrs7M_eANB_5XgqIha_czV89sC_sOfkGzQGBfB5fuDjOLOVVtXEj7kx7S2gaLAfPTrHaJaZiGma6-wteHlIXPbVc132_tbrzvDhNpY__EVahO18AYJt55iIn0D_waFJBOCyiebOHToBJ43EF_HXZXmfu4xtFaPpetS3lbE8YMYex6frDVuboRIPe2OmlH8Yzhi3V1eoB5KhgR_2yslFUKidtrBWed2XXb7">
+</div>
+</td>
+<td class="py-md font-semibold text-on-surface">+1000 pts</td>
+<td class="py-md text-on-surface-variant">Yesterday</td>
+<td class="py-md text-right">
+<span class="inline-block px-2 py-1 rounded-full bg-[#16a34a]/10 text-[#16a34a] font-label-md text-[10px]">Settled</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Right Column: Recognition Feed -->
+<div class="glass-panel rounded-xl soft-shadow p-lg flex flex-col h-[600px]">
+<div class="flex justify-between items-center mb-md pb-md border-b border-outline-variant/30">
+<h3 class="font-title-lg text-title-lg text-on-background">Live Feed</h3>
+<span class="flex h-3 w-3 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+</span>
+</div>
+<div class="flex-1 overflow-auto space-y-md pr-2">
+<!-- Feed Card 1 -->
+<div class="glass-card p-md rounded-lg border border-outline-variant/20 hover:border-primary/30 transition-colors">
+<div class="flex items-start gap-md">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="A clear, well-lit square profile picture of a young male professional smiling." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjm7wJVwgIuIzCc9FFYJW-rtQclLsSSgEzUh85voWLNWete0EPUFZakcRJQrDNU-YoxoZ41SMbCCHRyafXFROqRHaICPYTLiyFg1dmtzft-dm20u4955ddMQf7AGGkHEHfcAdqsgdG6X-PhHTjc9EfOgS4vtV2u21tXKCGPxJVlkOEvPLmHXzLDktAntKmPDKBQuiMmlZpP7Z6imzvzBFT6Vf9ZHbP7WxtFbu_1eq8DRITL6ALgxBN">
+<div>
+<p class="font-body-md text-body-md">
+<span class="font-semibold text-on-background">Alex Rivera</span> recognized <span class="font-semibold text-on-background">Sarah Chen</span>
+</p>
+<p class="font-label-md text-label-md text-outline mt-1 mb-2">2 hours ago • Core Value: Teamwork</p>
+<p class="font-body-md text-body-md text-on-surface-variant">"Huge thanks to Sarah for staying late to help squash those final bugs before the release. Couldn't have shipped without you! 🚀"</p>
+<div class="mt-sm flex gap-sm">
+<span class="inline-block px-2 py-1 rounded-md bg-primary/10 text-primary font-label-md text-[10px]">+500 pts</span>
+<button class="flex items-center gap-1 text-outline hover:text-primary transition-colors text-xs">
+<span class="material-symbols-outlined text-[14px]">favorite</span> 12
+                                        </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Feed Card 2 -->
+<div class="glass-card p-md rounded-lg border border-outline-variant/20 hover:border-primary/30 transition-colors">
+<div class="flex items-start gap-md">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-outline font-bold">HR</div>
+<div>
+<p class="font-body-md text-body-md">
+<span class="font-semibold text-on-background">System</span> recognized <span class="font-semibold text-on-background">Marcus Johnson</span>
+</p>
+<p class="font-label-md text-label-md text-outline mt-1 mb-2">5 hours ago • Milestone</p>
+<p class="font-body-md text-body-md text-on-surface-variant">"Happy 5 Year Work Anniversary, Marcus! Thank you for your continued dedication and excellence. 🎉"</p>
+<div class="mt-sm flex gap-sm">
+<span class="inline-block px-2 py-1 rounded-md bg-secondary/10 text-secondary font-label-md text-[10px]">+5000 pts</span>
+<button class="flex items-center gap-1 text-outline hover:text-primary transition-colors text-xs">
+<span class="material-symbols-outlined text-[14px]">favorite</span> 45
+                                        </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

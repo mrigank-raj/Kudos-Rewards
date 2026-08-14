@@ -1,0 +1,348 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>People &amp; Teams - Kudos</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-primary": "#c0c1ff",
+                        "on-surface-variant": "#464554",
+                        "tertiary-fixed-dim": "#ffb783",
+                        "primary": "#4648d4",
+                        "surface-container-highest": "#e4e1ed",
+                        "on-secondary-fixed": "#2c0051",
+                        "on-error-container": "#93000a",
+                        "error": "#ba1a1a",
+                        "tertiary": "#904900",
+                        "on-background": "#1b1b23",
+                        "surface-variant": "#e4e1ed",
+                        "surface-bright": "#fcf8ff",
+                        "outline": "#767586",
+                        "on-secondary-container": "#fffbff",
+                        "surface-container": "#efecf8",
+                        "on-surface": "#1b1b23",
+                        "on-tertiary": "#ffffff",
+                        "surface-tint": "#494bd6",
+                        "inverse-on-surface": "#f2effb",
+                        "secondary-fixed-dim": "#ddb7ff",
+                        "background": "#fcf8ff",
+                        "on-primary-fixed": "#07006c",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed": "#f0dbff",
+                        "primary-fixed": "#e1e0ff",
+                        "surface": "#fcf8ff",
+                        "outline-variant": "#c7c4d7",
+                        "on-primary-container": "#fffbff",
+                        "surface-container-high": "#e9e6f3",
+                        "surface-dim": "#dbd8e4",
+                        "tertiary-container": "#b55d00",
+                        "error-container": "#ffdad6",
+                        "primary-container": "#6063ee",
+                        "primary-fixed-dim": "#c0c1ff",
+                        "surface-container-low": "#f5f2fe",
+                        "on-tertiary-container": "#fffbff",
+                        "on-primary-fixed-variant": "#2f2ebe",
+                        "on-tertiary-fixed-variant": "#703700",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#303038",
+                        "secondary-container": "#9c48ea",
+                        "secondary": "#8127cf",
+                        "on-secondary-fixed-variant": "#6900b3",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed": "#301400",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed": "#ffdcc5"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "8px",
+                        "unit": "4px",
+                        "3xl": "64px",
+                        "container-max": "1440px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "xs": "4px",
+                        "2xl": "48px",
+                        "xl": "32px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "title-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md antialiased pb-2xl md:pb-0">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-md h-16 bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-xl border-b border-white/40 dark:border-white/10 shadow-sm hidden md:flex">
+<div class="flex items-center gap-sm cursor-pointer" onclick="document.getElementById('nav-drawer').classList.toggle('-translate-x-full')">
+<span class="material-symbols-outlined text-primary dark:text-inverse-primary" data-icon="menu">menu</span>
+<span class="font-display-lg text-display-lg font-extrabold text-primary dark:text-primary-fixed">Kudos</span>
+</div>
+<div>
+<span class="material-symbols-outlined text-primary dark:text-inverse-primary hover:bg-primary/5 dark:hover:bg-primary-fixed/10 transition-colors p-sm rounded-full cursor-pointer active:scale-95 duration-200 transition-transform" data-icon="notifications">notifications</span>
+</div>
+</header>
+<!-- TopAppBar Mobile -->
+<header class="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-md h-16 bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-xl border-b border-white/40 dark:border-white/10 shadow-sm md:hidden">
+<div class="flex items-center gap-sm">
+<span class="font-display-lg text-display-lg font-extrabold text-primary dark:text-primary-fixed">Kudos</span>
+</div>
+<div>
+<span class="material-symbols-outlined text-primary dark:text-inverse-primary p-sm" data-icon="notifications">notifications</span>
+</div>
+</header>
+<!-- NavigationDrawer (Desktop) -->
+<aside class="fixed inset-y-0 left-0 z-[60] flex flex-col p-md h-full w-72 rounded-r-xl border-r border-white/40 dark:border-white/10 shadow-2xl bg-surface/90 dark:bg-surface-dim/90 backdrop-blur-2xl transition-transform duration-300 ease-in-out transform -translate-x-full md:translate-x-0 pt-24 hidden md:flex" id="nav-drawer">
+<div class="flex items-center gap-md mb-xl p-sm">
+<img class="w-12 h-12 rounded-full object-cover border border-outline-variant" data-alt="A professional headshot of a corporate administrator named Alex Rivers, smiling confidently. Bright, modern lighting, clear background, high resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWNl3OcMaYb3Yj3n3SppththXRSmqNBDHYEX_NWXZiDZ4MUkNWXepKZYfBZBJWTt1WW-5jpk_t0wvWwIH2ue0Vw4q5lOfJjg58TCJAf_rd3Yet3dsAYUzcOyjujRR3Mo0GoXWIbMoBVjqXHhqzhcB-mxAKv_qADQn1yh4jrGC26wohx--4xGNE-cdLK6-Yi99u6S6PWF6MWayeyMeD3nRFJyTeuDR0Vf2T-IojLXCIIu_6n8PYkP6m">
+<div>
+<p class="font-title-lg text-title-lg text-on-surface">Alex Rivers</p>
+<p class="font-body-md text-body-md text-on-surface-variant">Administrator</p>
+<p class="font-label-md text-label-md text-primary mt-xs">1,240 pts</p>
+</div>
+</div>
+<nav class="flex flex-col gap-sm">
+<a class="flex items-center gap-md p-sm rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-variant/20 hover:backdrop-brightness-110 transition-all font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-md p-sm rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-variant/20 hover:backdrop-brightness-110 transition-all font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="workspace_premium">workspace_premium</span>
+                Programs
+            </a>
+<a class="flex items-center gap-md p-sm rounded-lg bg-primary-container/30 text-on-primary-fixed-variant font-bold hover:backdrop-brightness-110 transition-all font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="group" style="font-variation-settings: 'FILL' 1;">group</span>
+                People
+            </a>
+<a class="flex items-center gap-md p-sm rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-variant/20 hover:backdrop-brightness-110 transition-all font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+                Analytics
+            </a>
+<a class="flex items-center gap-md p-sm rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-variant/20 hover:backdrop-brightness-110 transition-all font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="redeem">redeem</span>
+                Catalog
+            </a>
+<a class="flex items-center gap-md p-sm rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-variant/20 hover:backdrop-brightness-110 transition-all font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+                History
+            </a>
+<a class="flex items-center gap-md p-sm rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-variant/20 hover:backdrop-brightness-110 transition-all font-label-md text-label-md mt-auto" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                Settings
+            </a>
+</nav>
+</aside>
+<!-- Main Content -->
+<main class="pt-20 px-lg md:ml-72 max-w-container-max mx-auto min-h-screen">
+<!-- Header Section -->
+<div class="mb-xl flex flex-col md:flex-row md:items-center justify-between gap-md">
+<div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface">People &amp; Teams</h1>
+<p class="text-on-surface-variant mt-xs">Manage employees, teams, and allocate points.</p>
+</div>
+<div class="flex items-center gap-sm">
+<button class="bg-primary text-on-primary px-md py-sm rounded-lg font-label-md text-label-md hover:bg-primary/90 transition-colors flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]" data-icon="add">add</span>
+                    Add Employee
+                </button>
+</div>
+</div>
+<!-- Search & Filter Bar -->
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-sm mb-lg flex flex-col md:flex-row gap-sm shadow-sm">
+<div class="relative flex-grow">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+<input class="w-full pl-xl pr-sm py-sm rounded-lg border-outline-variant/50 focus:border-primary focus:ring-2 focus:ring-primary/20 bg-transparent text-on-surface placeholder:text-outline transition-all" placeholder="Search employees by name, role, or department..." type="text">
+</div>
+<div class="flex gap-sm">
+<button class="flex items-center gap-xs px-md py-sm border border-outline-variant/50 rounded-lg text-on-surface hover:bg-surface-variant/30 transition-colors bg-surface-container-lowest">
+<span class="material-symbols-outlined text-[18px]" data-icon="filter_list">filter_list</span>
+<span class="font-label-md text-label-md hidden md:inline">Filters</span>
+</button>
+<button class="flex items-center gap-xs px-md py-sm border border-outline-variant/50 rounded-lg text-on-surface hover:bg-surface-variant/30 transition-colors bg-surface-container-lowest">
+<span class="material-symbols-outlined text-[18px]" data-icon="group_work">group_work</span>
+<span class="font-label-md text-label-md hidden md:inline">Departments</span>
+</button>
+</div>
+</div>
+<!-- Data Table (Desktop & Tablet) / Card List (Mobile) -->
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-sm overflow-hidden backdrop-blur-md">
+<!-- Table Header (Hidden on Mobile) -->
+<div class="hidden md:grid grid-cols-12 gap-sm px-md py-sm bg-surface-container/50 border-b border-outline-variant/30 font-label-md text-label-md text-on-surface-variant">
+<div class="col-span-1 flex items-center justify-center">
+<input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox">
+</div>
+<div class="col-span-4 flex items-center">Employee</div>
+<div class="col-span-2 flex items-center">Role / Dept</div>
+<div class="col-span-2 flex items-center justify-end">Points Balance</div>
+<div class="col-span-3 flex items-center justify-end pr-sm">Actions</div>
+</div>
+<!-- List Items -->
+<div class="flex flex-col divide-y divide-outline-variant/20">
+<!-- Row 1 -->
+<div class="group flex flex-col md:grid md:grid-cols-12 gap-sm p-md md:p-sm hover:bg-primary/5 transition-colors items-center relative">
+<div class="hidden md:flex col-span-1 items-center justify-center">
+<input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox">
+</div>
+<div class="w-full md:w-auto md:col-span-4 flex items-center gap-md">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="A professional headshot of a smiling young woman with dark hair in a bright office setting. Corporate attire, clear lighting, modern tech vibe." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVGSOAmwsPdQeo4Ma09pP3mx_i3Zukk6MCCEsyrhbzPSvZJiB8dc_BKjiBkk17tUW_BxDI4TQf9eNNcLPYrKOEF0iqAImOpNopFNPYgbW8v2IWKRiQerfEpAjYmhPLTDNXS9yY5Vwa4vxEOFm-K9AGy-4Cb6eDLkboCWrFgrutjCGEUdWlbX2hm4CN8tZ3tNaPfaxyRcM0MBWKcIjm-3CwpofyPnsOPMhBHwEAHmC50Vvw9Y81WYZ3">
+<div>
+<p class="font-title-lg text-title-lg md:font-body-md md:text-body-md font-semibold text-on-surface">Sarah Jenkins</p>
+<p class="font-body-md text-body-md md:hidden text-on-surface-variant">Product Designer • Design</p>
+</div>
+</div>
+<div class="hidden md:flex col-span-2 flex-col justify-center">
+<span class="text-on-surface">Product Designer</span>
+<span class="text-on-surface-variant text-xs">Design</span>
+</div>
+<div class="w-full md:w-auto md:col-span-2 flex justify-between md:justify-end items-center mt-sm md:mt-0">
+<span class="md:hidden font-label-md text-label-md text-on-surface-variant">Balance:</span>
+<span class="font-title-lg text-title-lg md:font-body-md md:text-body-md font-bold text-primary bg-primary/10 px-sm py-xs rounded-lg">4,250</span>
+</div>
+<div class="w-full md:w-auto md:col-span-3 flex justify-end items-center gap-sm mt-sm md:mt-0 pt-sm md:pt-0 border-t border-outline-variant/20 md:border-t-0">
+<button class="flex-1 md:flex-none flex items-center justify-center gap-xs px-sm py-xs text-primary border border-primary/30 rounded-lg hover:bg-primary/10 transition-colors font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px]" data-icon="add_circle">add_circle</span>
+                            Credit
+                        </button>
+<button class="p-xs text-on-surface-variant hover:bg-surface-variant/50 rounded-lg transition-colors">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Row 2 -->
+<div class="group flex flex-col md:grid md:grid-cols-12 gap-sm p-md md:p-sm hover:bg-primary/5 transition-colors items-center relative">
+<div class="hidden md:flex col-span-1 items-center justify-center">
+<input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox">
+</div>
+<div class="w-full md:w-auto md:col-span-4 flex items-center gap-md">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="A professional headshot of a middle-aged man with glasses, wearing a smart casual shirt in a well-lit startup environment. Friendly expression, high quality." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZx-LTUGHkH-nX4L2WPcQzgm_FiPVG8VDwNhpFxmnKL8sGpRVsB0giLBMlQyZR6Pe8avaGVMbn5ejXLgkgs8IkNjG5uZK6Ujgnn_wi_I1lmQxz5OFZDd1Xe_EOTdSxm6jrh-PK0yKXhdFRL_Gn_QA4kIWV5EAUvBul5qYTOrcFZ4DyRVyolJTPr8yIN3QghxYT8w55Bc5BKYzg8hAF4qNpXEQ9OHAoQnexPf8CRGUSdvy0Rwj_4AIr">
+<div>
+<p class="font-title-lg text-title-lg md:font-body-md md:text-body-md font-semibold text-on-surface">Marcus Chen</p>
+<p class="font-body-md text-body-md md:hidden text-on-surface-variant">Senior Engineer • Engineering</p>
+</div>
+</div>
+<div class="hidden md:flex col-span-2 flex-col justify-center">
+<span class="text-on-surface">Senior Engineer</span>
+<span class="text-on-surface-variant text-xs">Engineering</span>
+</div>
+<div class="w-full md:w-auto md:col-span-2 flex justify-between md:justify-end items-center mt-sm md:mt-0">
+<span class="md:hidden font-label-md text-label-md text-on-surface-variant">Balance:</span>
+<span class="font-title-lg text-title-lg md:font-body-md md:text-body-md font-bold text-primary bg-primary/10 px-sm py-xs rounded-lg">1,120</span>
+</div>
+<div class="w-full md:w-auto md:col-span-3 flex justify-end items-center gap-sm mt-sm md:mt-0 pt-sm md:pt-0 border-t border-outline-variant/20 md:border-t-0">
+<button class="flex-1 md:flex-none flex items-center justify-center gap-xs px-sm py-xs text-primary border border-primary/30 rounded-lg hover:bg-primary/10 transition-colors font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px]" data-icon="add_circle">add_circle</span>
+                            Credit
+                        </button>
+<button class="p-xs text-on-surface-variant hover:bg-surface-variant/50 rounded-lg transition-colors">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Row 3 -->
+<div class="group flex flex-col md:grid md:grid-cols-12 gap-sm p-md md:p-sm hover:bg-primary/5 transition-colors items-center relative">
+<div class="hidden md:flex col-span-1 items-center justify-center">
+<input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox">
+</div>
+<div class="w-full md:w-auto md:col-span-4 flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold">
+                            EJ
+                        </div>
+<div>
+<p class="font-title-lg text-title-lg md:font-body-md md:text-body-md font-semibold text-on-surface">Elena Jackson</p>
+<p class="font-body-md text-body-md md:hidden text-on-surface-variant">Marketing Manager • Marketing</p>
+</div>
+</div>
+<div class="hidden md:flex col-span-2 flex-col justify-center">
+<span class="text-on-surface">Marketing Manager</span>
+<span class="text-on-surface-variant text-xs">Marketing</span>
+</div>
+<div class="w-full md:w-auto md:col-span-2 flex justify-between md:justify-end items-center mt-sm md:mt-0">
+<span class="md:hidden font-label-md text-label-md text-on-surface-variant">Balance:</span>
+<span class="font-title-lg text-title-lg md:font-body-md md:text-body-md font-bold text-primary bg-primary/10 px-sm py-xs rounded-lg">8,400</span>
+</div>
+<div class="w-full md:w-auto md:col-span-3 flex justify-end items-center gap-sm mt-sm md:mt-0 pt-sm md:pt-0 border-t border-outline-variant/20 md:border-t-0">
+<button class="flex-1 md:flex-none flex items-center justify-center gap-xs px-sm py-xs text-primary border border-primary/30 rounded-lg hover:bg-primary/10 transition-colors font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px]" data-icon="add_circle">add_circle</span>
+                            Credit
+                        </button>
+<button class="p-xs text-on-surface-variant hover:bg-surface-variant/50 rounded-lg transition-colors">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Pagination -->
+<div class="flex items-center justify-between p-md border-t border-outline-variant/30 bg-surface-container-lowest">
+<span class="text-on-surface-variant font-label-md text-label-md">Showing 1 to 3 of 42 entries</span>
+<div class="flex gap-xs">
+<button class="p-xs rounded-lg border border-outline-variant/50 text-on-surface-variant hover:bg-surface-variant/30 disabled:opacity-50">
+<span class="material-symbols-outlined text-[18px]" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="px-sm py-xs rounded-lg bg-primary text-on-primary font-label-md text-label-md">1</button>
+<button class="px-sm py-xs rounded-lg border border-outline-variant/50 text-on-surface hover:bg-surface-variant/30 font-label-md text-label-md">2</button>
+<button class="px-sm py-xs rounded-lg border border-outline-variant/50 text-on-surface hover:bg-surface-variant/30 font-label-md text-label-md">3</button>
+<button class="p-xs rounded-lg border border-outline-variant/50 text-on-surface-variant hover:bg-surface-variant/30">
+<span class="material-symbols-outlined text-[18px]" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-sm py-xs bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-lg border-t border-white/40 dark:border-white/10 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] rounded-t-xl md:hidden">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed active:scale-90 transition-all duration-150 p-sm" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-md text-label-md mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed bg-primary/10 rounded-xl px-4 py-1 active:scale-90 transition-all duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="group" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="font-label-md text-label-md mt-1 font-bold">People</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed active:scale-90 transition-all duration-150 p-sm" href="#">
+<span class="material-symbols-outlined" data-icon="stars">stars</span>
+<span class="font-label-md text-label-md mt-1">Rewards</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed active:scale-90 transition-all duration-150 p-sm" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-md text-label-md mt-1">Profile</span>
+</a>
+</nav>
+</body></html>

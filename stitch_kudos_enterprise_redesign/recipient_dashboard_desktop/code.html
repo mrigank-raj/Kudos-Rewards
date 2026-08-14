@@ -1,0 +1,346 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Kudos Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#fffbff",
+                        "background": "#fcf8ff",
+                        "secondary-fixed-dim": "#ddb7ff",
+                        "on-primary-fixed": "#07006c",
+                        "on-error-container": "#93000a",
+                        "on-primary-container": "#fffbff",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed-variant": "#6900b3",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#e4e1ed",
+                        "outline-variant": "#c7c4d7",
+                        "surface-container-low": "#f5f2fe",
+                        "on-surface": "#1b1b23",
+                        "tertiary": "#904900",
+                        "error-container": "#ffdad6",
+                        "inverse-surface": "#303038",
+                        "on-secondary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb783",
+                        "inverse-primary": "#c0c1ff",
+                        "secondary-container": "#9c48ea",
+                        "on-secondary-fixed": "#2c0051",
+                        "on-tertiary-container": "#fffbff",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#ffdcc5",
+                        "primary-fixed-dim": "#c0c1ff",
+                        "secondary": "#8127cf",
+                        "secondary-fixed": "#f0dbff",
+                        "surface-container-high": "#e9e6f3",
+                        "on-primary-fixed-variant": "#2f2ebe",
+                        "inverse-on-surface": "#f2effb",
+                        "primary-fixed": "#e1e0ff",
+                        "on-background": "#1b1b23",
+                        "on-tertiary-fixed-variant": "#703700",
+                        "primary-container": "#6063ee",
+                        "tertiary-container": "#b55d00",
+                        "primary": "#4648d4",
+                        "surface-variant": "#e4e1ed",
+                        "surface-dim": "#dbd8e4",
+                        "error": "#ba1a1a",
+                        "on-surface-variant": "#464554",
+                        "surface": "#fcf8ff",
+                        "surface-bright": "#fcf8ff",
+                        "surface-container": "#efecf8",
+                        "on-tertiary-fixed": "#301400",
+                        "surface-tint": "#494bd6",
+                        "outline": "#767586"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1440px",
+                        "sm": "8px",
+                        "lg": "24px",
+                        "xs": "4px",
+                        "3xl": "64px",
+                        "xl": "32px",
+                        "md": "16px",
+                        "unit": "4px",
+                        "2xl": "48px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "title-lg": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-panel {
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased min-h-screen">
+<!-- TopAppBar -->
+<header class="bg-surface/60 backdrop-blur-lg fixed top-0 right-0 left-64 h-16 border-b border-outline-variant/20 shadow-sm flex justify-between items-center px-lg w-auto z-40 text-primary font-title-lg text-title-lg">
+<div class="flex items-center gap-md w-full">
+<!-- Search Bar (on_left configuration) -->
+<div class="relative w-96 flex-grow max-w-md">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full bg-surface-container-highest border border-outline-variant rounded-full py-2 pl-xl pr-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all font-body-md text-body-md" placeholder="Search..." type="text">
+</div>
+<div class="flex-grow"></div>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-md">
+<button class="p-2 rounded-full hover:bg-surface-container-high transition-all active:opacity-80 text-on-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 rounded-full hover:bg-surface-container-high transition-all active:opacity-80 text-on-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="h-8 w-8 rounded-full overflow-hidden border border-outline-variant">
+<img alt="Manager Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a smiling manager with short brown hair, wearing a navy blue blazer over a white shirt, against a soft, out-of-focus light gray office background. The lighting is bright and even, creating a modern, approachable corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNSyDixKRi-PKd331yy-WgzshtbA8p4Z6xxEjpdLp7o2CIRBpsYIJKq_C6MctVVRfTqeFyyz-kUeKO48m-mfBlxkjSj1jDO0bBTwLsRIj56jAX1plhVqGfZxoWZogeHqOuMYSlRjqBedLzsAf88CqLjNuPQWNLbzpiYpBRhmHJaDRwU3T1fcznRfieJZfSEISQwh_H9a_K9x81Q9fVKELMvfFyTm1D39yN_NhM1VyoGv-RWCQnOnwo">
+</div>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<nav class="bg-surface/80 backdrop-blur-xl text-primary font-body-md text-body-md fixed left-0 top-0 h-full w-64 border-r border-outline-variant/30 shadow-xl flex flex-col py-lg px-md z-50">
+<!-- Header -->
+<div class="mb-xl px-sm flex items-center gap-sm">
+<div class="w-10 h-10 rounded-lg bg-primary text-on-primary flex items-center justify-center font-bold text-lg shadow-sm">
+                K
+            </div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Kudos</h1>
+<p class="font-label-md text-label-md text-on-surface-variant">Enterprise Rewards</p>
+</div>
+</div>
+<!-- Primary Tabs -->
+<ul class="flex-grow space-y-xs">
+<li>
+<a class="flex items-center gap-md px-sm py-2 rounded-lg text-primary font-semibold border-r-2 border-primary hover:bg-primary/5 transition-colors active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+                    Dashboard
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-sm py-2 rounded-lg text-on-surface-variant hover:text-primary hover:bg-primary/5 transition-colors active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined">military_tech</span>
+                    Programs
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-sm py-2 rounded-lg text-on-surface-variant hover:text-primary hover:bg-primary/5 transition-colors active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined">group</span>
+                    People
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-sm py-2 rounded-lg text-on-surface-variant hover:text-primary hover:bg-primary/5 transition-colors active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined">analytics</span>
+                    Analytics
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-sm py-2 rounded-lg text-on-surface-variant hover:text-primary hover:bg-primary/5 transition-colors active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined">redeem</span>
+                    Catalog
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-sm py-2 rounded-lg text-on-surface-variant hover:text-primary hover:bg-primary/5 transition-colors active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined">history</span>
+                    History
+                </a>
+</li>
+</ul>
+<!-- CTA -->
+<div class="mt-lg mb-lg px-sm">
+<button class="w-full bg-primary text-on-primary py-2 rounded-lg font-label-md text-label-md font-bold shadow-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-sm">
+<span class="material-symbols-outlined text-sm">stars</span>
+                Give Kudos
+            </button>
+</div>
+<!-- Footer Tabs -->
+<ul class="border-t border-outline-variant/30 pt-lg space-y-xs">
+<li>
+<a class="flex items-center gap-md px-sm py-2 rounded-lg text-on-surface-variant hover:text-primary hover:bg-primary/5 transition-colors active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+                    Settings
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-sm py-2 rounded-lg text-on-surface-variant hover:text-primary hover:bg-primary/5 transition-colors active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined">help</span>
+                    Help
+                </a>
+</li>
+</ul>
+</nav>
+<!-- Main Content Area -->
+<main class="ml-64 pt-16 min-h-screen pb-2xl">
+<div class="max-w-container-max mx-auto px-2xl pt-2xl grid grid-cols-12 gap-gutter">
+<!-- Left Column: Hero & Feed -->
+<div class="col-span-12 lg:col-span-8 flex flex-col gap-lg">
+<!-- Hero: Current Balance -->
+<section class="glass-panel bg-gradient-to-br from-primary-container/20 via-surface to-secondary-container/10 rounded-xl p-lg relative overflow-hidden flex flex-col justify-between min-h-[200px]">
+<div class="absolute -right-10 -top-10 opacity-20 pointer-events-none">
+<span class="material-symbols-outlined text-9xl text-primary">auto_awesome</span>
+</div>
+<div>
+<h2 class="font-title-lg text-title-lg text-on-surface-variant mb-xs">Current Balance</h2>
+<div class="font-display-lg text-display-lg text-on-surface flex items-baseline gap-sm">
+                            12,450 <span class="font-title-lg text-title-lg text-primary">pts</span>
+</div>
+</div>
+<div class="mt-md flex gap-md">
+<button class="bg-primary text-on-primary px-lg py-2 rounded-lg font-label-md text-label-md shadow-sm hover:opacity-90 transition-all active:scale-95">
+                            Redeem Points
+                        </button>
+<button class="bg-surface/50 border border-primary text-primary px-lg py-2 rounded-lg font-label-md text-label-md hover:bg-primary/5 transition-all active:scale-95">
+                            View Options
+                        </button>
+</div>
+</section>
+<!-- Recognition Feed Header -->
+<div class="flex justify-between items-end mt-md border-b border-outline-variant/30 pb-sm">
+<h3 class="font-headline-md text-headline-md text-on-surface">Recent Recognition</h3>
+<div class="flex gap-sm">
+<button class="text-primary font-label-md text-label-md hover:underline">Filter</button>
+</div>
+</div>
+<!-- Feed List -->
+<div class="flex flex-col gap-md">
+<!-- Feed Card 1 -->
+<article class="glass-panel bg-surface rounded-xl p-md flex gap-md hover:bg-surface-container-low transition-colors duration-200">
+<!-- Avatars Area -->
+<div class="flex-shrink-0 relative w-12 h-12">
+<img alt="Sender" class="w-10 h-10 rounded-full border-2 border-surface absolute top-0 left-0 object-cover z-10" data-alt="A portrait of an Asian male software engineer with glasses, smiling genuinely, set against a bright, modern office window. Professional lighting with a soft depth of field." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVG-WfLlxFTzYV77q9RZacQNWfq-hhAPiBqoQW8LeGJFMNWOgmXMmvQjye-6G8n1TIEXNI57ar_fBxFQA_GP3HSyYgjvmyQRc355YD96Wq6Ubb9YgFQqSGlDVroxpOWwgkEs1qmMdd0smHQC2APw6Bl746sGjOXQcAYrOIlAR3f_6OTvkYSIo-HM3NER0mKEjvi2mspcIZHozBKkTaQg9IrDFriVyVUKYKTDwsmYEXgFBFgTKM9zQ7">
+<img alt="Receiver" class="w-10 h-10 rounded-full border-2 border-surface absolute bottom-0 right-0 object-cover z-0" data-alt="A close-up portrait of a Black female designer with curly natural hair, wearing a vibrant mustard yellow top, set against a clean white backdrop. Soft, flattering high-key lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrZdHw1NnlDs8o3dRaRNISxgvdfKvl0AzIzJmQfYyifqjSKBIAS_fmPF3OM4q4WOLE2Z6K4JEMF_ZHsVkch8A6WIQDybllkrmIOxKqOrIvEXLgn1sKbHTrNg_nqu3zVkDNF6NBqUvq8hhyRuVqihwIoEQfk5LU8FxM9sWZ3TSA6F10Ojh5ey85DUfp4P-1NL5YTGhQUMx6QE5yStsgYF-hu15xhQmbHJkHw0K9c_gvVW2TllGr5zC8">
+</div>
+<!-- Content -->
+<div class="flex-grow">
+<div class="flex justify-between items-start mb-xs">
+<div>
+<p class="font-body-md text-body-md text-on-surface">
+<span class="font-semibold">David Lee</span> recognized <span class="font-semibold">Sarah Jenkins</span>
+</p>
+<p class="font-label-md text-label-md text-on-surface-variant">2 hours ago • Core Value: Innovation</p>
+</div>
+<span class="bg-secondary-container/20 text-secondary border border-secondary/30 px-2 py-1 rounded font-label-md text-label-md flex items-center gap-1">
+                                    +500 <span class="material-symbols-outlined text-[14px]">stars</span>
+</span>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface mt-sm">
+                                Huge thanks to Sarah for stepping up and leading the UI overhaul on the new analytics dashboard. Your attention to detail and creative problem-solving made a massive impact on the final delivery! 🚀
+                            </p>
+<!-- Interaction Bar -->
+<div class="flex gap-lg mt-md text-on-surface-variant font-label-md text-label-md">
+<button class="flex items-center gap-1 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">favorite</span> 12
+                                </button>
+<button class="flex items-center gap-1 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">chat_bubble</span> 3
+                                </button>
+</div>
+</div>
+</article>
+<!-- Feed Card 2 -->
+<article class="glass-panel bg-surface rounded-xl p-md flex gap-md hover:bg-surface-container-low transition-colors duration-200">
+<!-- Avatars Area -->
+<div class="flex-shrink-0 relative w-12 h-12">
+<img alt="Sender" class="w-10 h-10 rounded-full border-2 border-surface absolute top-0 left-0 object-cover z-10" data-alt="A professional headshot of a smiling manager with short brown hair, wearing a navy blue blazer over a white shirt, against a soft, out-of-focus light gray office background. The lighting is bright and even, creating a modern, approachable corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGhkhsWnVQF0snh6Ck8qN-tn7VX6bb6RKSsRMRb8suu2AS9j8n_MrUZzGhgVhT1iOBiufQnmltlP1-Z1XUcMyIRffZl-7UdY1lB_3k0c0aWQlpKpMKccXyLEZZ5aAzpk1XmGvQbz-qebTvRbmr6L7Oe4wEG427ER5KnDfcarNfy-g0rh6BWpDMeR1fKIwdv-CgyBmcZ5WbIqa1XBYD0aDpL8aZWrdO3mnbjWAjZTDFFH4NI6rIusw6">
+<img alt="Receiver" class="w-10 h-10 rounded-full border-2 border-surface absolute bottom-0 right-0 object-cover z-0" data-alt="A portrait of an Asian male software engineer with glasses, smiling genuinely, set against a bright, modern office window. Professional lighting with a soft depth of field." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCC2Qt1l4ljbjsFSj4nkYNcO-A12TkruNAaNvyfpOZL098jvmODHbDayJcCGejWnMVwsq8chs1tNXs-0kgutqETCiD9OZ-zxYbqo75krmgg2CdHD2FMJADjR21Fb5tJFXJM-FaSH9JF-O0_om4xJ8L5M9y9AiQxO19g98nKqqkm-PGTEdK3QNZOwWtzj0L7v5yWFecUaUnhVeDYmQepd2MAGlwY9T2diH8Hd6S3JmR8iZJKs7SkYPJi">
+</div>
+<!-- Content -->
+<div class="flex-grow">
+<div class="flex justify-between items-start mb-xs">
+<div>
+<p class="font-body-md text-body-md text-on-surface">
+<span class="font-semibold">Alex Manager</span> recognized <span class="font-semibold">David Lee</span>
+</p>
+<p class="font-label-md text-label-md text-on-surface-variant">Yesterday • Spot Award</p>
+</div>
+<span class="bg-primary-container/20 text-primary border border-primary/30 px-2 py-1 rounded font-label-md text-label-md flex items-center gap-1">
+                                    +1000 <span class="material-symbols-outlined text-[14px]">stars</span>
+</span>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface mt-sm">
+                                Recognizing David for his exceptional work resolving the critical database incident over the weekend. True dedication to the team's success.
+                            </p>
+</div>
+</article>
+</div>
+</div>
+<!-- Right Column: Quick Actions & Stats -->
+<div class="col-span-12 lg:col-span-4 flex flex-col gap-lg">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-xs border-b border-outline-variant/30 pb-sm">Quick Actions</h3>
+<div class="grid grid-cols-1 gap-sm">
+<!-- Action 1 -->
+<a class="glass-panel bg-surface hover:bg-surface-container-high transition-all p-md rounded-xl flex items-center gap-md group" href="#">
+<div class="w-10 h-10 rounded bg-primary/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">redeem</span>
+</div>
+<div class="flex-grow">
+<h4 class="font-title-lg text-title-lg text-on-surface">Browse Rewards</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Explore catalog</p>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">chevron_right</span>
+</a>
+<!-- Action 2 -->
+<a class="glass-panel bg-surface hover:bg-surface-container-high transition-all p-md rounded-xl flex items-center gap-md group" href="#">
+<div class="w-10 h-10 rounded bg-secondary/10 text-secondary flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">favorite</span>
+</div>
+<div class="flex-grow">
+<h4 class="font-title-lg text-title-lg text-on-surface">Give Kudos</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Recognize a peer</p>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-secondary transition-colors">chevron_right</span>
+</a>
+<!-- Action 3 -->
+<a class="glass-panel bg-surface hover:bg-surface-container-high transition-all p-md rounded-xl flex items-center gap-md group" href="#">
+<div class="w-10 h-10 rounded bg-tertiary/10 text-tertiary flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">history</span>
+</div>
+<div class="flex-grow">
+<h4 class="font-title-lg text-title-lg text-on-surface">View History</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Past recognitions</p>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-tertiary transition-colors">chevron_right</span>
+</a>
+</div>
+</div>
+</div>
+</main>
+</body></html>

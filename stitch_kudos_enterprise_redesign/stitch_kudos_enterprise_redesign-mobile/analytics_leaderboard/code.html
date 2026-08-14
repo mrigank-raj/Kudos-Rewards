@@ -1,0 +1,416 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Analytics &amp; Leaderboard - Kudos</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-primary": "#c0c1ff",
+                        "on-surface-variant": "#464554",
+                        "tertiary-fixed-dim": "#ffb783",
+                        "primary": "#4648d4",
+                        "surface-container-highest": "#e4e1ed",
+                        "on-secondary-fixed": "#2c0051",
+                        "on-error-container": "#93000a",
+                        "error": "#ba1a1a",
+                        "tertiary": "#904900",
+                        "on-background": "#1b1b23",
+                        "surface-variant": "#e4e1ed",
+                        "surface-bright": "#fcf8ff",
+                        "outline": "#767586",
+                        "on-secondary-container": "#fffbff",
+                        "surface-container": "#efecf8",
+                        "on-surface": "#1b1b23",
+                        "on-tertiary": "#ffffff",
+                        "surface-tint": "#494bd6",
+                        "inverse-on-surface": "#f2effb",
+                        "secondary-fixed-dim": "#ddb7ff",
+                        "background": "#fcf8ff",
+                        "on-primary-fixed": "#07006c",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed": "#f0dbff",
+                        "primary-fixed": "#e1e0ff",
+                        "surface": "#fcf8ff",
+                        "outline-variant": "#c7c4d7",
+                        "on-primary-container": "#fffbff",
+                        "surface-container-high": "#e9e6f3",
+                        "surface-dim": "#dbd8e4",
+                        "tertiary-container": "#b55d00",
+                        "error-container": "#ffdad6",
+                        "primary-container": "#6063ee",
+                        "primary-fixed-dim": "#c0c1ff",
+                        "surface-container-low": "#f5f2fe",
+                        "on-tertiary-container": "#fffbff",
+                        "on-primary-fixed-variant": "#2f2ebe",
+                        "on-tertiary-fixed-variant": "#703700",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#303038",
+                        "secondary-container": "#9c48ea",
+                        "secondary": "#8127cf",
+                        "on-secondary-fixed-variant": "#6900b3",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed": "#301400",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed": "#ffdcc5"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "8px",
+                        "unit": "4px",
+                        "3xl": "64px",
+                        "container-max": "1440px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "xs": "4px",
+                        "2xl": "48px",
+                        "xl": "32px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "title-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: theme('colors.background'); color: theme('colors.on-background'); }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="font-body-md antialiased min-h-screen flex flex-col md:flex-row overflow-x-hidden">
+<!-- Mobile Top App Bar -->
+<header class="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-md h-16 bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-xl border-b border-white/40 dark:border-white/10 shadow-sm md:hidden">
+<button class="text-on-surface-variant dark:text-outline-variant hover:bg-primary/5 dark:hover:bg-primary-fixed/10 transition-colors active:scale-95 duration-200 transition-transform p-sm rounded-full">
+<span class="material-symbols-outlined text-[24px]">menu</span>
+</button>
+<div class="font-headline-md text-headline-md font-extrabold text-primary dark:text-primary-fixed">Kudos</div>
+<button class="text-on-surface-variant dark:text-outline-variant hover:bg-primary/5 dark:hover:bg-primary-fixed/10 transition-colors active:scale-95 duration-200 transition-transform p-sm rounded-full">
+<span class="material-symbols-outlined text-[24px]">notifications</span>
+</button>
+</header>
+<!-- Desktop Navigation Drawer -->
+<nav class="hidden md:flex fixed inset-y-0 left-0 z-[60] flex-col p-md h-full w-72 rounded-r-xl bg-surface/90 dark:bg-surface-dim/90 backdrop-blur-2xl border-r border-white/40 dark:border-white/10 shadow-2xl">
+<div class="flex items-center gap-md mb-xl p-sm">
+<img alt="User Profile" class="w-12 h-12 rounded-full object-cover border-2 border-primary" data-alt="A professional headshot of a corporate administrator in a modern office setting. The lighting is bright and even, highlighting a friendly expression. The background is slightly out of focus, showing a sleek tech environment with white and soft grey tones. Corporate professionalism aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHfrhKJ9aobHB7d4J9y0Kkqix9LxIzPDH1dKTOlHaiJXZVZAqpOs8850pfKrGBy5AkOgklfyhZ4N5lgcJGw2SAbMZ9IK5nIZtwNJoEBGIZz-hFTCLcKtcE2autFrWAuueErNhknhFBjNpkPVOn8nPb842_R6zHGVvpVTYST48o904RUXAwswg3q72Nkmgh5rYPl5iTS-kSl-Rw2DKkZPccC6D2DVETD8Q1bnIsvyRzzE_66-2z5-l4">
+<div>
+<div class="font-title-lg text-title-lg text-primary dark:text-primary-fixed">Alex Rivers</div>
+<div class="font-label-md text-label-md text-on-surface-variant">Administrator</div>
+<div class="font-label-md text-label-md text-primary font-bold mt-xs">1,240 pts</div>
+</div>
+</div>
+<div class="flex flex-col gap-sm flex-1">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-variant/20 hover:backdrop-brightness-110 transition-all duration-300 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">dashboard</span> Dashboard
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-variant/20 hover:backdrop-brightness-110 transition-all duration-300 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">workspace_premium</span> Programs
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-variant/20 hover:backdrop-brightness-110 transition-all duration-300 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">group</span> People
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg bg-primary-container/30 text-on-primary-fixed-variant font-bold hover:backdrop-brightness-110 transition-all duration-300 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span> Analytics
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-variant/20 hover:backdrop-brightness-110 transition-all duration-300 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">redeem</span> Catalog
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-variant/20 hover:backdrop-brightness-110 transition-all duration-300 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">history</span> History
+            </a>
+</div>
+<div class="mt-auto pt-md border-t border-white/40">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-variant/20 hover:backdrop-brightness-110 transition-all duration-300 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">settings</span> Settings
+            </a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 w-full pt-20 md:pt-lg pb-24 md:pb-lg px-md md:px-2xl md:ml-72 transition-all duration-300 max-w-container-max mx-auto">
+<!-- Header & Filters -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-md mb-xl">
+<div>
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">Analytics &amp; Leaderboard</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">Track program engagement and top performers.</p>
+</div>
+<div class="flex items-center gap-sm glass-card rounded-lg p-xs">
+<select class="bg-transparent border-none text-on-surface font-label-md text-label-md focus:ring-0 cursor-pointer pl-sm pr-lg py-sm">
+<option value="30">Last 30 Days</option>
+<option value="90">Last 90 Days</option>
+<option selected="" value="180">Last 6 Months</option>
+<option value="365">Last Year</option>
+</select>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Chart Section (Spans 8 cols on desktop) -->
+<div class="md:col-span-8 glass-card rounded-xl p-md md:p-lg flex flex-col">
+<div class="flex justify-between items-center mb-md border-b border-white/40 pb-sm">
+<h2 class="font-title-lg text-title-lg text-on-surface">Points Activity</h2>
+<button class="text-primary font-label-md text-label-md flex items-center gap-xs hover:bg-primary/5 p-xs rounded-lg transition-colors">
+                        Export <span class="material-symbols-outlined text-[16px]">download</span>
+</button>
+</div>
+<!-- KPIs Summary above chart -->
+<div class="grid grid-cols-2 gap-md mb-lg">
+<div class="bg-surface-container-low rounded-lg p-md border border-white/40">
+<div class="text-on-surface-variant font-label-md text-label-md mb-xs">Issued</div>
+<div class="font-headline-md text-headline-md text-primary">245,500</div>
+<div class="text-xs text-green-600 mt-xs flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">trending_up</span> +12% vs prior</div>
+</div>
+<div class="bg-surface-container-low rounded-lg p-md border border-white/40">
+<div class="text-on-surface-variant font-label-md text-label-md mb-xs">Redeemed</div>
+<div class="font-headline-md text-headline-md text-secondary">182,200</div>
+<div class="text-xs text-green-600 mt-xs flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">trending_up</span> +8% vs prior</div>
+</div>
+</div>
+<div class="flex-1 min-h-[300px] relative w-full">
+<canvas id="pointsChart"></canvas>
+</div>
+</div>
+<!-- Leaderboard Section (Spans 4 cols on desktop) -->
+<div class="md:col-span-4 glass-card rounded-xl p-md md:p-lg flex flex-col">
+<div class="flex justify-between items-center mb-md border-b border-white/40 pb-sm">
+<h2 class="font-title-lg text-title-lg text-on-surface">Top Earners</h2>
+<span class="material-symbols-outlined text-tertiary-container" style="font-variation-settings: 'FILL' 1;">emoji_events</span>
+</div>
+<div class="flex flex-col gap-sm">
+<!-- Rank 1 -->
+<div class="flex items-center gap-md p-sm bg-gradient-to-r from-yellow-500/10 to-transparent rounded-lg border border-yellow-500/20 relative overflow-hidden group">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-yellow-500 rounded-l-lg"></div>
+<div class="font-headline-md text-headline-md text-yellow-600 w-6 text-center">1</div>
+<img alt="Sarah Jenkins" class="w-10 h-10 rounded-full object-cover border-2 border-yellow-500" data-alt="A portrait of a young female professional smiling brightly. She is wearing a modern casual blazer. The background is a well-lit office interior with subtle glass elements. High-quality corporate tech aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQdOHMnRUeeCprllNgveiiRBfUHsZKAs3hL9BgsLyae01FbKK-v1q00B4P9AZ45wcQ6jjZ5Onw7IaawiksNRR4__KSH9wnaPxzcL4Dmv6r-9XFoFSLhYiTSzzO57_5MEWrfqe3rV0zwDlqqAbNVo947bOUPVf9QKcUkbMqsdx_xtJiAklPZVUqp5CFMqqCKbsiUyY-FNeewjkCWGcuKE8_Qvg6_UeEWyPZ6wwiqVsWWaTfz_7kFlOc">
+<div class="flex-1 min-w-0">
+<div class="font-body-md text-body-md font-bold text-on-surface truncate">Sarah J.</div>
+<div class="font-label-md text-label-md text-on-surface-variant truncate">Engineering</div>
+</div>
+<div class="font-body-md text-body-md font-bold text-primary">12.5k</div>
+</div>
+<!-- Rank 2 -->
+<div class="flex items-center gap-md p-sm bg-gradient-to-r from-slate-400/10 to-transparent rounded-lg border border-slate-400/20 relative overflow-hidden group">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-slate-400 rounded-l-lg"></div>
+<div class="font-headline-md text-headline-md text-slate-500 w-6 text-center">2</div>
+<img alt="Michael Chang" class="w-10 h-10 rounded-full object-cover border-2 border-slate-400" data-alt="A confident male employee in his 30s with short hair, wearing a dark blue button-down shirt. Clean, bright corporate lighting. Background is slightly blurred office space. Tech-forward realism." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfUwYJ5m1jabt9FyCWXfJTkcCynmCi9ihXoRgF1mv6xWgxiK9z6hQZMRQhKW8J0F6Ae6zueOGeeorPiVysiNX7wHmw7FvO2-wn3NrXHVoXJbFK7PSvsBGRokZgBA1MGcel9bwpSCJ6gUkmRLAGz4WCDyypepunUtFWsvPYPKuh_sm_FGiEJFJYl5FFulhBWRshmEbskURNVkh_I8nDy7LxldFD8ebkNBMPw6dS6UhZBRJPO486N4kR">
+<div class="flex-1 min-w-0">
+<div class="font-body-md text-body-md font-bold text-on-surface truncate">Michael C.</div>
+<div class="font-label-md text-label-md text-on-surface-variant truncate">Sales</div>
+</div>
+<div class="font-body-md text-body-md font-bold text-primary">11.2k</div>
+</div>
+<!-- Rank 3 -->
+<div class="flex items-center gap-md p-sm bg-gradient-to-r from-amber-700/10 to-transparent rounded-lg border border-amber-700/20 relative overflow-hidden group">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-amber-700 rounded-l-lg"></div>
+<div class="font-headline-md text-headline-md text-amber-700 w-6 text-center">3</div>
+<img alt="Elena Rodriguez" class="w-10 h-10 rounded-full object-cover border-2 border-amber-700" data-alt="An energetic presentation headshot of a middle-aged woman with glasses. She is smiling broadly. Light color palette with a clean white and grey background. Professional tech environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYCwaWx0pJ0i6r4QVM1jl1XTwKFP547QejmgmZVyhJxykr6EgydxjbZc94az2FEKq68Y_-JiOQuBkjP57q3Bm7TGn31T8GMY1JJlCYVrb973Nzg0EDxsYHIxu5lu21hilgK2e7dsliX7X8OBAZZG3uhQCBHvtqpJy5b-bIG1hUkbFgY_Jk97PPe7T11mox4RV0OyT5h9w8HAF1hEDymd4QFNnIt1UOS2UjA_buTZwTjxrnb9HpGl74">
+<div class="flex-1 min-w-0">
+<div class="font-body-md text-body-md font-bold text-on-surface truncate">Elena R.</div>
+<div class="font-label-md text-label-md text-on-surface-variant truncate">Marketing</div>
+</div>
+<div class="font-body-md text-body-md font-bold text-primary">9.8k</div>
+</div>
+<!-- Rank 4 -->
+<div class="flex items-center gap-md p-sm rounded-lg hover:bg-surface-variant/30 transition-colors border border-transparent">
+<div class="font-body-md text-body-md text-on-surface-variant w-6 text-center">4</div>
+<img alt="David Kim" class="w-10 h-10 rounded-full object-cover" data-alt="A portrait of a male designer looking thoughtful. He has a beard and is wearing a plain grey t-shirt. Clean, minimalist aesthetic with soft lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsrHHNsKoJ4GXLLJVxshrO9TmxarPIicv_ORjdX3PmBJ99Y31j9D26lXKnd3GPezRSXylYo8CAKuWFKQIQzl8EDJ3aCCKP-6prnUOM00tToi3qdef9lwC_khi3824y0caenPXxxBUwqokqkczr2i37NqrSf-oVLl6O5JowYwBJthdED4_4-MFdP6awCZHtlmj1cc6kzwGB76-UjB0cf39yKJTtNof6z9GfVYiInIGIiIKbpINBV0aB">
+<div class="flex-1 min-w-0">
+<div class="font-body-md text-body-md font-bold text-on-surface truncate">David K.</div>
+<div class="font-label-md text-label-md text-on-surface-variant truncate">Design</div>
+</div>
+<div class="font-body-md text-body-md font-bold text-primary">8.5k</div>
+</div>
+<!-- Rank 5 -->
+<div class="flex items-center gap-md p-sm rounded-lg hover:bg-surface-variant/30 transition-colors border border-transparent">
+<div class="font-body-md text-body-md text-on-surface-variant w-6 text-center">5</div>
+<img alt="Jessica Lee" class="w-10 h-10 rounded-full object-cover" data-alt="A bright headshot of a young professional woman with curly hair. She is wearing a light blue top. Modern, transparent office background. High definition corporate style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0_dhIc8jWGz9biHoqZOBSlZRKhgihqedbrMK6UVCnlJv8aD9bZzhUSvtVtovKIUIv-g5zdhHNDR-hIm9GfFO4Xb6MRGSxMyREQPVDcw8wFcDt47vu6T9ucWw2eJduROgCejpx172W38QLWqvAlOq4Pf9pUDIin8EYSjDVNFdk5-4qr0uiLqvwIaJ2eQcLpkGTupx32pTvcuLZ7Yu6NHeYB7dobfTE3app9tr_b0sacQ_PkY-4QAfX">
+<div class="flex-1 min-w-0">
+<div class="font-body-md text-body-md font-bold text-on-surface truncate">Jessica L.</div>
+<div class="font-label-md text-label-md text-on-surface-variant truncate">Support</div>
+</div>
+<div class="font-body-md text-body-md font-bold text-primary">8.1k</div>
+</div>
+</div>
+<button class="mt-auto pt-md text-primary font-label-md text-label-md w-full text-center hover:underline">
+                    View Full Leaderboard
+                </button>
+</div>
+</div>
+</main>
+<!-- Mobile Bottom Nav Bar -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-sm py-xs bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-lg border-t border-white/40 dark:border-white/10 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed active:scale-90 transition-all duration-150 p-sm" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-md text-label-md mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed active:scale-90 transition-all duration-150 p-sm" href="#">
+<span class="material-symbols-outlined">card_giftcard</span>
+<span class="font-label-md text-label-md mt-1">Kudos</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed active:scale-90 transition-all duration-150 p-sm" href="#">
+<span class="material-symbols-outlined">stars</span>
+<span class="font-label-md text-label-md mt-1">Rewards</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed active:scale-90 transition-all duration-150 p-sm" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md mt-1">Profile</span>
+</a>
+</nav>
+<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const ctx = document.getElementById('pointsChart').getContext('2d');
+            
+            // CSS Variable access for chart colors
+            const primaryColor = '#4648d4'; // text-primary
+            const secondaryColor = '#8127cf'; // secondary
+            
+            const gradientPrimary = ctx.createLinearGradient(0, 0, 0, 300);
+            gradientPrimary.addColorStop(0, 'rgba(70, 72, 212, 0.4)');
+            gradientPrimary.addColorStop(1, 'rgba(70, 72, 212, 0.0)');
+
+            const gradientSecondary = ctx.createLinearGradient(0, 0, 0, 300);
+            gradientSecondary.addColorStop(0, 'rgba(129, 39, 207, 0.4)');
+            gradientSecondary.addColorStop(1, 'rgba(129, 39, 207, 0.0)');
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [
+                        {
+                            label: 'Points Issued',
+                            data: [35000, 42000, 38000, 45000, 41000, 44500],
+                            borderColor: primaryColor,
+                            backgroundColor: gradientPrimary,
+                            borderWidth: 3,
+                            pointBackgroundColor: primaryColor,
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: primaryColor,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Points Redeemed',
+                            data: [28000, 31000, 25000, 33000, 29000, 36200],
+                            borderColor: secondaryColor,
+                            backgroundColor: gradientSecondary,
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            pointBackgroundColor: secondaryColor,
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: secondaryColor,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            align: 'end',
+                            labels: {
+                                usePointStyle: true,
+                                boxWidth: 8,
+                                font: {
+                                    family: "'Plus Jakarta Sans', sans-serif",
+                                    size: 12,
+                                    weight: 600
+                                },
+                                color: '#464554' // on-surface-variant
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                            titleColor: '#1b1b23',
+                            bodyColor: '#464554',
+                            borderColor: 'rgba(255,255,255,0.4)',
+                            borderWidth: 1,
+                            padding: 12,
+                            boxPadding: 6,
+                            usePointStyle: true,
+                            titleFont: { family: "'Plus Jakarta Sans'", size: 14, weight: 700 },
+                            bodyFont: { family: "'Plus Jakarta Sans'", size: 12 }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                font: { family: "'Plus Jakarta Sans'", size: 12 },
+                                color: '#767586' // outline
+                            }
+                        },
+                        y: {
+                            border: { display: false },
+                            grid: {
+                                color: 'rgba(118, 117, 134, 0.1)', // outline with low opacity
+                                tickLength: 0
+                            },
+                            ticks: {
+                                padding: 10,
+                                font: { family: "'Plus Jakarta Sans'", size: 12 },
+                                color: '#767586', // outline
+                                callback: function(value) {
+                                    return value / 1000 + 'k';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body></html>

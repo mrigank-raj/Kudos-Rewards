@@ -1,0 +1,342 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Kudos - Admin Programs Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-primary": "#c0c1ff",
+                        "on-surface-variant": "#464554",
+                        "tertiary-fixed-dim": "#ffb783",
+                        "primary": "#4648d4",
+                        "surface-container-highest": "#e4e1ed",
+                        "on-secondary-fixed": "#2c0051",
+                        "on-error-container": "#93000a",
+                        "error": "#ba1a1a",
+                        "tertiary": "#904900",
+                        "on-background": "#1b1b23",
+                        "surface-variant": "#e4e1ed",
+                        "surface-bright": "#fcf8ff",
+                        "outline": "#767586",
+                        "on-secondary-container": "#fffbff",
+                        "surface-container": "#efecf8",
+                        "on-surface": "#1b1b23",
+                        "on-tertiary": "#ffffff",
+                        "surface-tint": "#494bd6",
+                        "inverse-on-surface": "#f2effb",
+                        "secondary-fixed-dim": "#ddb7ff",
+                        "background": "#fcf8ff",
+                        "on-primary-fixed": "#07006c",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed": "#f0dbff",
+                        "primary-fixed": "#e1e0ff",
+                        "surface": "#fcf8ff",
+                        "outline-variant": "#c7c4d7",
+                        "on-primary-container": "#fffbff",
+                        "surface-container-high": "#e9e6f3",
+                        "surface-dim": "#dbd8e4",
+                        "tertiary-container": "#b55d00",
+                        "error-container": "#ffdad6",
+                        "primary-container": "#6063ee",
+                        "primary-fixed-dim": "#c0c1ff",
+                        "surface-container-low": "#f5f2fe",
+                        "on-tertiary-container": "#fffbff",
+                        "on-primary-fixed-variant": "#2f2ebe",
+                        "on-tertiary-fixed-variant": "#703700",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#303038",
+                        "secondary-container": "#9c48ea",
+                        "secondary": "#8127cf",
+                        "on-secondary-fixed-variant": "#6900b3",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed": "#301400",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed": "#ffdcc5"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "8px",
+                        "unit": "4px",
+                        "3xl": "64px",
+                        "container-max": "1440px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "xs": "4px",
+                        "2xl": "48px",
+                        "xl": "32px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "title-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(252, 248, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.03);
+        }
+        .dark .glass-card {
+            background: rgba(219, 216, 228, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased min-h-screen">
+<!-- TopAppBar (Mobile Only) -->
+<header class="md:hidden bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-xl border-b border-white/40 dark:border-white/10 shadow-sm fixed top-0 left-0 w-full z-50 flex items-center justify-between px-md h-16">
+<button class="text-primary dark:text-inverse-primary hover:bg-primary/5 dark:hover:bg-primary-fixed/10 transition-colors active:scale-95 duration-200 transition-transform p-2 rounded-full">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<span class="font-display-lg text-display-lg font-extrabold text-primary dark:text-primary-fixed">Kudos</span>
+<button class="text-primary dark:text-inverse-primary hover:bg-primary/5 dark:hover:bg-primary-fixed/10 transition-colors active:scale-95 duration-200 transition-transform p-2 rounded-full">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</header>
+<!-- NavigationDrawer (Desktop Only) -->
+<nav class="hidden md:flex bg-surface/90 dark:bg-surface-dim/90 backdrop-blur-2xl h-full w-72 rounded-r-xl border-r border-white/40 dark:border-white/10 shadow-2xl fixed inset-y-0 left-0 z-[60] flex flex-col p-md">
+<div class="flex items-center gap-4 mb-xl px-2">
+<img class="w-12 h-12 rounded-full object-cover shadow-sm" data-alt="Professional corporate headshot of Alex Rivers, Administrator, in a modern bright office setting with subtle glassmorphic UI elements floating in the background, light mode aesthetic, crisp and professional." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfmOFmIBFprV2qyhf6IcBwtwq5sAUds950jS2BvoSuxwBNYMDKYUoPrH_ISF3lQVPJxWa5XeNpiOYjlvsi94SpQjtf0rbgR5Dp34J72FrAHft9dHM5kVg0Q1FG14ax-YgEuV7IInvyOx2aHTZjfmYDAAB2DzWg6BDx1cYHG1qyhWdmb7_y8QY1bAY0MacPzU7gUIcti0aGfwwXbNRZgdkBOWsTZB2WPtHCN14lOwrVQSXW8-1DFK4H">
+<div>
+<h2 class="font-headline-md text-headline-md text-primary">Alex Rivers</h2>
+<p class="font-label-md text-label-md text-on-surface-variant">Administrator</p>
+<p class="font-label-md text-label-md text-primary-container mt-1">1,240 pts</p>
+</div>
+</div>
+<ul class="flex flex-col gap-2 flex-grow">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-variant/20 hover:backdrop-brightness-110 transition-all duration-300 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                    Dashboard
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 bg-primary-container/30 text-on-primary-fixed-variant font-bold rounded-lg hover:backdrop-brightness-110 transition-all duration-300 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+                    Programs
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-variant/20 hover:backdrop-brightness-110 transition-all duration-300 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">group</span>
+                    People
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-variant/20 hover:backdrop-brightness-110 transition-all duration-300 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">analytics</span>
+                    Analytics
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-variant/20 hover:backdrop-brightness-110 transition-all duration-300 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">redeem</span>
+                    Catalog
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-variant/20 hover:backdrop-brightness-110 transition-all duration-300 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">history</span>
+                    History
+                </a>
+</li>
+</ul>
+<div class="mt-auto">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-variant/20 hover:backdrop-brightness-110 transition-all duration-300 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="pt-24 pb-24 md:pt-12 md:pb-12 md:ml-72 px-lg md:px-2xl max-w-container-max mx-auto">
+<!-- Header & Actions -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-xl gap-4">
+<div>
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">Programs Management</h1>
+<p class="font-body-md text-body-md text-outline mt-2">Manage and monitor active recognition programs and budgets.</p>
+</div>
+<button class="bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md px-6 py-3 rounded-lg shadow-sm transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined">add</span>
+                Create Program
+            </button>
+</div>
+<!-- Controls (Search & Filter) -->
+<div class="flex flex-col sm:flex-row gap-4 mb-xl">
+<div class="relative flex-grow max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full pl-10 pr-4 py-3 bg-surface-container-lowest border border-surface-variant rounded-lg font-body-md text-body-md focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" placeholder="Search programs..." type="text">
+</div>
+<div class="flex gap-2">
+<button class="px-4 py-2 bg-primary-container/20 text-primary-fixed-dim border border-primary-container/30 rounded-full font-label-md text-label-md transition-colors hover:bg-primary-container/30">All</button>
+<button class="px-4 py-2 bg-surface-container border border-surface-variant text-on-surface-variant rounded-full font-label-md text-label-md transition-colors hover:bg-surface-container-high">Active</button>
+<button class="px-4 py-2 bg-surface-container border border-surface-variant text-on-surface-variant rounded-full font-label-md text-label-md transition-colors hover:bg-surface-container-high">Inactive</button>
+</div>
+</div>
+<!-- Programs Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter">
+<!-- Card 1 -->
+<div class="glass-card rounded-xl p-md flex flex-col relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full -z-10 group-hover:scale-110 transition-transform duration-500"></div>
+<div class="flex justify-between items-start mb-4 border-b border-surface-variant pb-4">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<h3 class="font-title-lg text-title-lg text-on-surface">Q3 Sales Excellence</h3>
+<span class="px-2 py-1 bg-emerald-100 text-emerald-800 text-[10px] font-bold uppercase tracking-wider rounded-full">Active</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-2">Reward top performing sales representatives for exceeding quarterly quotas by 120%.</p>
+</div>
+<button class="text-outline hover:text-primary transition-colors p-2">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="grid grid-cols-2 gap-4 mb-4 flex-grow">
+<div>
+<p class="font-label-md text-label-md text-outline mb-1">Budget Utilized</p>
+<p class="font-headline-md text-headline-md text-on-surface">45%</p>
+<div class="w-full bg-surface-variant h-2 rounded-full mt-2">
+<div class="bg-primary h-2 rounded-full" style="width: 45%"></div>
+</div>
+</div>
+<div>
+<p class="font-label-md text-label-md text-outline mb-1">Total Allocated</p>
+<p class="font-headline-md text-headline-md text-on-surface">25,000 pts</p>
+<p class="font-label-md text-label-md text-outline mt-2 text-right">11,250 spent</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-3 rounded-lg flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary">target</span>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Criteria</p>
+<p class="font-body-md text-body-md text-on-surface-variant">Quota &gt; 120%, Min 5 deals</p>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="glass-card rounded-xl p-md flex flex-col relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full -z-10 group-hover:scale-110 transition-transform duration-500"></div>
+<div class="flex justify-between items-start mb-4 border-b border-surface-variant pb-4">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<h3 class="font-title-lg text-title-lg text-on-surface">Peer-to-Peer Appreciation</h3>
+<span class="px-2 py-1 bg-emerald-100 text-emerald-800 text-[10px] font-bold uppercase tracking-wider rounded-full">Active</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-2">Ongoing program for employees to recognize colleagues for core value demonstration.</p>
+</div>
+<button class="text-outline hover:text-primary transition-colors p-2">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="grid grid-cols-2 gap-4 mb-4 flex-grow">
+<div>
+<p class="font-label-md text-label-md text-outline mb-1">Budget Utilized</p>
+<p class="font-headline-md text-headline-md text-on-surface">82%</p>
+<div class="w-full bg-surface-variant h-2 rounded-full mt-2">
+<div class="bg-tertiary-container h-2 rounded-full" style="width: 82%"></div>
+</div>
+</div>
+<div>
+<p class="font-label-md text-label-md text-outline mb-1">Total Allocated</p>
+<p class="font-headline-md text-headline-md text-on-surface">100,000 pts</p>
+<p class="font-label-md text-label-md text-outline mt-2 text-right">82,000 spent</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-3 rounded-lg flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary">handshake</span>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Criteria</p>
+<p class="font-body-md text-body-md text-on-surface-variant">Manager approval for &gt; 500pts</p>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="glass-card rounded-xl p-md flex flex-col relative overflow-hidden group opacity-75">
+<div class="flex justify-between items-start mb-4 border-b border-surface-variant pb-4">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<h3 class="font-title-lg text-title-lg text-on-surface">Q1 Engineering Sprint</h3>
+<span class="px-2 py-1 bg-surface-variant text-on-surface-variant text-[10px] font-bold uppercase tracking-wider rounded-full">Inactive</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-2">Completed program for the successful launch of the new customer portal v2.0.</p>
+</div>
+<button class="text-outline hover:text-primary transition-colors p-2">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="grid grid-cols-2 gap-4 mb-4 flex-grow">
+<div>
+<p class="font-label-md text-label-md text-outline mb-1">Budget Utilized</p>
+<p class="font-headline-md text-headline-md text-on-surface">100%</p>
+<div class="w-full bg-surface-variant h-2 rounded-full mt-2">
+<div class="bg-outline h-2 rounded-full" style="width: 100%"></div>
+</div>
+</div>
+<div>
+<p class="font-label-md text-label-md text-outline mb-1">Total Allocated</p>
+<p class="font-headline-md text-headline-md text-on-surface">50,000 pts</p>
+<p class="font-label-md text-label-md text-outline mt-2 text-right">50,000 spent</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-3 rounded-lg flex items-center gap-3">
+<span class="material-symbols-outlined text-outline">code</span>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Criteria</p>
+<p class="font-body-md text-body-md text-on-surface-variant">Feature completion &amp; zero Sev1 bugs</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-lg border-t border-white/40 dark:border-white/10 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-sm py-xs rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed active:scale-90 transition-all duration-150 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">home</span>
+            Home
+        </a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed active:scale-90 transition-all duration-150 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">card_giftcard</span>
+            Kudos
+        </a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed active:scale-90 transition-all duration-150 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">stars</span>
+            Rewards
+        </a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed active:scale-90 transition-all duration-150 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">person</span>
+            Profile
+        </a>
+</nav>
+</body></html>
