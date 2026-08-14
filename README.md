@@ -1,5 +1,7 @@
 # Kudos: Employee Recognition & Rewards Platform
 
+**[🔴 Live Demo: kudos-rewards.vercel.app](https://kudos-rewards.vercel.app/login)**
+
 ## Overview
 **Kudos** is a full-stack, enterprise-grade Employee Recognition and Rewards platform. Built with a strong **Product Management lens**, this project prioritizes **feasibility, scalability, and exceptional user experience**, while rigorously handling edge cases and database integrity.
 
