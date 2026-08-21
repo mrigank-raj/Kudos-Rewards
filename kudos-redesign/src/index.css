@@ -1,0 +1,138 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  The Kudos Theme token set. These are the same 34 semantic tokens defined as
+  Figma variables, expressed as RGB triples so Tailwind can apply alpha.
+  Dark values are pre composited over the dark surface, which is what Figma
+  resolves to when the collection mode is switched.
+*/
+:root {
+  --surface-canvas: 250 250 250;
+  --surface-base: 255 255 255;
+  --surface-raised: 255 255 255;
+  --surface-sunken: 244 244 245;
+  --surface-subtle: 244 244 245;
+  --surface-nav: 255 255 255;
+
+  --stroke-subtle: 228 228 231;
+  --stroke-default: 212 212 216;
+  --stroke-strong: 161 161 170;
+
+  --ink-primary: 24 24 27;
+  --ink-secondary: 82 82 91;
+  --ink-muted: 161 161 170;
+  --ink-inverse: 255 255 255;
+  --ink-onbrand: 255 255 255;
+
+  --brand-solid: 79 70 229;
+  --brand-hover: 67 56 202;
+  --brand-text: 79 70 229;
+  --brand-subtle: 238 242 255;
+  --brand-border: 199 210 254;
+
+  --gold-solid: 245 158 11;
+  --gold-text: 180 83 9;
+  --gold-subtle: 254 243 199;
+  --gold-border: 253 230 138;
+
+  --success-solid: 16 185 129;
+  --success-text: 4 120 87;
+  --success-subtle: 236 253 245;
+  --success-border: 167 243 208;
+
+  --danger-solid: 225 29 72;
+  --danger-text: 190 18 60;
+  --danger-subtle: 255 241 242;
+  --danger-border: 254 205 211;
+
+  /* the brand gradient stays fixed in both themes, as it does in Figma */
+  --brand-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --vault-gradient: linear-gradient(135deg, #12121a 0%, #211f31 55%, #38296b 100%);
+}
+
+[data-theme='dark'] {
+  --surface-canvas: 9 9 11;
+  --surface-base: 17 17 19;
+  --surface-raised: 24 24 27;
+  --surface-sunken: 12 12 14;
+  --surface-subtle: 28 28 32;
+  --surface-nav: 12 12 14;
+
+  --stroke-subtle: 34 34 36;
+  --stroke-default: 43 43 45;
+  --stroke-strong: 60 60 62;
+
+  --ink-primary: 250 250 250;
+  --ink-secondary: 161 161 170;
+  --ink-muted: 113 113 122;
+  --ink-inverse: 9 9 11;
+  --ink-onbrand: 255 255 255;
+
+  --brand-solid: 99 102 241;
+  --brand-hover: 129 140 248;
+  --brand-text: 165 180 252;
+  --brand-subtle: 29 29 50;
+  --brand-border: 43 44 90;
+
+  --gold-solid: 251 191 36;
+  --gold-text: 251 191 36;
+  --gold-subtle: 51 38 18;
+  --gold-border: 85 59 17;
+
+  --success-solid: 52 211 153;
+  --success-text: 52 211 153;
+  --success-subtle: 17 41 34;
+  --success-border: 17 67 52;
+
+  --danger-solid: 251 113 133;
+  --danger-text: 251 113 133;
+  --danger-subtle: 50 19 28;
+  --danger-border: 84 21 36;
+}
+
+* {
+  border-color: rgb(var(--stroke-subtle));
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: rgb(var(--surface-canvas));
+  color: rgb(var(--ink-primary));
+  font-family: 'Geist', 'SF Pro Display', Inter, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* thin, unobtrusive scrollbars that respect the theme */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--stroke-default));
+  border-radius: 999px;
+  border: 3px solid rgb(var(--surface-canvas));
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--stroke-strong));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
