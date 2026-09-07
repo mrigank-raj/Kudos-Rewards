@@ -26,6 +26,55 @@ export function useRedemptions() {
 }
 
 /**
+ * Admin: fetch every redemption across the org, newest first, with the
+ * requester and catalog item attached — the fulfillment queue's data
+ * source.
+ */
+export function useAllRedemptions() {
+  const { profile } = useAuth();
+  const orgId = profile?.org_id;
+
+  return useQuery({
+    queryKey: ['admin-redemptions', orgId],
+    queryFn: async () => {
+      if (!orgId) return [];
+      const { data, error } = await supabase
+        .from('redemptions')
+        .select('*, catalog_items(name, image_url, category), users!inner(name, email, avatar_url, org_id)')
+        .eq('users.org_id', orgId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!orgId,
+  });
+}
+
+/**
+ * Admin: move a redemption to fulfilled/cancelled/pending via the atomic
+ * RPC function (enforces org ownership + admin role server-side too).
+ */
+export function useUpdateRedemptionStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ redemptionId, status }) => {
+      const { data, error } = await supabase.rpc('update_redemption_status', {
+        p_redemption_id: redemptionId,
+        p_status: status,
+      });
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-redemptions'] });
+    },
+  });
+}
+
+/**
  * Redeem a reward via the atomic RPC function.
  * Handles: INSERT redemption, INSERT transaction, UPDATE balance.
  */

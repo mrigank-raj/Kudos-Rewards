@@ -18,6 +18,7 @@ export function useKudos() {
           id,
           message,
           points_included,
+          tags,
           created_at,
           from_user:users!from_user_id(id, name, avatar_url),
           to_user:users!to_user_id(id, name, avatar_url)
@@ -53,12 +54,13 @@ export function useKudos() {
 
   // Mutation to send kudos
   const sendKudos = useMutation({
-    mutationFn: async ({ toUserId, message, points }) => {
+    mutationFn: async ({ toUserId, message, points, tags }) => {
       const { data, error } = await supabase.rpc('send_kudos', {
         p_from_user_id: profile.id,
         p_to_user_id: toUserId,
         p_message: message,
-        p_points: points || 0
+        p_points: points || 0,
+        p_tags: tags || []
       });
 
       if (error) throw error;

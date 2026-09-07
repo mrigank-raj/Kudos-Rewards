@@ -58,9 +58,18 @@ export function AuthProvider({ children }) {
     return () => subscription.unsubscribe();
   }, [fetchProfile]);
 
-  // Sign up: create auth user → insert profile into `users` table
+  // Sign up: create auth user → reconcile profile row created by the
+  // `handle_new_user` trigger.
+  //
+  // The trigger (see supabase/migrations/007_team_and_pending_members.sql)
+  // fires synchronously when the auth user is created, before this
+  // function continues — so a `users` row for this id already exists by
+  // the time we get here. It's either a pending-member-aware row (correct
+  // org/role/team already applied) or a generic recipient default. We
+  // upsert only the fields we own client-side, so we never clobber a
+  // pending-member assignment we can't see from here.
   const signUp = async ({ email, password, name, role, orgName }) => {
-    // 1. Create the auth user
+    // 1. Create the auth user (this also fires handle_new_user server-side)
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
@@ -71,10 +80,9 @@ export function AuthProvider({ children }) {
     const userId = authData.user?.id;
     if (!userId) throw new Error('Sign up failed — no user ID returned.');
 
-    // 2. Create or find the organization
-    let orgId = null;
     if (role === 'admin') {
-      // Admin creates a new organization
+      // Admins always create a fresh organization — the trigger has no way
+      // to know about it, so this upsert must override its defaults.
       const { data: orgData, error: orgError } = await supabase
         .from('organizations')
         .insert({ name: orgName || `${name}'s Organization` })
@@ -82,23 +90,25 @@ export function AuthProvider({ children }) {
         .single();
 
       if (orgError) throw orgError;
-      orgId = orgData.id;
+
+      const { error: profileError } = await supabase
+        .from('users')
+        .upsert({ id: userId, email, name, role: 'admin', org_id: orgData.id }, { onConflict: 'id' });
+
+      if (profileError) throw profileError;
+    } else {
+      // Recipients: leave org_id/role/team alone — the trigger already set
+      // them correctly (from a pending invite, or the default org). Only
+      // sync the display name, in case it differs from the trigger's
+      // email-derived guess.
+      const { error: profileError } = await supabase
+        .from('users')
+        .upsert({ id: userId, name }, { onConflict: 'id' });
+
+      if (profileError) throw profileError;
     }
-    // Recipients will join an org later (or be assigned by an admin)
 
-    // 3. Insert the profile row
-    const { error: profileError } = await supabase.from('users').insert({
-      id: userId,
-      email,
-      name,
-      role,
-      org_id: orgId,
-      points_balance: 0,
-    });
-
-    if (profileError) throw profileError;
-
-    // 4. Fetch the newly created profile
+    // 2. Fetch the reconciled profile
     const profileData = await fetchProfile(userId);
     return { user: authData.user, profile: profileData };
   };

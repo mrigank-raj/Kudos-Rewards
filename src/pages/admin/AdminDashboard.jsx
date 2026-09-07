@@ -1,15 +1,23 @@
+import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/config/supabase'
 import { useAuth } from '@/hooks/useAuth'
 import { useNavigate } from 'react-router-dom'
 import {
-  ArrowDownRight, ArrowUpRight, Calendar, Gift, Plus, Sparkles, Trophy, Users, Zap
+  ArrowDownRight, ArrowUpRight, Calendar, Gift, Plus, Trophy, Users, Zap
 } from 'lucide-react'
 import {
   Avatar, BRAND_GRADIENT, Card, Dropdown, ProgressBar, SectionTitle, TrendPill, cx
 } from '@/components/ui'
 
 const ICONS = { Users, Trophy, Zap, Gift }
+
+const RANGE_OPTIONS = [
+  { value: 'month', label: 'This month' },
+  { value: 'quarter', label: 'This quarter' },
+  { value: 'all', label: 'All time' },
+]
+const RANGE_DAYS = { month: 30, quarter: 90 }
 
 const formatPoints = (p) => (p || 0).toLocaleString()
 const signedPoints = (p) => p > 0 ? `+${(p || 0).toLocaleString()}` : `${(p || 0).toLocaleString()}`
@@ -18,6 +26,7 @@ export default function AdminDashboard() {
   const { profile } = useAuth()
   const navigate = useNavigate()
   const orgId = profile?.org_id
+  const [range, setRange] = useState('quarter')
 
   // Fetch dashboard stats
   const { data: dashboardData, isLoading } = useQuery({
@@ -26,57 +35,102 @@ export default function AdminDashboard() {
       if (!orgId) return null
 
       const [usersRes, programsRes, txRes, redemptionsRes, recentTxRes] = await Promise.all([
-        supabase.from('users').select('id', { count: 'exact', head: true }).eq('org_id', orgId).eq('role', 'recipient'),
+        supabase.from('users').select('id, created_at').eq('org_id', orgId).eq('role', 'recipient'),
         supabase.from('reward_programs').select('*').eq('org_id', orgId).eq('is_active', true),
-        supabase.from('transactions').select('points, type, user_id, reward_programs(name)').in('type', ['manual_credit', 'earn']),
-        supabase.from('redemptions').select('id', { count: 'exact', head: true }),
-        supabase.from('transactions').select('*, users(name, avatar_url)').order('created_at', { ascending: false }).limit(10),
+        supabase.from('transactions').select('points, type, user_id, created_at, reward_programs(name)').in('type', ['manual_credit', 'earn']),
+        supabase.from('redemptions').select('id, created_at'),
+        supabase.from('transactions').select('*, users(name, avatar_url)').order('created_at', { ascending: false }).limit(50),
       ])
 
-      const totalPointsIssued = (txRes.data || []).reduce((sum, t) => sum + (t.points || 0), 0)
-      
-      // Calculate split
-      const splitMap = {}
-      ;(txRes.data || []).forEach(tx => {
-        const progName = tx.reward_programs?.name || 'Manual Credit'
-        splitMap[progName] = (splitMap[progName] || 0) + (tx.points || 0)
-      })
-
-      const colors = ['#f59e0b', '#3b82f6', '#ec4899', '#10b981', '#8b5cf6']
-      const programSplit = Object.entries(splitMap)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 5)
-        .map(([name, value], i) => ({
-          name,
-          value,
-          pct: totalPointsIssued ? Math.round((value / totalPointsIssued) * 100) : 0,
-          color: colors[i % colors.length]
-        }))
-
       return {
-        totalUsers: usersRes.count || 0,
+        users: usersRes.data || [],
         activePrograms: programsRes.data?.length || 0,
-        totalPointsIssued,
-        totalRedemptions: redemptionsRes.count || 0,
-        programSplit,
-        recentTx: recentTxRes.data || []
+        transactions: txRes.data || [],
+        redemptions: redemptionsRes.data || [],
+        recentTx: recentTxRes.data || [],
       }
     },
     enabled: !!orgId,
   })
 
-  const stats = dashboardData || {
-    totalUsers: 0, activePrograms: 0, totalPointsIssued: 0, totalRedemptions: 0, programSplit: [], recentTx: []
-  }
+  const stats = dashboardData || { users: [], activePrograms: 0, transactions: [], redemptions: [], recentTx: [] }
+
+  // Everything below is derived client-side from the fetched rows, scoped
+  // to the selected range — this is what makes the "This month/quarter/All
+  // time" control (and the "Active members" trend) reflect real data
+  // instead of a hardcoded number.
+  const scoped = useMemo(() => {
+    const days = RANGE_DAYS[range]
+    const rangeStart = days ? new Date(Date.now() - days * 86400000) : null
+    const prevStart = days ? new Date(Date.now() - days * 2 * 86400000) : null
+
+    const inRange = (createdAt, start, end) => {
+      const t = new Date(createdAt).getTime()
+      return t >= start.getTime() && (!end || t < end.getTime())
+    }
+
+    const txInRange = rangeStart
+      ? stats.transactions.filter((t) => inRange(t.created_at, rangeStart))
+      : stats.transactions
+
+    const totalPointsIssued = txInRange.reduce((sum, t) => sum + (t.points || 0), 0)
+
+    const splitMap = {}
+    txInRange.forEach((tx) => {
+      const progName = tx.reward_programs?.name || 'Manual Credit'
+      splitMap[progName] = (splitMap[progName] || 0) + (tx.points || 0)
+    })
+    const colors = ['#f59e0b', '#3b82f6', '#ec4899', '#10b981', '#8b5cf6']
+    const programSplit = Object.entries(splitMap)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([name, value], i) => ({
+        name,
+        value,
+        pct: totalPointsIssued ? Math.round((value / totalPointsIssued) * 100) : 0,
+        color: colors[i % colors.length],
+      }))
+
+    const totalRedemptions = rangeStart
+      ? stats.redemptions.filter((r) => inRange(r.created_at, rangeStart)).length
+      : stats.redemptions.length
+
+    const newMembers = rangeStart ? stats.users.filter((u) => inRange(u.created_at, rangeStart)).length : null
+    const prevNewMembers = rangeStart && prevStart
+      ? stats.users.filter((u) => inRange(u.created_at, prevStart, rangeStart)).length
+      : null
+
+    const recentTx = rangeStart
+      ? stats.recentTx.filter((t) => inRange(t.created_at, rangeStart)).slice(0, 10)
+      : stats.recentTx.slice(0, 10)
+
+    return { totalPointsIssued, programSplit, totalRedemptions, newMembers, prevNewMembers, recentTx }
+    // dashboardData (not the `stats` fallback, which is a fresh object every
+    // render) is the real dependency — it only changes when the query refetches.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dashboardData, range])
+
+  const rangeLabel = RANGE_OPTIONS.find((o) => o.value === range)?.label
 
   const ADMIN_KPIS = [
-    { label: 'Active members', value: stats.totalUsers.toLocaleString(), icon: 'Users', trend: '12%', tone: 'success', sub: 'this quarter' },
+    {
+      label: 'Active members',
+      value: stats.users.length.toLocaleString(),
+      icon: 'Users',
+      ...(scoped.newMembers !== null
+        ? {
+            trend: `+${scoped.newMembers}`,
+            tone: scoped.newMembers >= scoped.prevNewMembers ? 'success' : 'danger',
+            sub: rangeLabel.toLowerCase(),
+          }
+        : {}),
+    },
     { label: 'Programs running', value: stats.activePrograms.toString(), icon: 'Trophy' },
-    { label: 'Points issued', value: formatPoints(stats.totalPointsIssued), icon: 'Zap', unit: 'pts' },
-    { label: 'Total redemptions', value: stats.totalRedemptions.toLocaleString(), icon: 'Gift' },
+    { label: 'Points issued', value: formatPoints(scoped.totalPointsIssued), icon: 'Zap', unit: 'pts' },
+    { label: 'Total redemptions', value: scoped.totalRedemptions.toLocaleString(), icon: 'Gift' },
   ]
 
-  const mappedLedger = (stats.recentTx || []).map(tx => {
+  const mappedLedger = (scoped.recentTx || []).map(tx => {
     const initials = tx.users?.name ? tx.users.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : '?'
     const date = new Date(tx.created_at)
     return {
@@ -90,11 +144,14 @@ export default function AdminDashboard() {
     }
   })
 
-  // Dummy budget data for demonstration
+  // Demo budget target — there's no real budget-setting concept in the
+  // schema yet, so the ceiling is illustrative; "used" is a genuine
+  // all-time sum of issued points, not scoped to the range picker above.
+  const allTimeIssued = stats.transactions.reduce((sum, t) => sum + (t.points || 0), 0)
   const BUDGET = {
     total: 500000,
-    used: stats.totalPointsIssued,
-    resets: 'Resets Jan 1, 2025'
+    used: allTimeIssued,
+    resets: 'Demo target · resets yearly'
   }
   const burnPct = Math.min(100, (BUDGET.used / BUDGET.total) * 100)
   const remaining = Math.max(0, BUDGET.total - BUDGET.used)
@@ -109,7 +166,7 @@ export default function AdminDashboard() {
           </p>
         </div>
         <div className="ml-auto flex items-center gap-2.5">
-          <Dropdown icon={Calendar}>This quarter</Dropdown>
+          <Dropdown icon={Calendar} options={RANGE_OPTIONS} value={range} onChange={setRange} />
           <button
             type="button"
             onClick={() => navigate('/admin/people')}
@@ -240,10 +297,10 @@ export default function AdminDashboard() {
               }
             />
             <div className="mt-4 flex flex-col gap-3.5">
-              {stats.programSplit.length === 0 ? (
+              {scoped.programSplit.length === 0 ? (
                 <p className="text-body-sm text-ink-muted">No points issued yet.</p>
               ) : (
-                stats.programSplit.map((item) => (
+                scoped.programSplit.map((item) => (
                   <div key={item.name}>
                     <div className="flex items-center gap-2">
                       <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: item.color }} />
@@ -262,18 +319,6 @@ export default function AdminDashboard() {
               )}
             </div>
           </Card>
-
-          <div className="flex items-center gap-3.5 rounded-2xl border border-brand-border bg-brand-subtle p-4">
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl" style={BRAND_GRADIENT}>
-              <Sparkles size={17} className="text-white" />
-            </span>
-            <div className="min-w-0">
-              <p className="text-label-sm text-ink-primary">4 nominations awaiting review</p>
-              <p className="mt-0.5 text-body-sm text-ink-secondary">
-                Employee of the Month · closes Friday
-              </p>
-            </div>
-          </div>
         </div>
       </div>
       

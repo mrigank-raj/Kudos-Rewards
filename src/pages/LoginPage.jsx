@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { ArrowRight, Check, Eye, EyeOff, Lock, Mail, Sparkles, Zap } from 'lucide-react';
 import { Button, Field, Input, cx } from '@/components/ui';
@@ -182,22 +182,11 @@ export default function LoginPage() {
             {!loading && <ArrowRight size={16} />}
           </Button>
 
-          <div className="my-5 flex items-center gap-3.5">
-            <span className="h-px flex-1 bg-stroke-subtle" />
-            <span className="font-mono text-[11px] text-ink-muted">or</span>
-            <span className="h-px flex-1 bg-stroke-subtle" />
-          </div>
-
-          <Button variant="secondary" size="lg" className="w-full">
-            <Lock size={16} />
-            Continue with Acme SSO
-          </Button>
-
           <p className="mt-7 text-center text-body-sm text-ink-secondary">
             New to Kudos?{' '}
-            <button type="button" className="text-label-sm text-brand-text transition hover:opacity-80">
+            <Link to="/signup" className="text-label-sm text-brand-text transition hover:opacity-80">
               Create an account
-            </button>
+            </Link>
           </p>
         </form>
       </section>

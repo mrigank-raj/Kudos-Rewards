@@ -17,12 +17,14 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute';
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 const ProgramsPage = React.lazy(() => import('@/pages/admin/ProgramsPage'));
 const PeoplePage = React.lazy(() => import('@/pages/admin/PeoplePage'));
+const RedemptionsPage = React.lazy(() => import('@/pages/admin/RedemptionsPage'));
 const AnalyticsPage = React.lazy(() => import('@/pages/admin/AnalyticsPage'));
 
 // Recipient pages (lazy loaded)
 const RecipientDashboard = React.lazy(() => import('@/pages/recipient/RecipientDashboard'));
 const CatalogPage = React.lazy(() => import('@/pages/recipient/CatalogPage'));
 const HistoryPage = React.lazy(() => import('@/pages/recipient/HistoryPage'));
+const LeaderboardPage = React.lazy(() => import('@/pages/recipient/LeaderboardPage'));
 
 /**
  * Root redirect: send authenticated users to their role-appropriate dashboard,
@@ -62,6 +64,7 @@ function App() {
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="programs" element={<ProgramsPage />} />
               <Route path="people" element={<PeoplePage />} />
+              <Route path="redemptions" element={<RedemptionsPage />} />
               <Route path="analytics" element={<AnalyticsPage />} />
             </Route>
 
@@ -78,6 +81,7 @@ function App() {
               <Route path="dashboard" element={<RecipientDashboard />} />
               <Route path="catalog" element={<CatalogPage />} />
               <Route path="history" element={<HistoryPage />} />
+              <Route path="leaderboard" element={<LeaderboardPage />} />
             </Route>
 
             {/* Root + catch-all */}

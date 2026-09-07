@@ -98,3 +98,63 @@ export function useDebitPoints() {
     },
   });
 }
+
+/**
+ * Fetch admin-added people who haven't signed up yet (see
+ * supabase/migrations/007_team_and_pending_members.sql). They're promoted
+ * to a real `users` row automatically the first time they sign up with a
+ * matching email.
+ */
+export function usePendingMembers() {
+  const { profile } = useAuth();
+  const orgId = profile?.org_id;
+
+  return useQuery({
+    queryKey: ['pending-members', orgId],
+    queryFn: async () => {
+      if (!orgId) return [];
+      const { data, error } = await supabase
+        .from('pending_members')
+        .select('*')
+        .eq('org_id', orgId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!orgId,
+  });
+}
+
+/**
+ * Admin pre-configures a teammate's name/email/team/role before they have
+ * an account. No email is sent — the person still signs up themselves at
+ * /signup with the same email.
+ */
+export function useAddPendingMember() {
+  const queryClient = useQueryClient();
+  const { profile } = useAuth();
+
+  return useMutation({
+    mutationFn: async ({ name, email, role, team }) => {
+      const { data, error } = await supabase
+        .from('pending_members')
+        .insert({
+          org_id: profile.org_id,
+          name,
+          email,
+          role,
+          team: team || null,
+          invited_by: profile.id,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pending-members'] });
+    },
+  });
+}

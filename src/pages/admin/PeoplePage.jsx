@@ -1,26 +1,17 @@
 import { useState, useMemo } from 'react'
-import { ArrowUpDown, ChevronLeft, ChevronRight, ListFilter, MailPlus, Minus, MoreVertical, Plus, Zap } from 'lucide-react'
-import { Avatar, BRAND_GRADIENT, Badge, Card, Checkbox, Dropdown, SearchInput, Sheet, Button, cx } from '@/components/ui'
-import { usePeople, useCreditPoints, useDebitPoints } from '@/hooks/usePeople'
+import { ArrowUpDown, Clock, ListFilter, MailPlus, Minus, MoreVertical, Plus, Zap } from 'lucide-react'
+import { Avatar, Badge, Card, Checkbox, Dropdown, SearchInput, Sheet, Button, cx } from '@/components/ui'
+import { usePeople, useCreditPoints, useDebitPoints, usePendingMembers, useAddPendingMember } from '@/hooks/usePeople'
 import { usePrograms } from '@/hooks/usePrograms'
 import { useToast } from '@/context/ToastContext'
 
-function PageButton({ active, children, ...rest }) {
-  return (
-    <button
-      type="button"
-      className={cx(
-        'grid h-8 min-w-[32px] place-items-center rounded-lg px-2 text-label-xs transition active:scale-95',
-        active
-          ? 'bg-brand-solid text-white'
-          : 'border border-stroke-subtle bg-surface-base text-ink-secondary hover:text-ink-primary'
-      )}
-      {...rest}
-    >
-      {children}
-    </button>
-  )
-}
+const TEAMS = ['Design', 'Frontend', 'Backend', 'Product']
+const TEAM_FILTER_OPTIONS = ['All teams', ...TEAMS]
+const SORT_OPTIONS = [
+  { value: 'balance_desc', label: 'Balance: high to low' },
+  { value: 'balance_asc', label: 'Balance: low to high' },
+  { value: 'name_asc', label: 'Name: A to Z' },
+]
 
 function CreditDebitSheet({ open, onClose, user, initialMode = 'credit', onCredit, onDebit, isLoading }) {
   const { data: programs } = usePrograms()
@@ -177,45 +168,159 @@ function CreditDebitSheet({ open, onClose, user, initialMode = 'credit', onCredi
   )
 }
 
+function InviteMemberSheet({ open, onClose }) {
+  const addPendingMember = useAddPendingMember()
+  const toast = useToast()
+
+  const [form, setForm] = useState({ name: '', email: '', role: 'recipient', team: '' })
+  const [errors, setErrors] = useState({})
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setForm((prev) => ({ ...prev, [name]: value }))
+    if (errors[name]) setErrors((prev) => { const n = { ...prev }; delete n[name]; return n })
+  }
+
+  const validate = () => {
+    const errs = {}
+    if (!form.name.trim()) errs.name = 'Name is required'
+    if (!form.email.trim()) errs.email = 'Email is required'
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errs.email = 'Enter a valid email'
+    setErrors(errs)
+    return Object.keys(errs).length === 0
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!validate()) return
+
+    try {
+      await addPendingMember.mutateAsync({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        role: form.role,
+        team: form.team || null,
+      })
+      toast.success(`${form.name} added — they'll show up here once they sign up.`)
+      setForm({ name: '', email: '', role: 'recipient', team: '' })
+      onClose()
+    } catch (err) {
+      toast.error(err.message?.includes('duplicate') ? 'Someone with this email is already invited.' : (err.message || 'Failed to add member.'))
+    }
+  }
+
+  const inputClass = "w-full h-11 rounded-xl border border-stroke-subtle bg-surface-subtle px-3.5 text-body-sm text-ink-primary outline-none focus:border-brand-solid focus:ring-1 focus:ring-brand-solid"
+
+  return (
+    <Sheet
+      open={open}
+      onClose={onClose}
+      title="Add a member"
+      subtitle="They'll appear once they sign up with this email — no invite email is sent"
+      width={440}
+      footer={
+        <div className="flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
+          <Button variant="secondary" onClick={onClose} className="sm:w-auto" disabled={addPendingMember.isPending}>
+            Cancel
+          </Button>
+          <Button onClick={handleSubmit} className="sm:w-auto" disabled={addPendingMember.isPending}>
+            {addPendingMember.isPending ? 'Adding...' : 'Add member'}
+          </Button>
+        </div>
+      }
+    >
+      <div className="space-y-5">
+        <div>
+          <label className="block text-label-sm text-ink-primary mb-2">Full name</label>
+          <input name="name" value={form.name} onChange={handleChange} placeholder="Jane Doe" className={cx(inputClass, errors.name && 'border-danger-solid')} />
+          {errors.name && <p className="mt-1 text-xs text-danger-solid">{errors.name}</p>}
+        </div>
+
+        <div>
+          <label className="block text-label-sm text-ink-primary mb-2">Email</label>
+          <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="jane@company.com" className={cx(inputClass, errors.email && 'border-danger-solid')} />
+          {errors.email && <p className="mt-1 text-xs text-danger-solid">{errors.email}</p>}
+        </div>
+
+        <div>
+          <label className="block text-label-sm text-ink-primary mb-2">Team</label>
+          <select name="team" value={form.team} onChange={handleChange} className={inputClass}>
+            <option value="">Unassigned</option>
+            {TEAMS.map((t) => <option key={t} value={t}>{t}</option>)}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-label-sm text-ink-primary mb-2">Role</label>
+          <select name="role" value={form.role} onChange={handleChange} className={inputClass}>
+            <option value="recipient">Team member (recipient)</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+      </div>
+    </Sheet>
+  )
+}
 
 export default function PeoplePage() {
   const { data: rawPeople, isLoading } = usePeople()
+  const { data: rawPending, isLoading: pendingLoading } = usePendingMembers()
   const creditPoints = useCreditPoints()
   const debitPoints = useDebitPoints()
-  const toast = useToast()
 
-  const [selected, setSelected] = useState([])
   const [query, setQuery] = useState('')
+  const [teamFilter, setTeamFilter] = useState('All teams')
+  const [sort, setSort] = useState('balance_desc')
   const [selectedUser, setSelectedUser] = useState(null)
   const [sheetMode, setSheetMode] = useState('credit')
   const [showSheet, setShowSheet] = useState(false)
+  const [showInvite, setShowInvite] = useState(false)
 
   const people = useMemo(() => {
     return (rawPeople || []).map(p => ({
       ...p,
       initials: (p.name || 'User').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2),
       color: p.avatar_url,
-      team: 'Team', // Add real team here if DB supports
+      team: p.team || null,
       balance: p.points_balance || 0,
       lifetime: p.points_balance || 0,
-      joined: new Date(p.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+      joined: new Date(p.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+      pending: false,
     }))
   }, [rawPeople])
 
-  const visible = useMemo(
-    () =>
-      people.filter(
-        (p) =>
-          p.name.toLowerCase().includes(query.trim().toLowerCase()) ||
-          p.email.toLowerCase().includes(query.trim().toLowerCase())
-      ),
-    [people, query]
-  )
+  const pendingPeople = useMemo(() => {
+    return (rawPending || []).map(p => ({
+      id: `pending-${p.id}`,
+      pendingId: p.id,
+      name: p.name,
+      email: p.email,
+      initials: (p.name || 'User').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2),
+      team: p.team || null,
+      balance: null,
+      lifetime: null,
+      joined: null,
+      pending: true,
+    }))
+  }, [rawPending])
 
-  const toggle = (id) =>
-    setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
+  const visible = useMemo(() => {
+    const combined = [...people, ...pendingPeople]
+      .filter((p) => teamFilter === 'All teams' || p.team === teamFilter)
+      .filter((p) =>
+        p.name.toLowerCase().includes(query.trim().toLowerCase()) ||
+        (p.email || '').toLowerCase().includes(query.trim().toLowerCase())
+      )
 
-  const allChecked = visible.length > 0 && visible.every((p) => selected.includes(p.id))
+    const sorted = [...combined].sort((a, b) => {
+      if (a.pending !== b.pending) return a.pending ? 1 : -1 // pending members sink to the bottom
+      if (sort === 'name_asc') return a.name.localeCompare(b.name)
+      if (sort === 'balance_asc') return (a.balance ?? 0) - (b.balance ?? 0)
+      return (b.balance ?? 0) - (a.balance ?? 0) // balance_desc
+    })
+
+    return sorted
+  }, [people, pendingPeople, teamFilter, query, sort])
 
   const handleActionClick = (user, mode) => {
     setSelectedUser(user)
@@ -223,22 +328,25 @@ export default function PeoplePage() {
     setShowSheet(true)
   }
 
+  const sortLabel = SORT_OPTIONS.find((o) => o.value === sort)?.label
+
   return (
     <div className="mx-auto max-w-[1120px] animate-fade-in">
       <div className="hidden items-center gap-2.5 md:flex">
         <div>
           <h1 className="text-display-lg text-ink-primary">People</h1>
           <p className="mt-1.5 text-body-md text-ink-secondary">
-            {people.length} members across the workspace.
+            {people.length} members across the workspace{pendingPeople.length > 0 ? `, ${pendingPeople.length} invited` : ''}.
           </p>
         </div>
         <div className="ml-auto flex items-center gap-2.5">
           <button
             type="button"
+            onClick={() => setShowInvite(true)}
             className="inline-flex h-10 items-center gap-2 rounded-[10px] border border-stroke bg-surface-base px-3.5 text-label-sm text-ink-primary transition hover:bg-surface-subtle active:scale-[0.98]"
           >
             <MailPlus size={15} className="text-ink-secondary" />
-            Invite members
+            Add member
           </button>
         </div>
       </div>
@@ -254,32 +362,42 @@ export default function PeoplePage() {
           />
           <button
             type="button"
-            aria-label="Filter"
+            onClick={() => setShowInvite(true)}
+            aria-label="Add member"
             className="grid h-10 w-10 shrink-0 place-items-center rounded-[10px] border border-stroke-subtle bg-surface-base text-ink-secondary md:hidden"
           >
-            <ListFilter size={16} />
+            <MailPlus size={16} />
           </button>
-          <Dropdown icon={ListFilter} className="hidden md:inline-flex">All teams</Dropdown>
-          <Dropdown icon={ArrowUpDown} className="hidden md:inline-flex">Balance: high to low</Dropdown>
-
-          {selected.length > 0 && (
-            <span className="ml-auto hidden items-center gap-2.5 rounded-full border border-brand-border bg-brand-subtle px-3 py-2 text-label-xs text-brand-text md:inline-flex">
-              {selected.length} selected
-              <span className="h-3.5 w-px bg-brand-border" />
-              <button type="button" className="transition hover:opacity-80" onClick={() => toast.info('Bulk actions coming soon.')}>Credit all</button>
-            </span>
-          )}
+          <Dropdown
+            icon={ListFilter}
+            className="hidden md:inline-flex"
+            options={TEAM_FILTER_OPTIONS}
+            value={teamFilter}
+            onChange={setTeamFilter}
+          >
+            {teamFilter}
+          </Dropdown>
+          <Dropdown
+            icon={ArrowUpDown}
+            className="hidden md:inline-flex"
+            options={SORT_OPTIONS}
+            value={sort}
+            onChange={setSort}
+            align="right"
+          >
+            {sortLabel}
+          </Dropdown>
         </div>
 
         <div className="mt-2.5 flex items-center font-mono text-[11px] text-ink-muted md:hidden">
-          <span>Sorted by balance</span>
-          <span className="ml-auto">{visible.length} of {people.length} members</span>
+          <span>Sorted by {sort === 'name_asc' ? 'name' : 'balance'}</span>
+          <span className="ml-auto">{visible.length} of {people.length + pendingPeople.length} members</span>
         </div>
       </div>
 
       {/* ------------------------------------------- mobile: stacked cards */}
       <div className="mt-4 flex flex-col gap-3 md:hidden">
-        {isLoading ? (
+        {isLoading || pendingLoading ? (
           <div className="p-8 text-center text-ink-muted">Loading people...</div>
         ) : visible.length === 0 ? (
           <div className="p-8 text-center text-ink-muted">No members found.</div>
@@ -291,46 +409,58 @@ export default function PeoplePage() {
                 <p className="truncate text-label-md text-ink-primary">{person.name}</p>
                 <p className="truncate text-body-sm text-ink-muted">{person.email}</p>
               </div>
-              <button
-                type="button"
-                aria-label={`More options for ${person.name}`}
-                className="ml-auto shrink-0 p-1.5 text-ink-muted"
-              >
-                <MoreVertical size={15} />
-              </button>
+              {!person.pending && (
+                <button
+                  type="button"
+                  aria-label={`More options for ${person.name}`}
+                  className="ml-auto shrink-0 p-1.5 text-ink-muted"
+                >
+                  <MoreVertical size={15} />
+                </button>
+              )}
             </div>
 
             <div className="mt-3 flex flex-wrap items-center gap-2">
-              <Badge tone="neutral">{person.team}</Badge>
-              <span className="inline-flex items-center gap-1.5">
-                <Zap size={13} className="text-gold-solid" fill="currentColor" />
-                <span className="text-label-md text-ink-primary">{person.balance}</span>
-                <span className="font-mono text-[11px] text-ink-muted">pts</span>
-              </span>
-              <span className="ml-auto font-mono text-[11px] text-ink-muted">
-                {person.lifetime} lifetime
-              </span>
+              <Badge tone="neutral">{person.team || 'Unassigned'}</Badge>
+              {person.pending ? (
+                <Badge tone="gold" dot>
+                  <Clock size={11} />
+                  Invited
+                </Badge>
+              ) : (
+                <>
+                  <span className="inline-flex items-center gap-1.5">
+                    <Zap size={13} className="text-gold-solid" fill="currentColor" />
+                    <span className="text-label-md text-ink-primary">{person.balance}</span>
+                    <span className="font-mono text-[11px] text-ink-muted">pts</span>
+                  </span>
+                  <span className="ml-auto font-mono text-[11px] text-ink-muted">
+                    {person.lifetime} lifetime
+                  </span>
+                </>
+              )}
             </div>
 
-            {/* 44px touch targets */}
-            <div className="mt-3 grid grid-cols-2 gap-2.5">
-              <button
-                type="button"
-                onClick={() => handleActionClick(person, 'credit')}
-                className="inline-flex h-11 items-center justify-center gap-1.5 rounded-[10px] bg-success-subtle text-label-sm text-success-text active:scale-[0.97]"
-              >
-                <Plus size={14} className="text-success-solid" />
-                Credit
-              </button>
-              <button
-                type="button"
-                onClick={() => handleActionClick(person, 'debit')}
-                className="inline-flex h-11 items-center justify-center gap-1.5 rounded-[10px] bg-danger-subtle text-label-sm text-danger-text active:scale-[0.97]"
-              >
-                <Minus size={14} className="text-danger-solid" />
-                Debit
-              </button>
-            </div>
+            {!person.pending && (
+              <div className="mt-3 grid grid-cols-2 gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => handleActionClick(person, 'credit')}
+                  className="inline-flex h-11 items-center justify-center gap-1.5 rounded-[10px] bg-success-subtle text-label-sm text-success-text active:scale-[0.97]"
+                >
+                  <Plus size={14} className="text-success-solid" />
+                  Credit
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleActionClick(person, 'debit')}
+                  className="inline-flex h-11 items-center justify-center gap-1.5 rounded-[10px] bg-danger-subtle text-label-sm text-danger-text active:scale-[0.97]"
+                >
+                  <Minus size={14} className="text-danger-solid" />
+                  Debit
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -341,75 +471,74 @@ export default function PeoplePage() {
           <thead>
             <tr className="bg-surface-sunken text-left">
               <th className="w-[52px] py-3 pl-5">
-                <Checkbox
-                  checked={allChecked}
-                  onChange={() => setSelected(allChecked ? [] : visible.map((p) => p.id))}
-                  label="Select all"
-                />
+                <Checkbox checked={false} onChange={() => {}} label="Select all" />
               </th>
-              {['Member', 'Team'].map((h) => (
-                <th key={h} className="py-3 text-overline-sm uppercase text-ink-muted">
-                  <span className="inline-flex items-center gap-1.5">
-                    {h}
-                    <ArrowUpDown size={11} />
-                  </span>
-                </th>
-              ))}
-              {['Balance', 'Lifetime earned', 'Joined'].map((h) => (
-                <th key={h} className="py-3 text-right text-overline-sm uppercase text-ink-muted">
-                  <span className="inline-flex items-center gap-1.5">
-                    {h}
-                    <ArrowUpDown size={11} />
-                  </span>
-                </th>
-              ))}
+              <th className="py-3 text-overline-sm uppercase text-ink-muted">Member</th>
+              <th className="py-3 text-overline-sm uppercase text-ink-muted">Team</th>
+              <th className="py-3 text-right text-overline-sm uppercase text-ink-muted">Balance</th>
+              <th className="py-3 text-right text-overline-sm uppercase text-ink-muted">Lifetime earned</th>
+              <th className="py-3 text-right text-overline-sm uppercase text-ink-muted">Joined</th>
               <th className="py-3 pr-5 text-right text-overline-sm uppercase text-ink-muted">Actions</th>
             </tr>
           </thead>
 
           <tbody>
-            {isLoading ? (
+            {isLoading || pendingLoading ? (
               <tr><td colSpan="7" className="py-8 text-center text-ink-muted">Loading people...</td></tr>
             ) : visible.length === 0 ? (
               <tr><td colSpan="7" className="py-8 text-center text-ink-muted">No members found.</td></tr>
-            ) : visible.map((person) => {
-              const isSelected = selected.includes(person.id)
-              return (
-                <tr
-                  key={person.id}
-                  className={cx(
-                    'border-t border-stroke-subtle transition-colors',
-                    isSelected ? 'bg-brand-subtle' : 'hover:bg-surface-subtle/60'
-                  )}
-                >
-                  <td className="py-2.5 pl-5">
-                    <Checkbox checked={isSelected} onChange={() => toggle(person.id)} label={`Select ${person.name}`} />
-                  </td>
+            ) : visible.map((person) => (
+              <tr
+                key={person.id}
+                className={cx('border-t border-stroke-subtle transition-colors hover:bg-surface-subtle/60', person.pending && 'opacity-70')}
+              >
+                <td className="py-2.5 pl-5">
+                  <Checkbox checked={false} onChange={() => {}} label={`Select ${person.name}`} />
+                </td>
 
-                  <td className="py-2.5 pr-4">
-                    <div className="flex items-center gap-3">
-                      <Avatar initials={person.initials} color={person.color} size="md" />
-                      <div className="min-w-0">
-                        <p className="truncate text-label-sm text-ink-primary">{person.name}</p>
-                        <p className="truncate text-body-sm text-ink-muted">{person.email}</p>
-                      </div>
+                <td className="py-2.5 pr-4">
+                  <div className="flex items-center gap-3">
+                    <Avatar initials={person.initials} color={person.color} size="md" />
+                    <div className="min-w-0">
+                      <p className="truncate text-label-sm text-ink-primary">{person.name}</p>
+                      <p className="truncate text-body-sm text-ink-muted">{person.email}</p>
                     </div>
-                  </td>
+                  </div>
+                </td>
 
-                  <td className="py-2.5 pr-4">
-                    <Badge tone="neutral">{person.team}</Badge>
-                  </td>
+                <td className="py-2.5 pr-4">
+                  <div className="flex items-center gap-1.5">
+                    <Badge tone="neutral">{person.team || 'Unassigned'}</Badge>
+                    {person.pending && (
+                      <Badge tone="gold" dot>
+                        <Clock size={11} />
+                        Invited
+                      </Badge>
+                    )}
+                  </div>
+                </td>
 
-                  <td className="py-2.5 pr-4 text-right">
-                    <span className="text-numeric-lg text-ink-primary">{person.balance}</span>
-                    <span className="ml-1 font-mono text-[11px] text-ink-muted">pts</span>
-                  </td>
+                <td className="py-2.5 pr-4 text-right">
+                  {person.pending ? (
+                    <span className="font-mono text-[11px] text-ink-muted">—</span>
+                  ) : (
+                    <>
+                      <span className="text-numeric-lg text-ink-primary">{person.balance}</span>
+                      <span className="ml-1 font-mono text-[11px] text-ink-muted">pts</span>
+                    </>
+                  )}
+                </td>
 
-                  <td className="py-2.5 pr-4 text-right text-label-sm text-ink-secondary">{person.lifetime}</td>
+                <td className="py-2.5 pr-4 text-right text-label-sm text-ink-secondary">
+                  {person.pending ? '—' : person.lifetime}
+                </td>
 
-                  <td className="py-2.5 pr-4 text-right font-mono text-[11px] text-ink-muted">{person.joined}</td>
+                <td className="py-2.5 pr-4 text-right font-mono text-[11px] text-ink-muted">
+                  {person.pending ? 'Not yet' : person.joined}
+                </td>
 
-                  <td className="py-2.5 pr-5">
+                <td className="py-2.5 pr-5">
+                  {!person.pending && (
                     <div className="flex items-center justify-end gap-1.5">
                       <button
                         type="button"
@@ -427,37 +556,21 @@ export default function PeoplePage() {
                       >
                         <Minus size={14} className="text-danger-solid" />
                       </button>
-                      <button
-                        type="button"
-                        aria-label={`More options for ${person.name}`}
-                        className="p-1.5 text-ink-muted transition hover:text-ink-secondary"
-                      >
-                        <MoreVertical size={15} />
-                      </button>
                     </div>
-                  </td>
-                </tr>
-              )
-            })}
+                  )}
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
 
         <div className="flex items-center border-t border-stroke-subtle px-5 py-3.5">
           <span className="text-body-sm text-ink-muted">
-            Showing 1 to {visible.length} of {people.length} members
+            Showing {visible.length} of {people.length + pendingPeople.length} members
           </span>
-          <div className="ml-auto flex items-center gap-2">
-            <PageButton aria-label="Previous page">
-              <ChevronLeft size={14} />
-            </PageButton>
-            <PageButton active>1</PageButton>
-            <PageButton aria-label="Next page">
-              <ChevronRight size={14} />
-            </PageButton>
-          </div>
         </div>
       </Card>
-      
+
       <CreditDebitSheet
         open={showSheet}
         onClose={() => setShowSheet(false)}
@@ -467,6 +580,8 @@ export default function PeoplePage() {
         onDebit={async (p) => await debitPoints.mutateAsync(p)}
         isLoading={creditPoints.isPending || debitPoints.isPending}
       />
+
+      <InviteMemberSheet open={showInvite} onClose={() => setShowInvite(false)} />
     </div>
   )
 }

@@ -15,9 +15,11 @@ The product aims to boost employee retention, engagement, and cross-functional c
 ## 🚀 Key Features & MVP Scope
 1. **Role-Based Workflows**: Segregated experiences for Admins (point issuance, catalog management, analytics) and Recipients (point redemption, activity feed).
 2. **Atomic Transactions**: The core points ledger is built on strictly atomic PostgreSQL RPC functions to prevent race conditions, double-spending, and negative balances.
-3. **Peer-to-Peer Recognition (Social Feed)**: Employees can attach points to public shoutouts, fostering a culture of continuous appreciation.
-4. **Real-time Synchronization**: The UI reflects point balances instantly across multiple tabs using React Query and Supabase Auth subscriptions.
-5. **Secure Authentication**: Built on Supabase GoTrue with automated Row-Level Security (RLS) and Postgres triggers for seamless onboarding.
+3. **Peer-to-Peer Recognition (Social Feed)**: Employees can attach points, company-value tags, and emoji reactions to public shoutouts, fostering a culture of continuous appreciation.
+4. **Real-time Synchronization**: The UI reflects point balances and in-app notifications instantly across multiple tabs using React Query and Supabase Realtime.
+5. **Secure Authentication**: Built on Supabase GoTrue with automated Row-Level Security (RLS) and Postgres triggers for seamless onboarding, including admin-configured pending members who are promoted automatically on signup.
+6. **Leaderboard & Badges**: A recipient-facing leaderboard and automatically-awarded achievement badges (First Kudos, Team Player, Top Earner).
+7. **Redemption Fulfillment Queue**: Admins can approve or cancel pending reward redemptions instead of them being purely simulated.
 
 ## 🛠 Tech Stack
 - **Frontend**: React (Vite), Tailwind CSS, React Query (Tanstack), Lucide Icons, date-fns.

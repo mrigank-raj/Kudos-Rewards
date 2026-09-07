@@ -35,15 +35,11 @@ export default function GiveKudosModal({ isOpen, onClose }) {
     if (!canSend) return
 
     try {
-      // We append tags to the message since the DB schema doesn't have a tags column yet
-      const finalMessage = tags.length > 0 
-        ? `${message}\n\nTags: ${tags.join(', ')}`
-        : message
-
-      await sendKudos({ 
-        toUserId, 
-        message: finalMessage, 
-        points: points || 0 
+      await sendKudos({
+        toUserId,
+        message,
+        points: points || 0,
+        tags,
       })
       
       addToast('success', 'Kudos sent successfully!')

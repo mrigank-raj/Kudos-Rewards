@@ -17,20 +17,24 @@ The Minimum Viable Product (MVP) has been successfully built and deployed. The c
 The project is **functional and demo-ready**.
 
 **Currently Working & Implemented:**
-* **Authentication:** Supabase Auth (Email/Password) with role-based routing (Admin vs Recipient).
-* **Admin Dashboard:** High-level metrics and recent activity feed.
-* **Analytics:** Real Recharts-powered graphs reflecting transaction history (Points Issued vs Redeemed, Redemption Rates, Top Recipients).
-* **People Management:** Admin view of users, balances, and manual credit/debit capabilities.
+* **Authentication:** Supabase Auth (Email/Password) with role-based routing (Admin vs Recipient). Admins can pre-configure a teammate's name/email/team/role via "Add member" on the People page (`pending_members` table) — they're promoted to a real account automatically the first time they sign up with that email.
+* **Admin Dashboard:** Metrics and recent activity, scoped by a working This month/quarter/All time range picker; the active-members trend is a real count, not a hardcoded number.
+* **Analytics:** Real Recharts-powered graphs reflecting transaction history (Points Issued vs Redeemed, Redemption Rates, Top Recipients), scoped by a working time-range picker.
+* **People Management:** Admin view of users with real team assignment (Design/Frontend/Backend/Product), a working team filter and balance/name sort, and the "Add member" pending-invite flow above.
 * **Reward Programs:** Admins can define manual or rule-based reward programs.
-* **Recipient Dashboard:** Point balance and recent activity.
-* **Peer-to-Peer (P2P) Kudos:** Users can send points and messages to each other.
-* **Rewards Catalog:** Recipients can browse and simulate redeeming rewards.
+* **Redemption Fulfillment:** Admin queue (`/admin/redemptions`) to approve or cancel pending redemptions — the schema always supported this status field but nothing could move a row out of "pending" until now.
+* **Recipient Dashboard:** Point balance, recent activity, achievement badges, and a personal work-anniversary banner.
+* **Leaderboard:** Recipient-facing ranked view (`/app/leaderboard`) by all-time points earned.
+* **Peer-to-Peer (P2P) Kudos:** Users can send points, a message, and company-value tags (Teamwork/Innovation/Impact/Leadership) to each other; the feed supports emoji reactions and filtering by value tag.
+* **In-app Notifications:** Bell in the top bar, live via Supabase Realtime, for kudos received and admin point credits.
+* **Rewards Catalog:** Recipients can browse, sort, and simulate redeeming rewards.
 * **Transaction History:** Ledger of all point movements.
 
 **Intentionally Out of Scope for MVP:**
-* Real payment processing or gift card fulfillment (redemptions are simulated database entries).
+* Real payment processing or gift card fulfillment (redemptions are simulated database entries — the fulfillment *queue* is real, but "fulfilled" doesn't trigger an actual gift card send).
 * HRMS/ERP integrations.
-* Real email notifications for specific events (mostly skipped/mocked to prevent spam).
+* Real email notifications for specific events (mostly skipped/mocked to prevent spam) — in-app notifications exist instead.
+* Org-wide birthday/anniversary broadcasts — scoped down to a personal anniversary banner (see Decision.md-style reasoning in the PR) to avoid a dedup/broadcast system disproportionate to a portfolio-scope demo.
 
 ---
 
@@ -111,8 +115,8 @@ The MVP is complete. However, if you are moving towards a V2 or production launc
 * **Fulfillment Webhooks:** Currently, redeeming a reward just updates the database. You will need to build edge functions or webhooks to integrate with a real gift card API (e.g., Tremendous).
 
 **P2 (Future Enhancements):**
-* Real-time notifications (Supabase Realtime).
-* Leaderboard UI (data is partially ready, but needs a dedicated view).
+* Replace the placeholder team assignments in `007_team_and_pending_members.sql` with the real roster once available.
+* Pulse surveys / eNPS, AI-driven recognition-gap flagging, and custom time-boxed challenges were researched but deliberately deferred — see the competitor feature research memory for rationale.
 
 ---
 
