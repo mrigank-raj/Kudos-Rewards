@@ -1,271 +1,229 @@
 import { Link } from 'react-router-dom';
-import {
-  ArrowRight, BadgeCheck, BarChart3, Bell, Code2, Database,
-  Layers, Lock, Sparkles, Trophy, Users, Zap,
-} from 'lucide-react';
+import { ArrowRight, Code2 } from 'lucide-react';
 import { cx } from '@/components/ui';
 
 const REPO_URL = 'https://github.com/mrigank-raj/Kudos-Rewards';
 
-const PROBLEM_POINTS = [
-  'Recognition tracked in spreadsheets, or not tracked at all',
-  'Physical gift cards and manual email approvals',
-  'No visibility into whether the program actually works',
+const FACTS = [
+  { label: 'Role', value: 'Solo — product, design, engineering' },
+  { label: 'Stack', value: 'React · Postgres · Supabase' },
+  { label: 'Status', value: 'Portfolio project, not a live business' },
 ];
 
-const PRODUCT_POINTS = [
-  'One auditable points ledger, built on atomic Postgres transactions',
-  'Peer-to-peer kudos, redemptions, and approvals in one place',
-  'Live analytics on who’s recognized and where points go',
+const NAV_LINKS = [
+  { href: '#problem', label: 'The problem' },
+  { href: '#decisions', label: 'Decisions that mattered' },
+  { href: '#bugs', label: 'Bugs I found fixing my own work' },
+  { href: '#screens', label: 'What it looks like' },
 ];
 
-const SCREENSHOTS = [
-  { src: '/screenshots/recipient-dashboard.png', alt: 'Recipient dashboard showing points balance and company recognition feed', label: 'Recipient dashboard' },
-  { src: '/screenshots/admin-dashboard.png', alt: 'Admin dashboard showing ledger activity and quarterly points budget', label: 'Admin dashboard' },
-  { src: '/screenshots/analytics.png', alt: 'Analytics page showing points issued vs redeemed and top earners', label: 'Analytics & leaderboard' },
-];
-
-const BUILT_ITEMS = [
+const DECISIONS = [
   {
-    icon: Database,
-    title: 'Atomic points ledger',
-    body: 'Every credit, debit, and redemption runs through Postgres RPC functions rather than client-side balance updates — no race conditions, no double-spending, no negative balances.',
+    title: 'Peer-to-peer recognition, not just top-down',
+    body: 'Manager-to-employee recognition alone creates a bottleneck — one person has to notice everything. I added a P2P kudos feed so recognition flows sideways too, which is also what makes the org-wide feed worth building at all.',
   },
   {
-    icon: Lock,
-    title: 'Row-level security, end to end',
-    body: 'All data access is enforced by Postgres RLS policies, not application code. The frontend never touches a service-role key.',
+    title: 'The points ledger lives in Postgres, not React',
+    body: 'send_kudos and redeem_reward are stored procedures, not client-side API call sequences. Moving points from A to B has to be atomic — if a request failed halfway through a multi-step client flow, A could lose points without B ever receiving them.',
   },
   {
-    icon: Users,
-    title: 'Peer-to-peer recognition',
-    body: 'Employees tag kudos with company values, react with emoji, and see an org-wide feed — not just a top-down admin tool.',
-  },
-  {
-    icon: Bell,
-    title: 'Real-time notifications',
-    body: 'In-app notifications and balance updates sync live via Supabase Realtime — no polling, no page refresh.',
-  },
-  {
-    icon: Trophy,
-    title: 'Leaderboard & badges',
-    body: 'Rank by points earned, and unlock achievement badges awarded automatically from real ledger activity.',
-  },
-  {
-    icon: BadgeCheck,
-    title: 'Redemption fulfillment',
-    body: 'Admins review and approve pending redemptions through a real queue, not a fire-and-forget button.',
+    title: 'New users get provisioned by a database trigger',
+    body: 'Supabase requires email confirmation before a session exists, which blocks a fresh signup from inserting their own profile row under RLS — a chicken-and-egg problem. A Postgres trigger (handle_new_user) creates the profile and starting balance server-side the moment the auth row exists, so nobody hits a schema error on day one.',
   },
 ];
 
-const STACK = ['React', 'Tailwind CSS v4', 'TanStack Query', 'Supabase (Postgres · Auth · RLS · Realtime)', 'Recharts', 'Vercel'];
+const BUGS = [
+  {
+    title: 'Recipients couldn’t actually see each other',
+    body: 'The only RLS policies on `users` were "view your own row" and "admins view the org." No policy covered a regular employee viewing a teammate’s row — which meant the P2P kudos recipient picker and the "org-wide" kudos feed were both silently broken for every non-admin session. It likely went unnoticed because manual testing ran from the admin account.',
+  },
+  {
+    title: 'A gradient that rendered as a blank white box',
+    body: 'I reused the hero background technique from the login screen, but dropped one class. Login’s section has an explicit z-index (which creates a CSS stacking context); mine didn’t, so a -z-10 gradient layer escaped and painted behind the page’s own background instead of behind just its section. Caught it by actually screenshotting the page instead of trusting the code.',
+  },
+  {
+    title: 'Two components, one Realtime channel, one crash',
+    body: 'The desktop and mobile headers both render at all times (CSS just hides one) and each independently opened a Supabase Realtime subscription on the exact same channel name. The second subscribe call threw, because you can’t attach a listener to a channel that’s already live. Fixed by subscribing once and passing the data down.',
+  },
+];
 
-function Section({ className, children }) {
-  return <section className={cx('mx-auto max-w-[1080px] px-6', className)}>{children}</section>;
+const SCREENS = [
+  {
+    src: '/screenshots/recipient-dashboard.png',
+    label: 'Recipient dashboard',
+    caption: 'Balance, quick actions, and the company-wide kudos feed — the feed that RLS was quietly blocking until the fix above.',
+  },
+  {
+    src: '/screenshots/admin-dashboard.png',
+    label: 'Admin ledger',
+    caption: 'The date-range control filters the ledger and the KPI trend for real now. It used to be a button that did nothing.',
+  },
+  {
+    src: '/screenshots/analytics.png',
+    label: 'Analytics & leaderboard',
+    caption: 'Ranked by a Postgres RPC (get_top_recipients), not a client-side aggregation — same query the leaderboard page reuses.',
+  },
+];
+
+function SectionLabel({ n, children }) {
+  return (
+    <p className="flex items-center gap-2.5 text-label-sm text-ink-muted">
+      <span className="font-mono text-[11px] text-brand-solid">{n}</span>
+      {children}
+    </p>
+  );
 }
 
 export default function LandingPage() {
   return (
-    <div className="bg-surface-base">
-      {/* ---------------------------------------------------------- nav */}
-      <header className="mx-auto flex max-w-[1080px] items-center gap-3 px-6 py-6">
-        <span className="grid h-9 w-9 place-items-center rounded-xl" style={{ backgroundImage: 'var(--brand-gradient)' }}>
-          <Sparkles size={17} className="text-white" />
-        </span>
-        <span className="text-heading-md text-ink-primary">Kudos</span>
-        <div className="ml-auto flex items-center gap-2.5">
+    <div className="bg-surface-base lg:grid lg:grid-cols-[300px_1fr]">
+      {/* ---------------------------------------------------------- sidebar */}
+      <aside className="border-b border-stroke-subtle px-6 py-8 lg:sticky lg:top-0 lg:h-screen lg:border-b-0 lg:border-r lg:px-8 lg:py-10">
+        <div className="flex items-center gap-2.5">
+          <span className="grid h-8 w-8 place-items-center rounded-[9px]" style={{ backgroundImage: 'var(--brand-gradient)' }}>
+            <span className="text-label-sm text-white">K</span>
+          </span>
+          <span className="text-heading-sm text-ink-primary">Kudos</span>
+        </div>
+
+        <p className="mt-4 text-body-md text-ink-secondary">
+          An employee recognition &amp; rewards platform, built solo by{' '}
+          <span className="text-ink-primary">Mrigank Raj Chouhan</span>.
+        </p>
+
+        <dl className="mt-6 space-y-3 border-t border-stroke-subtle pt-6">
+          {FACTS.map((f) => (
+            <div key={f.label}>
+              <dt className="font-mono text-[11px] uppercase tracking-wide text-ink-muted">{f.label}</dt>
+              <dd className="mt-0.5 text-body-sm text-ink-primary">{f.value}</dd>
+            </div>
+          ))}
+        </dl>
+
+        <div className="mt-6 flex flex-col gap-2.5 border-t border-stroke-subtle pt-6">
+          <Link
+            to="/login"
+            className="inline-flex h-10 items-center justify-center gap-1.5 rounded-[10px] text-label-sm text-white transition hover:brightness-110 active:scale-[0.98]"
+            style={{ backgroundImage: 'var(--brand-gradient)' }}
+          >
+            Try the live demo
+            <ArrowRight size={14} />
+          </Link>
           <a
             href={REPO_URL}
             target="_blank"
             rel="noreferrer"
-            className="hidden items-center gap-1.5 text-label-sm text-ink-secondary transition hover:text-ink-primary sm:inline-flex"
+            className="inline-flex h-10 items-center justify-center gap-1.5 rounded-[10px] border border-stroke bg-surface-base text-label-sm text-ink-primary transition hover:bg-surface-subtle"
           >
-            <Code2 size={15} />
-            Source
+            <Code2 size={14} />
+            View source
           </a>
-          <Link
-            to="/login"
-            className="inline-flex h-10 items-center gap-1.5 rounded-[10px] border border-stroke bg-surface-base px-3.5 text-label-sm text-ink-primary transition hover:bg-surface-subtle"
-          >
-            Sign in
-          </Link>
         </div>
-      </header>
 
-      {/* ---------------------------------------------------------- hero */}
-      <section className="relative z-0 overflow-hidden">
-        <div className="absolute inset-0 -z-10" style={{ background: 'linear-gradient(160deg, #372fbd 0%, #635aed 45%, #9355f2 100%)' }} />
-        <div className="pointer-events-none absolute -left-40 -top-32 -z-10 h-[480px] w-[520px] rounded-full bg-[#6bd9ff] opacity-30 blur-[130px]" />
-        <div className="pointer-events-none absolute -right-32 top-10 -z-10 h-[420px] w-[420px] rounded-full bg-[#ff6bb8] opacity-25 blur-[140px]" />
+        <nav className="mt-8 hidden flex-col gap-2 border-t border-stroke-subtle pt-6 lg:flex">
+          {NAV_LINKS.map((l) => (
+            <a key={l.href} href={l.href} className="text-body-sm text-ink-secondary transition hover:text-ink-primary">
+              {l.label}
+            </a>
+          ))}
+        </nav>
+      </aside>
 
-        <Section className="pb-0 pt-16 text-center sm:pt-24">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-label-xs text-white/85">
-            Portfolio project — not a live product
-          </span>
+      {/* ---------------------------------------------------------- main */}
+      <main className="mx-auto w-full max-w-[680px] px-6 py-12 lg:px-12 lg:py-16">
+        <h1 className="text-[28px] font-bold leading-[1.25] tracking-[-0.02em] text-ink-primary sm:text-[36px]">
+          I built Kudos to prove I could take a product from a rough spec to
+          something with real database integrity, real security, and a real
+          design system — not just a UI mockup.
+        </h1>
+        <p className="mt-5 text-body-lg text-ink-secondary">
+          It replaces the spreadsheets and manual gift-card emails most teams
+          still use for recognition programs with one auditable points
+          ledger: admins issue recognition, employees redeem it, and every
+          transaction is logged.
+        </p>
 
-          <h1 className="mx-auto mt-6 max-w-[19ch] text-[34px] font-bold leading-[1.15] tracking-[-0.03em] text-white sm:text-[52px]">
-            An employee recognition platform, built end to end.
-          </h1>
-          <p className="mx-auto mt-5 max-w-[54ch] text-body-lg text-white/75">
-            Kudos replaces spreadsheets and physical gift cards with one auditable points ledger —
-            admins issue recognition, employees redeem it, and every transaction is logged.
+        <section id="problem" className="mt-14 scroll-mt-8">
+          <SectionLabel n="01">The problem</SectionLabel>
+          <h2 className="mt-2 text-heading-lg text-ink-primary">Recognition programs are usually run by hand</h2>
+          <ul className="mt-4 space-y-2.5 text-body-md text-ink-secondary">
+            <li>— Tracked in spreadsheets, or not tracked at all</li>
+            <li>— Physical gift cards and manual email approvals</li>
+            <li>— No visibility into whether the program actually works</li>
+          </ul>
+        </section>
+
+        <section id="decisions" className="mt-14 scroll-mt-8">
+          <SectionLabel n="02">Decisions that mattered</SectionLabel>
+          <h2 className="mt-2 text-heading-lg text-ink-primary">Three calls that shaped the architecture</h2>
+          <div className="mt-6 space-y-6">
+            {DECISIONS.map((d) => (
+              <div key={d.title} className="border-l-2 border-brand-border pl-5">
+                <h3 className="text-heading-sm text-ink-primary">{d.title}</h3>
+                <p className="mt-1.5 text-body-md text-ink-secondary">{d.body}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section id="bugs" className="mt-14 scroll-mt-8">
+          <SectionLabel n="03">Bugs I found fixing my own work</SectionLabel>
+          <h2 className="mt-2 text-heading-lg text-ink-primary">Nothing here was caught by a code review — only by reading and running the app</h2>
+          <div className="mt-6 space-y-6">
+            {BUGS.map((b) => (
+              <div key={b.title} className="rounded-2xl bg-surface-subtle p-5">
+                <h3 className="text-heading-sm text-ink-primary">{b.title}</h3>
+                <p className="mt-1.5 text-body-md text-ink-secondary">{b.body}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section id="screens" className="mt-14 scroll-mt-8">
+          <SectionLabel n="04">What it looks like</SectionLabel>
+          <h2 className="mt-2 text-heading-lg text-ink-primary">Real screens, not mockups</h2>
+          <div className="mt-6 space-y-10">
+            {SCREENS.map((s) => (
+              <figure key={s.src}>
+                <div className="overflow-hidden rounded-2xl border border-stroke-subtle shadow-elevation-md">
+                  <img src={s.src} alt={s.label} className="block w-full" />
+                </div>
+                <figcaption className="mt-3">
+                  <p className="text-label-sm text-ink-primary">{s.label}</p>
+                  <p className="mt-1 text-body-sm text-ink-muted">{s.caption}</p>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </section>
+
+        <section className={cx('mt-16 border-t border-stroke-subtle pt-10')}>
+          <p className="text-body-md text-ink-secondary">
+            That’s the whole loop — from a Postgres RLS policy to a pixel that
+            wasn’t rendering. If you want the fuller reasoning behind any of
+            the calls above, it’s written down as it happened, not
+            reconstructed after the fact.
           </p>
-
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <div className="mt-6 flex flex-wrap items-center gap-3">
             <Link
               to="/login"
-              className="inline-flex h-12 items-center gap-2 rounded-[10px] bg-white px-5 text-label-md text-[#372fbd] transition-transform duration-200 ease-smooth hover:brightness-95 active:scale-[0.97]"
+              className="inline-flex h-11 items-center gap-2 rounded-[10px] px-4 text-label-sm text-white transition hover:brightness-110 active:scale-[0.97]"
+              style={{ backgroundImage: 'var(--brand-gradient)' }}
             >
               Try the live demo
-              <ArrowRight size={16} />
-            </Link>
-            <a
-              href={REPO_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-12 items-center gap-2 rounded-[10px] border border-white/30 bg-white/10 px-5 text-label-md text-white transition hover:bg-white/15"
-            >
-              <Code2 size={16} />
-              View source
-            </a>
-          </div>
-          <p className="mt-5 text-body-sm text-white/55">
-            Demo credentials are pre-filled on the sign-in screen — no account needed.
-          </p>
-        </Section>
-
-        {/* floating screenshot peeking out of the hero */}
-        <Section className="relative mt-14 sm:mt-16">
-          <div className="mx-auto h-[280px] max-w-[880px] translate-y-6 overflow-hidden rounded-t-2xl border border-white/15 shadow-elevation-lg sm:h-[360px]">
-            <img
-              src="/screenshots/recipient-dashboard.png"
-              alt="Kudos recipient dashboard"
-              className="block w-full object-cover object-top"
-            />
-          </div>
-        </Section>
-      </section>
-
-      {/* ---------------------------------------------------- problem/product */}
-      <Section className="pt-24 sm:pt-28">
-        <div className="grid gap-8 sm:grid-cols-2 sm:gap-10">
-          <div>
-            <h2 className="text-heading-lg text-ink-primary">The problem</h2>
-            <p className="mt-2 text-body-md text-ink-secondary">
-              Recognition and reward programs are usually run by hand.
-            </p>
-            <ul className="mt-5 space-y-3">
-              {PROBLEM_POINTS.map((point) => (
-                <li key={point} className="flex items-start gap-2.5 text-body-md text-ink-secondary">
-                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-ink-muted" />
-                  {point}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="rounded-2xl border border-brand-border bg-brand-subtle p-6">
-            <h2 className="text-heading-lg text-ink-primary">What Kudos does</h2>
-            <p className="mt-2 text-body-md text-ink-secondary">
-              A centralized hub for both sides of the loop.
-            </p>
-            <ul className="mt-5 space-y-3">
-              {PRODUCT_POINTS.map((point) => (
-                <li key={point} className="flex items-start gap-2.5 text-body-md text-ink-primary">
-                  <Zap size={15} className="mt-0.5 shrink-0 text-brand-solid" />
-                  {point}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </Section>
-
-      {/* ---------------------------------------------------------- screenshots */}
-      <Section className="mt-24 sm:mt-28">
-        <div className="text-center">
-          <h2 className="text-heading-lg text-ink-primary">See it in action</h2>
-          <p className="mt-2 text-body-md text-ink-secondary">Real screens from the running app — not mockups.</p>
-        </div>
-
-        <div className="mt-10 grid gap-6 sm:grid-cols-3">
-          {SCREENSHOTS.map((shot, i) => (
-            <figure
-              key={shot.src}
-              className={cx(
-                'overflow-hidden rounded-2xl border border-stroke-subtle bg-surface-subtle shadow-elevation-md',
-                i === 1 && 'sm:-translate-y-4'
-              )}
-            >
-              <img src={shot.src} alt={shot.alt} className="block w-full" />
-              <figcaption className="px-4 py-3 text-label-sm text-ink-secondary">{shot.label}</figcaption>
-            </figure>
-          ))}
-        </div>
-      </Section>
-
-      {/* ---------------------------------------------------------- what I built */}
-      <Section className="mt-24 sm:mt-28">
-        <div className="text-center">
-          <h2 className="text-heading-lg text-ink-primary">What I built</h2>
-          <p className="mt-2 text-body-md text-ink-secondary">The product decisions behind the demo.</p>
-        </div>
-
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {BUILT_ITEMS.map(({ icon: Icon, title, body }) => (
-            <div key={title} className="rounded-2xl border border-stroke-subtle bg-surface-base p-5">
-              <span className="grid h-10 w-10 place-items-center rounded-xl bg-brand-subtle">
-                <Icon size={18} className="text-brand-solid" />
-              </span>
-              <h3 className="mt-4 text-heading-sm text-ink-primary">{title}</h3>
-              <p className="mt-1.5 text-body-sm text-ink-secondary">{body}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-2.5 rounded-2xl border border-stroke-subtle bg-surface-subtle p-5">
-          <Layers size={16} className="text-ink-muted" />
-          {STACK.map((tech) => (
-            <span key={tech} className="rounded-full border border-stroke-subtle bg-surface-base px-3 py-1.5 text-label-xs text-ink-secondary">
-              {tech}
-            </span>
-          ))}
-        </div>
-      </Section>
-
-      {/* ---------------------------------------------------------- footer CTA */}
-      <Section className="mt-24 mb-16 sm:mt-28">
-        <div className="relative overflow-hidden rounded-[28px] px-8 py-14 text-center" style={{ backgroundImage: 'var(--brand-gradient)' }}>
-          <BarChart3 size={220} className="pointer-events-none absolute -right-10 -top-10 text-white/[0.08]" />
-          <h2 className="text-display-lg text-white">Ready to explore?</h2>
-          <p className="mx-auto mt-2.5 max-w-[46ch] text-body-md text-white/75">
-            Sign in as an admin or a recipient and walk through the full recognition loop.
-          </p>
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-            <Link
-              to="/login"
-              className="inline-flex h-12 items-center gap-2 rounded-[10px] bg-white px-5 text-label-md text-[#372fbd] transition hover:brightness-95 active:scale-[0.97]"
-            >
-              Enter the demo
-              <ArrowRight size={16} />
+              <ArrowRight size={15} />
             </Link>
             <a
               href={`${REPO_URL}/blob/main/docs/Decision.md`}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex h-12 items-center gap-2 rounded-[10px] border border-white/30 px-5 text-label-md text-white transition hover:bg-white/10"
+              className="inline-flex h-11 items-center gap-2 rounded-[10px] border border-stroke bg-surface-base px-4 text-label-sm text-ink-primary transition hover:bg-surface-subtle"
             >
-              Read the decision log
+              Read the full decision log
             </a>
           </div>
-        </div>
-
-        <p className="mt-8 text-center text-body-sm text-ink-muted">
-          Built by Mrigank Raj Chouhan —{' '}
-          <a href={REPO_URL} target="_blank" rel="noreferrer" className="text-brand-text hover:opacity-80">
-            view source on GitHub
-          </a>
-        </p>
-      </Section>
+        </section>
+      </main>
     </div>
   );
 }
