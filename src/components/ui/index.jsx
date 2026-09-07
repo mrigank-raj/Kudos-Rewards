@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Check, ChevronDown, Search, X, Zap } from 'lucide-react'
 
 /* ------------------------------------------------------------- utilities */
@@ -521,21 +521,90 @@ export function EmptyState({ icon: Icon, title, body, action }) {
   )
 }
 
-export function Dropdown({ icon: Icon, children, className }) {
+/**
+ * A real dropdown menu: click to open a list of options, click one to
+ * select it. Pass `options` (array of strings, or {value,label}) and
+ * `value`/`onChange` to make it functional; `children` still works as a
+ * static label when no `options` are given, so old call sites don't break.
+ */
+export function Dropdown({ icon: Icon, children, options, value, onChange, align = 'left', className }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    if (!open) return
+    const onClickOutside = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false)
+    }
+    const onKey = (e) => e.key === 'Escape' && setOpen(false)
+    document.addEventListener('mousedown', onClickOutside)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onClickOutside)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+
+  const selectedLabel = (() => {
+    if (!options) return children
+    const match = options.find((opt) => (typeof opt === 'string' ? opt : opt.value) === value)
+    if (!match) return children ?? value
+    return typeof match === 'string' ? match : match.label
+  })()
+
   return (
-    <button
-      type="button"
-      className={cx(
-        'inline-flex h-10 items-center gap-2 rounded-[10px] border border-stroke-subtle bg-surface-base px-3.5',
-        'text-label-sm text-ink-secondary transition-all duration-200 ease-smooth',
-        'hover:text-ink-primary hover:border-stroke active:scale-[0.98]',
-        className
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => options && setOpen((o) => !o)}
+        aria-haspopup={options ? 'listbox' : undefined}
+        aria-expanded={options ? open : undefined}
+        className={cx(
+          'inline-flex h-10 items-center gap-2 rounded-[10px] border border-stroke-subtle bg-surface-base px-3.5',
+          'text-label-sm text-ink-secondary transition-all duration-200 ease-smooth',
+          'hover:text-ink-primary hover:border-stroke active:scale-[0.98]',
+          className
+        )}
+      >
+        {Icon && <Icon size={15} />}
+        {selectedLabel}
+        <ChevronDown size={13} className={cx('text-ink-muted transition-transform duration-200', open && 'rotate-180')} />
+      </button>
+
+      {open && options && (
+        <div
+          role="listbox"
+          className={cx(
+            'absolute z-20 mt-1.5 min-w-[180px] rounded-xl border border-stroke-subtle bg-surface-base p-1.5 shadow-elevation-lg',
+            align === 'right' ? 'right-0' : 'left-0'
+          )}
+        >
+          {options.map((opt) => {
+            const key = typeof opt === 'string' ? opt : opt.value
+            const label = typeof opt === 'string' ? opt : opt.label
+            const active = key === value
+            return (
+              <button
+                key={key}
+                type="button"
+                role="option"
+                aria-selected={active}
+                onClick={() => {
+                  onChange?.(key)
+                  setOpen(false)
+                }}
+                className={cx(
+                  'flex w-full items-center rounded-lg px-3 py-2 text-left text-label-sm transition-colors',
+                  active ? 'bg-brand-subtle text-brand-text' : 'text-ink-secondary hover:bg-surface-subtle hover:text-ink-primary'
+                )}
+              >
+                {label}
+              </button>
+            )
+          })}
+        </div>
       )}
-    >
-      {Icon && <Icon size={15} />}
-      {children}
-      <ChevronDown size={13} className="text-ink-muted" />
-    </button>
+    </div>
   )
 }
 
