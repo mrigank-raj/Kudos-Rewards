@@ -1,14 +1,16 @@
 import { ChevronRight, Gift, History, ListFilter, Sparkles, Trophy, Zap } from 'lucide-react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { useTransactions } from '@/hooks/useTransactions'
 import { useKudos } from '@/hooks/useKudos'
 import {
-  AvatarStack, Badge, Card, IconTile, PointsPill, ProgressBar,
+  AvatarStack, Badge, Card, Dropdown, IconTile, PointsPill, ProgressBar,
   SectionTitle, VAULT_GRADIENT, cx,
 } from '@/components/ui'
 
 const NEXT_REWARD = { name: 'Wireless Earbuds', cost: 3000 }
+const VALUE_FILTER_OPTIONS = ['All', 'Teamwork', 'Innovation', 'Impact', 'Leadership']
 
 const formatPoints = (p) => (p || 0).toLocaleString()
 const signedPoints = (p) => p > 0 ? `+${p}` : `${p}`
@@ -106,6 +108,7 @@ export default function RecipientDashboard() {
   const navigate = useNavigate()
   const { data: transactions } = useTransactions('all')
   const { kudosFeed } = useKudos()
+  const [valueFilter, setValueFilter] = useState('All')
 
   const firstName = profile?.name?.split(' ')[0] || 'User'
   const balance = profile?.points_balance || 0
@@ -113,7 +116,7 @@ export default function RecipientDashboard() {
   const quickActions = [
     { icon: Gift, title: 'Browse rewards', short: 'Rewards', sub: 'Redeem your points', go: '/app/catalog' },
     { icon: History, title: 'My history', short: 'History', sub: 'View transactions', go: '/app/history' },
-    { icon: Trophy, title: 'Leaderboard', short: 'Rank', sub: 'View top earners', go: '/app/dashboard' },
+    { icon: Trophy, title: 'Leaderboard', short: 'Rank', sub: 'View top earners', go: '/app/leaderboard' },
   ]
 
   const mappedActivity = (transactions || []).slice(0, 5).map(tx => ({
@@ -125,15 +128,18 @@ export default function RecipientDashboard() {
     meta: tx.description || 'System transaction'
   }))
 
-  const mappedFeed = (kudosFeed || []).map(post => ({
-    id: post.id,
-    from: { name: post.from_user?.name || 'Unknown', avatar: post.from_user?.avatar_url },
-    to: { name: post.to_user?.name || 'Unknown', avatar: post.to_user?.avatar_url },
-    time: new Date(post.created_at).toLocaleDateString(),
-    points: post.points_included || 0,
-    message: post.message,
-    tags: []
-  }))
+  const mappedFeed = useMemo(() => {
+    const mapped = (kudosFeed || []).map(post => ({
+      id: post.id,
+      from: { name: post.from_user?.name || 'Unknown', avatar: post.from_user?.avatar_url },
+      to: { name: post.to_user?.name || 'Unknown', avatar: post.to_user?.avatar_url },
+      time: new Date(post.created_at).toLocaleDateString(),
+      points: post.points_included || 0,
+      message: post.message,
+      tags: post.tags || []
+    }))
+    return valueFilter === 'All' ? mapped : mapped.filter((post) => post.tags.includes(valueFilter))
+  }, [kudosFeed, valueFilter])
 
   return (
     <div className="mx-auto max-w-[1120px] animate-fade-in">
@@ -227,19 +233,22 @@ export default function RecipientDashboard() {
               title="Company recognition"
               subtitle="Live across your organization"
               action={
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-surface-subtle px-2.5 py-1.5 text-label-xs text-ink-secondary transition hover:text-ink-primary"
-                >
-                  <ListFilter size={12} />
-                  All
-                </button>
+                <Dropdown
+                  icon={ListFilter}
+                  className="!h-8 !px-2.5 !text-label-xs"
+                  options={VALUE_FILTER_OPTIONS}
+                  value={valueFilter}
+                  onChange={setValueFilter}
+                  align="right"
+                />
               }
             />
           </div>
           <div className="flex flex-col gap-2.5 border-t border-stroke-subtle p-4">
             {mappedFeed.length === 0 ? (
-              <div className="text-center text-body-sm text-ink-muted py-4">No kudos yet. Be the first to send one!</div>
+              <div className="text-center text-body-sm text-ink-muted py-4">
+                {valueFilter === 'All' ? 'No kudos yet. Be the first to send one!' : `No ${valueFilter.toLowerCase()} kudos yet.`}
+              </div>
             ) : (
               mappedFeed.map((post) => (
                 <RecognitionPost key={post.id} post={post} />

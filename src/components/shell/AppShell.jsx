@@ -15,11 +15,13 @@ export const NAV = {
     { key: 'dashboard', path: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { key: 'programs', path: '/admin/programs', label: 'Programs', icon: Trophy },
     { key: 'people', path: '/admin/people', label: 'People', icon: Users },
+    { key: 'redemptions', path: '/admin/redemptions', label: 'Redemptions', icon: Gift },
     { key: 'analytics', path: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
   ],
   recipient: [
     { key: 'dashboard', path: '/app/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { key: 'catalog', path: '/app/catalog', label: 'Catalog', icon: Gift },
+    { key: 'leaderboard', path: '/app/leaderboard', label: 'Leaderboard', icon: Trophy },
     { key: 'history', path: '/app/history', label: 'History', icon: History },
   ],
 }
