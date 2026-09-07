@@ -93,7 +93,7 @@ export default function LandingPage() {
       </header>
 
       {/* ---------------------------------------------------------- hero */}
-      <section className="relative overflow-hidden">
+      <section className="relative z-0 overflow-hidden">
         <div className="absolute inset-0 -z-10" style={{ background: 'linear-gradient(160deg, #372fbd 0%, #635aed 45%, #9355f2 100%)' }} />
         <div className="pointer-events-none absolute -left-40 -top-32 -z-10 h-[480px] w-[520px] rounded-full bg-[#6bd9ff] opacity-30 blur-[130px]" />
         <div className="pointer-events-none absolute -right-32 top-10 -z-10 h-[420px] w-[420px] rounded-full bg-[#ff6bb8] opacity-25 blur-[140px]" />
@@ -136,11 +136,11 @@ export default function LandingPage() {
 
         {/* floating screenshot peeking out of the hero */}
         <Section className="relative mt-14 sm:mt-16">
-          <div className="mx-auto max-w-[880px] overflow-hidden rounded-t-2xl border border-white/15 shadow-elevation-lg">
+          <div className="mx-auto h-[280px] max-w-[880px] translate-y-6 overflow-hidden rounded-t-2xl border border-white/15 shadow-elevation-lg sm:h-[360px]">
             <img
               src="/screenshots/recipient-dashboard.png"
               alt="Kudos recipient dashboard"
-              className="block w-full translate-y-6 rounded-t-2xl"
+              className="block w-full object-cover object-top"
             />
           </div>
         </Section>
