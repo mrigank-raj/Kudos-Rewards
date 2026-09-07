@@ -119,11 +119,20 @@ function Sidebar({ role, activeKey, isCollapsed, onToggleCollapse }) {
   )
 }
 
-function NotificationsBell({ compact = false }) {
+// Takes notifications/onMarkRead as props rather than calling
+// useNotifications() itself — TopBar and MobileHeader both render at all
+// times (CSS just hides one via `hidden md:flex` / `md:hidden`, it never
+// unmounts), so two independent hook instances each opened their own
+// Realtime channel on the identical topic `notifications:${userId}`.
+// Supabase's realtime-js client caches channels by that topic name, so the
+// second `.channel()` call got a reference to the first instance's
+// already-`.subscribe()`d channel, and `.on('postgres_changes', ...)` on an
+// already-subscribed channel throws. One subscription, shared via props,
+// fixes it at the source instead of giving each instance a unique (but
+// redundant) channel name.
+function NotificationsBell({ compact = false, notifications, onMarkRead }) {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
-  const { data: notifications } = useNotifications()
-  const markRead = useMarkNotificationsRead()
 
   const unread = (notifications || []).filter((n) => !n.read)
 
@@ -138,7 +147,7 @@ function NotificationsBell({ compact = false }) {
 
   const handleOpen = () => {
     setOpen((o) => !o)
-    if (unread.length > 0) markRead.mutate(undefined)
+    if (unread.length > 0) onMarkRead()
   }
 
   return (
@@ -182,7 +191,7 @@ function NotificationsBell({ compact = false }) {
   )
 }
 
-function TopBar({ role, onGiveKudos }) {
+function TopBar({ role, onGiveKudos, notifications, onMarkRead }) {
   const { profile, signOut } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
@@ -207,7 +216,7 @@ function TopBar({ role, onGiveKudos }) {
       <div className="ml-auto flex items-center gap-3">
         {role === 'recipient' && <PointsPill value={`${profile?.points_balance?.toLocaleString() || 0} pts`} />}
 
-        <NotificationsBell />
+        <NotificationsBell notifications={notifications} onMarkRead={onMarkRead} />
 
         <button
           type="button"
@@ -254,7 +263,7 @@ function TopBar({ role, onGiveKudos }) {
   )
 }
 
-function MobileHeader({ role, title, onOpenMenu }) {
+function MobileHeader({ role, title, onOpenMenu, notifications, onMarkRead }) {
   const { profile } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const initials = getInitials(profile?.name)
@@ -273,7 +282,7 @@ function MobileHeader({ role, title, onOpenMenu }) {
 
       <div className="ml-auto flex items-center gap-2">
         {role === 'recipient' && <PointsPill value={(profile?.points_balance || 0).toLocaleString()} size="sm" />}
-        <NotificationsBell compact />
+        <NotificationsBell compact notifications={notifications} onMarkRead={onMarkRead} />
         <button type="button" onClick={toggleTheme} aria-label="Toggle theme" className="p-1.5 text-ink-secondary active:scale-90">
           {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
         </button>
@@ -412,6 +421,12 @@ export default function AppShell({ children }) {
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
   const [isKudosModalOpen, setIsKudosModalOpen] = useState(false)
+
+  // Single subscription for the whole shell — see the comment on
+  // NotificationsBell for why this can't live inside it.
+  const { data: notifications } = useNotifications()
+  const markRead = useMarkNotificationsRead()
+  const handleMarkRead = () => markRead.mutate(undefined)
   
   const [isCollapsed, setIsCollapsed] = useState(() => {
     return localStorage.getItem('kudos_sidebar_collapsed') === 'true'
@@ -448,11 +463,18 @@ export default function AppShell({ children }) {
         className="flex flex-col min-h-screen transition-all duration-300 md:pl-sidebar"
         style={{ '--sidebar-width': isCollapsed ? '80px' : '260px' }}
       >
-        <TopBar role={role} onGiveKudos={() => setIsKudosModalOpen(true)} />
+        <TopBar
+          role={role}
+          onGiveKudos={() => setIsKudosModalOpen(true)}
+          notifications={notifications}
+          onMarkRead={handleMarkRead}
+        />
         <MobileHeader
           role={role}
           title={title}
           onOpenMenu={() => setMenuOpen(true)}
+          notifications={notifications}
+          onMarkRead={handleMarkRead}
         />
 
         <main
