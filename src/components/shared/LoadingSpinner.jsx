@@ -10,9 +10,7 @@ export default function LoadingSpinner({ size = 'md', className = '' }) {
 
   return (
     <div className={`flex items-center justify-center p-4 ${className}`}>
-      <Loader2
-        className={`animate-spin text-[var(--color-primary-500)] ${sizes[size] || sizes.md}`}
-      />
+      <Loader2 className={`animate-spin text-brand-solid ${sizes[size] || sizes.md}`} />
       <span className="sr-only">Loading...</span>
     </div>
   );
@@ -20,7 +18,7 @@ export default function LoadingSpinner({ size = 'md', className = '' }) {
 
 export function FullScreenLoader() {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--bg-primary)]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-surface-canvas">
       <LoadingSpinner size="lg" />
     </div>
   );

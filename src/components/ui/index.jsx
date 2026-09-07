@@ -527,7 +527,7 @@ export function EmptyState({ icon: Icon, title, body, action }) {
  * `value`/`onChange` to make it functional; `children` still works as a
  * static label when no `options` are given, so old call sites don't break.
  */
-export function Dropdown({ icon: Icon, children, options, value, onChange, align = 'left', className }) {
+export function Dropdown({ icon: Icon, children, options, value, onChange, align = 'left', hideLabel = false, ariaLabel, className }) {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
 
@@ -559,6 +559,7 @@ export function Dropdown({ icon: Icon, children, options, value, onChange, align
         onClick={() => options && setOpen((o) => !o)}
         aria-haspopup={options ? 'listbox' : undefined}
         aria-expanded={options ? open : undefined}
+        aria-label={hideLabel ? (ariaLabel ?? (typeof selectedLabel === 'string' ? selectedLabel : undefined)) : undefined}
         className={cx(
           'inline-flex h-10 items-center gap-2 rounded-[10px] border border-stroke-subtle bg-surface-base px-3.5',
           'text-label-sm text-ink-secondary transition-all duration-200 ease-smooth',
@@ -567,8 +568,10 @@ export function Dropdown({ icon: Icon, children, options, value, onChange, align
         )}
       >
         {Icon && <Icon size={15} />}
-        {selectedLabel}
-        <ChevronDown size={13} className={cx('text-ink-muted transition-transform duration-200', open && 'rotate-180')} />
+        {!hideLabel && selectedLabel}
+        {!hideLabel && (
+          <ChevronDown size={13} className={cx('text-ink-muted transition-transform duration-200', open && 'rotate-180')} />
+        )}
       </button>
 
       {open && options && (

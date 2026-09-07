@@ -2,7 +2,13 @@ import { useState, useMemo } from 'react'
 import { Area, AreaChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { ArrowDownRight, Calendar, Download, Info } from 'lucide-react'
 import { Avatar, BRAND_GRADIENT, Card, Dropdown, ProgressBar, SectionTitle, SegmentedTabs, TrendPill, cx } from '@/components/ui'
-import { usePointsSummary, useTopRecipients, useProgramBreakdown, useAnalyticsStats } from '@/hooks/useAnalytics'
+import { usePointsSummary, useTopRecipients, useProgramBreakdown } from '@/hooks/useAnalytics'
+
+const TIME_RANGE_OPTIONS = [
+  { value: '3', label: 'Last 3 months' },
+  { value: '6', label: 'Last 6 months' },
+  { value: 'all', label: 'All time' },
+]
 
 const AXIS = { fontSize: 10, fontFamily: 'Geist Mono, monospace', fill: 'rgb(var(--ink-muted))' }
 const GRID = 'rgb(var(--stroke-subtle))'
@@ -38,11 +44,27 @@ const formatPoints = (p) => (p || 0).toLocaleString()
 
 export default function AnalyticsPage() {
   const [range, setRange] = useState('Overview')
+  const [timeRange, setTimeRange] = useState('6')
 
-  const { data: summary = [], isLoading: summaryLoading } = usePointsSummary()
+  const { data: rawSummary = [], isLoading: summaryLoading } = usePointsSummary()
   const { data: rawTopRecipients = [], isLoading: recipientsLoading } = useTopRecipients(5)
   const { data: rawBreakdown = [], isLoading: breakdownLoading } = useProgramBreakdown()
-  const { totalIssued, totalRedeemed, redemptionRate } = useAnalyticsStats()
+
+  // Scope the monthly series to the selected window — this is what makes
+  // the "Last N months / All time" control do something real.
+  const summary = useMemo(() => {
+    if (timeRange === 'all') return rawSummary
+    return rawSummary.slice(-Number(timeRange))
+  }, [rawSummary, timeRange])
+
+  const { totalIssued, redemptionRate } = useMemo(() => {
+    const issued = summary.reduce((s, m) => s + m.issued, 0)
+    const redeemed = summary.reduce((s, m) => s + m.redeemed, 0)
+    return {
+      totalIssued: issued,
+      redemptionRate: issued > 0 ? Math.round((redeemed / issued) * 100) : 0,
+    }
+  }, [summary])
 
   // Prepare data for the donut chart
   const programSplit = useMemo(() => {
@@ -57,15 +79,15 @@ export default function AnalyticsPage() {
   // Prepare data for the leaderboard
   const topEarners = useMemo(() => {
     if (!rawTopRecipients.length) return []
-    const maxPoints = rawTopRecipients[0].total_points || 1
+    const maxPoints = rawTopRecipients[0].total_earned || 1
     return rawTopRecipients.map((person, index) => ({
       rank: index + 1,
       id: person.user_id,
-      name: person.name,
-      initials: (person.name || 'User').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2),
-      team: 'Team', // Add actual team if available
-      points: person.total_points,
-      pct: Math.round((person.total_points / maxPoints) * 100),
+      name: person.user_name,
+      initials: (person.user_name || 'User').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2),
+      team: person.team || null,
+      points: person.total_earned,
+      pct: Math.round((person.total_earned / maxPoints) * 100),
       color: person.avatar_url,
     }))
   }, [rawTopRecipients])
@@ -88,7 +110,7 @@ export default function AnalyticsPage() {
           </p>
         </div>
         <div className="ml-auto flex items-center gap-2.5">
-          <Dropdown icon={Calendar}>All Time</Dropdown>
+          <Dropdown icon={Calendar} options={TIME_RANGE_OPTIONS} value={timeRange} onChange={setTimeRange} />
           <button
             type="button"
             className="inline-flex h-10 items-center gap-2 rounded-[10px] border border-stroke bg-surface-base px-3.5 text-label-sm text-ink-primary transition hover:bg-surface-subtle active:scale-[0.98]"
@@ -232,7 +254,7 @@ export default function AnalyticsPage() {
           <SectionTitle
             title="Top earners"
             subtitle="Who is driving recognition across your organization"
-            action={<Dropdown className="!h-8 !px-3 !text-label-xs">All Time</Dropdown>}
+            action={<span className="font-mono text-[11px] text-ink-muted">All time</span>}
           />
 
           <div className="mt-4">
@@ -260,7 +282,7 @@ export default function AnalyticsPage() {
 
                   <div className="w-[150px] shrink-0">
                     <p className="truncate text-label-sm text-ink-primary">{person.name}</p>
-                    <p className="truncate text-body-sm text-ink-muted">{person.team}</p>
+                    <p className="truncate text-body-sm text-ink-muted">{person.team || 'Unassigned'}</p>
                   </div>
 
                   <ProgressBar

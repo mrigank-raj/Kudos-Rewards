@@ -70,10 +70,12 @@ export function useTopRecipients(limit = 10) {
 
       if (!rpcError && rpcData) return rpcData;
 
-      // Fallback: client-side
+      // Fallback: client-side. Field names match the RPC's output
+      // (user_name/total_earned, not name/total_points) so consumers don't
+      // need to know or care which path actually ran.
       const { data: txData, error } = await supabase
         .from('transactions')
-        .select('points, type, user_id, users!inner(name, email, org_id)')
+        .select('points, type, user_id, users!inner(name, email, avatar_url, team, org_id)')
         .eq('users.org_id', orgId)
         .in('type', ['manual_credit', 'earn']);
 
@@ -84,16 +86,18 @@ export function useTopRecipients(limit = 10) {
         if (!byUser[tx.user_id]) {
           byUser[tx.user_id] = {
             user_id: tx.user_id,
-            name: tx.users.name,
-            email: tx.users.email,
-            total_points: 0,
+            user_name: tx.users.name,
+            user_email: tx.users.email,
+            avatar_url: tx.users.avatar_url,
+            team: tx.users.team,
+            total_earned: 0,
           };
         }
-        byUser[tx.user_id].total_points += Math.abs(tx.points);
+        byUser[tx.user_id].total_earned += Math.abs(tx.points);
       });
 
       return Object.values(byUser)
-        .sort((a, b) => b.total_points - a.total_points)
+        .sort((a, b) => b.total_earned - a.total_earned)
         .slice(0, limit);
     },
     enabled: !!orgId,
@@ -146,17 +150,4 @@ export function useProgramBreakdown() {
     },
     enabled: !!orgId,
   });
-}
-
-/**
- * Aggregate stats for the stat cards.
- */
-export function useAnalyticsStats() {
-  const { data: summary } = usePointsSummary();
-
-  const totalIssued = (summary || []).reduce((s, m) => s + m.issued, 0);
-  const totalRedeemed = (summary || []).reduce((s, m) => s + m.redeemed, 0);
-  const redemptionRate = totalIssued > 0 ? Math.round((totalRedeemed / totalIssued) * 100) : 0;
-
-  return { totalIssued, totalRedeemed, redemptionRate };
 }

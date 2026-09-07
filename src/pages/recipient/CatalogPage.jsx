@@ -1,13 +1,19 @@
 import { useState, useCallback, useMemo } from 'react'
 import {
-  ArrowRight, Coffee, Film, Gift, Headphones, Lock, Mail, Package,
-  Shield, Shirt, SlidersHorizontal, Sparkles, Sun, Utensils, Zap
+  ArrowRight, Coffee, Film, Gift, Lock, Mail,
+  Shield, Shirt, SlidersHorizontal, Sun, Zap
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useCatalog, useCatalogCategories } from '@/hooks/useCatalog'
 import { useRedeemReward } from '@/hooks/useRedemptions'
 import { supabase } from '@/config/supabase'
-import { ChipRow, ProgressBar, SearchInput, SegmentedTabs, Sheet, Button, Divider, cx } from '@/components/ui'
+import { ChipRow, Dropdown, ProgressBar, SearchInput, SegmentedTabs, Sheet, Button, Divider, cx } from '@/components/ui'
+
+const SORT_OPTIONS = [
+  { value: 'points_asc', label: 'Points: low to high' },
+  { value: 'points_desc', label: 'Points: high to low' },
+  { value: 'name_asc', label: 'Name: A to Z' },
+]
 
 const ICONS = {
   'Gift Cards': Coffee,
@@ -103,7 +109,7 @@ function RedeemSheet({ open, onClose, reward, userBalance, onConfirm, isRedeemin
       <ul className="mt-4 space-y-2.5">
         <li className="flex items-center gap-2.5 text-body-sm text-ink-muted">
           <Mail size={15} className="shrink-0" />
-          Code emailed to {profile?.email || 'your email'} within 5 minutes
+          Recorded against {profile?.email || 'your account'} right away
         </li>
         <li className="flex items-center gap-2.5 text-body-sm text-ink-muted">
           <Shield size={15} className="shrink-0" />
@@ -218,18 +224,25 @@ export default function CatalogPage() {
 
   const [category, setCategory] = useState('All')
   const [query, setQuery] = useState('')
+  const [sort, setSort] = useState('points_asc')
   const [selectedItem, setSelectedItem] = useState(null)
 
   const [localBalance, setLocalBalance] = useState(null)
   const currentBalance = localBalance ?? profile?.points_balance ?? 0
 
   const visible = useMemo(
-    () =>
-      (items || []).filter(r => category === 'All' || r.category === category).filter((r) =>
-        r.name.toLowerCase().includes(query.trim().toLowerCase()) || 
+    () => {
+      const filtered = (items || []).filter(r => category === 'All' || r.category === category).filter((r) =>
+        r.name.toLowerCase().includes(query.trim().toLowerCase()) ||
         (r.description || '').toLowerCase().includes(query.trim().toLowerCase())
-      ),
-    [items, category, query]
+      )
+      return [...filtered].sort((a, b) => {
+        if (sort === 'name_asc') return a.name.localeCompare(b.name)
+        if (sort === 'points_desc') return (b.points_cost || 0) - (a.points_cost || 0)
+        return (a.points_cost || 0) - (b.points_cost || 0) // points_asc
+      })
+    },
+    [items, category, query, sort]
   )
 
   const handleConfirmRedeem = useCallback(async () => {
@@ -291,20 +304,24 @@ export default function CatalogPage() {
           value={category}
           onChange={setCategory}
         />
-        <button
-          type="button"
-          aria-label="Sort and filter"
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-[10px] border border-stroke-subtle bg-surface-base text-ink-secondary md:ml-auto md:hidden"
-        >
-          <SlidersHorizontal size={16} />
-        </button>
-        <button
-          type="button"
-          className="ml-auto hidden h-10 items-center gap-2 rounded-[10px] border border-stroke-subtle bg-surface-base px-3.5 text-label-sm text-ink-secondary transition hover:text-ink-primary md:inline-flex"
-        >
-          <SlidersHorizontal size={14} />
-          Points: low to high
-        </button>
+        <Dropdown
+          icon={SlidersHorizontal}
+          hideLabel
+          ariaLabel="Sort rewards"
+          className="md:ml-auto md:hidden !w-10 !px-0 justify-center"
+          options={SORT_OPTIONS}
+          value={sort}
+          onChange={setSort}
+          align="right"
+        />
+        <Dropdown
+          icon={ArrowUpDown}
+          className="ml-auto hidden md:inline-flex"
+          options={SORT_OPTIONS}
+          value={sort}
+          onChange={setSort}
+          align="right"
+        />
       </div>
 
       <ChipRow className="mt-3 md:hidden" options={categories} value={category} onChange={setCategory} />
