@@ -1,9 +1,11 @@
-import { ChevronRight, Gift, History, ListFilter, Sparkles, Trophy, Zap } from 'lucide-react'
+import { ChevronRight, Gift, History, ListFilter, PartyPopper, Sparkles, Trophy, Users, Zap } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { useTransactions } from '@/hooks/useTransactions'
 import { useKudos } from '@/hooks/useKudos'
+import { useReactions, useToggleReaction, REACTION_EMOJIS } from '@/hooks/useReactions'
+import { useMyBadges } from '@/hooks/useBadges'
 import {
   AvatarStack, Badge, Card, Dropdown, IconTile, PointsPill, ProgressBar,
   SectionTitle, VAULT_GRADIENT, cx,
@@ -11,6 +13,17 @@ import {
 
 const NEXT_REWARD = { name: 'Wireless Earbuds', cost: 3000 }
 const VALUE_FILTER_OPTIONS = ['All', 'Teamwork', 'Innovation', 'Impact', 'Leadership']
+const BADGE_ICONS = { Sparkles, Users, Trophy }
+
+/** True the moment `date` shares today's month+day and is at least a year old. */
+function isAnniversaryToday(dateStr) {
+  if (!dateStr) return null
+  const created = new Date(dateStr)
+  const now = new Date()
+  const years = now.getFullYear() - created.getFullYear()
+  if (years < 1) return null
+  return created.getMonth() === now.getMonth() && created.getDate() === now.getDate() ? years : null
+}
 
 const formatPoints = (p) => (p || 0).toLocaleString()
 const signedPoints = (p) => p > 0 ? `+${p}` : `${p}`
@@ -70,7 +83,13 @@ export function BalanceCard({ balance, onRedeem, compact = false }) {
   )
 }
 
-export function RecognitionPost({ post }) {
+export function RecognitionPost({ post, reactions = [], onToggleReaction }) {
+  // Group this post's reactions by emoji: count + whether the viewer reacted.
+  const grouped = REACTION_EMOJIS.map((emoji) => {
+    const forEmoji = reactions.filter((r) => r.emoji === emoji)
+    return { emoji, count: forEmoji.length, mine: forEmoji.some((r) => r.mine) }
+  }).filter((g) => g.count > 0 || g.emoji) // keep all emojis available to react with
+
   return (
     <article className="rounded-2xl bg-surface-subtle p-3.5">
       <div className="flex items-center gap-2.5">
@@ -99,6 +118,28 @@ export function RecognitionPost({ post }) {
           ))}
         </div>
       )}
+
+      {onToggleReaction && (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {REACTION_EMOJIS.map((emoji) => {
+            const g = grouped.find((x) => x.emoji === emoji)
+            return (
+              <button
+                key={emoji}
+                type="button"
+                onClick={() => onToggleReaction(post.id, emoji, g?.mine)}
+                className={cx(
+                  'inline-flex items-center gap-1 rounded-full px-2 py-1 text-label-xs transition-all active:scale-95',
+                  g?.mine ? 'bg-brand-subtle text-brand-text' : 'bg-surface-base text-ink-secondary hover:text-ink-primary'
+                )}
+              >
+                <span>{emoji}</span>
+                {g?.count > 0 && <span className="font-mono text-[11px]">{g.count}</span>}
+              </button>
+            )
+          })}
+        </div>
+      )}
     </article>
   )
 }
@@ -108,10 +149,12 @@ export default function RecipientDashboard() {
   const navigate = useNavigate()
   const { data: transactions } = useTransactions('all')
   const { kudosFeed } = useKudos()
+  const { data: myBadges } = useMyBadges()
   const [valueFilter, setValueFilter] = useState('All')
 
   const firstName = profile?.name?.split(' ')[0] || 'User'
   const balance = profile?.points_balance || 0
+  const anniversaryYears = isAnniversaryToday(profile?.created_at)
 
   const quickActions = [
     { icon: Gift, title: 'Browse rewards', short: 'Rewards', sub: 'Redeem your points', go: '/app/catalog' },
@@ -141,6 +184,23 @@ export default function RecipientDashboard() {
     return valueFilter === 'All' ? mapped : mapped.filter((post) => post.tags.includes(valueFilter))
   }, [kudosFeed, valueFilter])
 
+  const kudosIds = useMemo(() => mappedFeed.map((p) => p.id), [mappedFeed])
+  const { data: rawReactions } = useReactions(kudosIds)
+  const toggleReaction = useToggleReaction()
+
+  const reactionsByPost = useMemo(() => {
+    const byPost = {}
+    ;(rawReactions || []).forEach((r) => {
+      if (!byPost[r.kudos_id]) byPost[r.kudos_id] = []
+      byPost[r.kudos_id].push({ emoji: r.emoji, mine: r.user_id === profile?.id })
+    })
+    return byPost
+  }, [rawReactions, profile?.id])
+
+  const handleToggleReaction = (kudosId, emoji, alreadyReacted) => {
+    toggleReaction.mutate({ kudosId, emoji, alreadyReacted })
+  }
+
   return (
     <div className="mx-auto max-w-[1120px] animate-fade-in">
       <div className="hidden lg:block">
@@ -149,6 +209,17 @@ export default function RecipientDashboard() {
           You have {formatPoints(balance)} points ready to spend.
         </p>
       </div>
+
+      {anniversaryYears && (
+        <div className="mt-4 flex items-center gap-3.5 rounded-2xl border border-gold-border bg-gold-subtle p-4 lg:mt-6">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gold-solid">
+            <PartyPopper size={17} className="text-white" />
+          </span>
+          <p className="text-label-sm text-ink-primary">
+            🎉 Happy {anniversaryYears}-year work anniversary, {firstName}!
+          </p>
+        </div>
+      )}
 
       <div className="min-h-full pb-8">
         <div className="mx-auto mt-6 grid max-w-6xl items-start gap-4 lg:mt-8 xl:grid-cols-[1fr_360px] xl:gap-8">
@@ -176,6 +247,24 @@ export default function RecipientDashboard() {
               </button>
             ))}
           </div>
+
+          {myBadges?.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {myBadges.map(({ badges: b, awarded_at }) => {
+                const Icon = BADGE_ICONS[b.icon] || Sparkles
+                return (
+                  <span
+                    key={b.key}
+                    title={`${b.description} · earned ${new Date(awarded_at).toLocaleDateString()}`}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-gold-border bg-gold-subtle px-3 py-1.5 text-label-xs text-gold-text"
+                  >
+                    <Icon size={13} />
+                    {b.name}
+                  </span>
+                )
+              })}
+            </div>
+          )}
 
           <Card flush>
             <div className="p-5 pb-4">
@@ -251,7 +340,12 @@ export default function RecipientDashboard() {
               </div>
             ) : (
               mappedFeed.map((post) => (
-                <RecognitionPost key={post.id} post={post} />
+                <RecognitionPost
+                  key={post.id}
+                  post={post}
+                  reactions={reactionsByPost[post.id] || []}
+                  onToggleReaction={handleToggleReaction}
+                />
               ))
             )}
           </div>

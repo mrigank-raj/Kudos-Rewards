@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { useTheme } from '@/context/ThemeContext'
+import { useNotifications, useMarkNotificationsRead } from '@/hooks/useNotifications'
 import {
-  BarChart3, Bell, ChevronDown, ChevronsUpDown, Gift, History, LayoutDashboard,
-  Menu, Moon, Search, Sparkles, Sun, Trophy, User, Users, X, Zap, LogOut,
+  BarChart3, Bell, ChevronDown, Gift, History, LayoutDashboard,
+  Menu, Moon, Search, Sparkles, Sun, Trophy, User, Users, X, LogOut,
   PanelLeftClose, PanelLeftOpen
 } from 'lucide-react'
 import { Avatar, BRAND_GRADIENT, cx, PointsPill } from '../ui'
@@ -118,6 +119,69 @@ function Sidebar({ role, activeKey, isCollapsed, onToggleCollapse }) {
   )
 }
 
+function NotificationsBell({ compact = false }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+  const { data: notifications } = useNotifications()
+  const markRead = useMarkNotificationsRead()
+
+  const unread = (notifications || []).filter((n) => !n.read)
+
+  useEffect(() => {
+    if (!open) return
+    const onClickOutside = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false)
+    }
+    document.addEventListener('mousedown', onClickOutside)
+    return () => document.removeEventListener('mousedown', onClickOutside)
+  }, [open])
+
+  const handleOpen = () => {
+    setOpen((o) => !o)
+    if (unread.length > 0) markRead.mutate(undefined)
+  }
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={handleOpen}
+        aria-label={`Notifications${unread.length > 0 ? ` (${unread.length} unread)` : ''}`}
+        className={cx(
+          'relative grid place-items-center rounded-[10px] bg-surface-subtle text-ink-secondary transition hover:text-ink-primary active:scale-95',
+          compact ? 'h-9 w-9' : 'h-[38px] w-[38px]'
+        )}
+      >
+        <Bell size={compact ? 16 : 17} />
+        {unread.length > 0 && (
+          <span className="absolute right-1.5 top-1.5 h-[7px] w-[7px] rounded-full bg-danger-solid ring-2 ring-surface-base" />
+        )}
+      </button>
+
+      {open && (
+        <div className="absolute right-0 z-30 mt-2 w-[320px] max-w-[90vw] rounded-2xl border border-stroke-subtle bg-surface-base p-2 shadow-elevation-lg">
+          <p className="px-2.5 py-2 text-label-sm text-ink-primary">Notifications</p>
+          <div className="max-h-[340px] overflow-y-auto">
+            {!notifications || notifications.length === 0 ? (
+              <p className="px-2.5 py-6 text-center text-body-sm text-ink-muted">You're all caught up.</p>
+            ) : (
+              notifications.map((n) => (
+                <div key={n.id} className="rounded-xl px-2.5 py-2.5 transition hover:bg-surface-subtle">
+                  <p className="text-label-sm text-ink-primary">{n.title}</p>
+                  {n.body && <p className="mt-0.5 truncate text-body-sm text-ink-muted">{n.body}</p>}
+                  <p className="mt-1 font-mono text-[11px] text-ink-muted">
+                    {new Date(n.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function TopBar({ role, onGiveKudos }) {
   const { profile, signOut } = useAuth()
   const { theme, toggleTheme } = useTheme()
@@ -142,6 +206,8 @@ function TopBar({ role, onGiveKudos }) {
 
       <div className="ml-auto flex items-center gap-3">
         {role === 'recipient' && <PointsPill value={`${profile?.points_balance?.toLocaleString() || 0} pts`} />}
+
+        <NotificationsBell />
 
         <button
           type="button"
@@ -207,6 +273,7 @@ function MobileHeader({ role, title, onOpenMenu }) {
 
       <div className="ml-auto flex items-center gap-2">
         {role === 'recipient' && <PointsPill value={(profile?.points_balance || 0).toLocaleString()} size="sm" />}
+        <NotificationsBell compact />
         <button type="button" onClick={toggleTheme} aria-label="Toggle theme" className="p-1.5 text-ink-secondary active:scale-90">
           {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
         </button>
