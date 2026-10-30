@@ -1,4 +1,4 @@
-import { ChevronRight, Gift, History, ListFilter, PartyPopper, Sparkles, Trophy, Users, Zap } from 'lucide-react'
+import { ChevronRight, Gift, History, ListFilter, PartyPopper, Sparkles, Trophy, Zap } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
@@ -11,9 +11,11 @@ import {
   SectionTitle, VAULT_GRADIENT, cx,
 } from '@/components/ui'
 
+// Shared map so community badges (migration 014) render with their icons too.
+import { BADGE_ICONS } from '@/components/community/badgeIcons'
+
 const NEXT_REWARD = { name: 'Wireless Earbuds', cost: 3000 }
 const VALUE_FILTER_OPTIONS = ['All', 'Teamwork', 'Innovation', 'Impact', 'Leadership']
-const BADGE_ICONS = { Sparkles, Users, Trophy }
 
 /** True the moment `date` shares today's month+day and is at least a year old. */
 function isAnniversaryToday(dateStr) {

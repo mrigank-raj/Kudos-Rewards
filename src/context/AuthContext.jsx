@@ -66,13 +66,15 @@ export function AuthProvider({ children }) {
   // function continues — so a `users` row for this id already exists by
   // the time we get here. It's either a pending-member-aware row (correct
   // org/role/team already applied) or a generic recipient default. We
-  // upsert only the fields we own client-side, so we never clobber a
+  // update only the fields we own client-side, so we never clobber a
   // pending-member assignment we can't see from here.
   const signUp = async ({ email, password, name, role, orgName }) => {
-    // 1. Create the auth user (this also fires handle_new_user server-side)
+    // 1. Create the auth user (this also fires handle_new_user server-side,
+    //    which reads full_name from the metadata for the profile name)
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
+      options: { data: { full_name: name } },
     });
 
     if (authError) throw authError;
@@ -81,31 +83,35 @@ export function AuthProvider({ children }) {
     if (!userId) throw new Error('Sign up failed — no user ID returned.');
 
     if (role === 'admin') {
-      // Admins always create a fresh organization — the trigger has no way
-      // to know about it, so this upsert must override its defaults.
-      const { data: orgData, error: orgError } = await supabase
-        .from('organizations')
-        .insert({ name: orgName || `${name}'s Organization` })
-        .select('id')
-        .single();
+      // Admins always create a fresh organization. role/org_id are
+      // protected columns (migration 011), so this has to happen inside a
+      // server-side function that only allows it for a brand-new account.
+      if (!authData.session) {
+        throw new Error('Email confirmation is enabled for this project — admin signup needs it turned off (see docs/community.md).');
+      }
+      const { error: orgError } = await supabase.rpc('register_admin_organization', {
+        p_org_name: orgName || `${name}'s Organization`,
+        p_name: name,
+      });
 
       if (orgError) throw orgError;
-
-      const { error: profileError } = await supabase
-        .from('users')
-        .upsert({ id: userId, email, name, role: 'admin', org_id: orgData.id }, { onConflict: 'id' });
-
-      if (profileError) throw profileError;
     } else {
       // Recipients: leave org_id/role/team alone — the trigger already set
       // them correctly (from a pending invite, or the default org). Only
       // sync the display name, in case it differs from the trigger's
-      // email-derived guess.
-      const { error: profileError } = await supabase
-        .from('users')
-        .upsert({ id: userId, name }, { onConflict: 'id' });
+      // email-derived guess. An update, not an upsert: an upsert sends a
+      // partial row that fails the users.email NOT NULL check before the
+      // conflict is detected, so signup always errored. If email
+      // confirmation is on there's no session yet and this is a no-op —
+      // the full_name metadata above already covers it.
+      if (authData.session) {
+        const { error: profileError } = await supabase
+          .from('users')
+          .update({ name })
+          .eq('id', userId);
 
-      if (profileError) throw profileError;
+        if (profileError) throw profileError;
+      }
     }
 
     // 2. Fetch the reconciled profile

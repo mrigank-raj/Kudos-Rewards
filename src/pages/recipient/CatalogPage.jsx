@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from 'react'
 import {
-  ArrowRight, Coffee, Film, Gift, Lock, Mail,
+  ArrowRight, ArrowUpDown, Coffee, Film, Gift, Lock, Mail,
   Shield, Shirt, SlidersHorizontal, Sun, Zap
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'

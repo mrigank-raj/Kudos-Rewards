@@ -1,6 +1,11 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { FullScreenLoader } from '@/components/shared/LoadingSpinner';
+
+// Community pages exist under both /app and /admin. A shared link opened by
+// the other role lands on the same page in that role's area instead of
+// being bounced to the dashboard.
+const SHARED_PATH = /^\/(app|admin)\/(community|directory|profile|messages|notifications)(\/|$)/;
 
 /**
  * ProtectedRoute — wraps routes that require authentication + a specific role.
@@ -12,6 +17,7 @@ import { FullScreenLoader } from '@/components/shared/LoadingSpinner';
  */
 export default function ProtectedRoute({ children, allowedRole }) {
   const { isAuthenticated, profile, loading } = useAuth();
+  const location = useLocation();
 
   // Show spinner while loading (never flash login page — edge case 1.7)
   if (loading) {
@@ -30,6 +36,13 @@ export default function ProtectedRoute({ children, allowedRole }) {
 
   // Wrong role → redirect to the correct dashboard (edge case 1.5)
   if (allowedRole && profile.role !== allowedRole) {
+    const area = profile.role === 'admin' ? '/admin' : '/app';
+    const shared = location.pathname.match(SHARED_PATH);
+    // HR-only community pages stay HR-only.
+    if (shared && !/^\/admin\/community\/(moderation|insights)/.test(location.pathname)) {
+      const rest = location.pathname.slice(shared[1].length + 1);
+      return <Navigate to={`${area}${rest}${location.search}${location.hash}`} replace />;
+    }
     const correctDashboard =
       profile.role === 'admin' ? '/admin/dashboard' : '/app/dashboard';
     return <Navigate to={correctDashboard} replace />;

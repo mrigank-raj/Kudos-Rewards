@@ -27,6 +27,42 @@ const CatalogPage = React.lazy(() => import('@/pages/recipient/CatalogPage'));
 const HistoryPage = React.lazy(() => import('@/pages/recipient/HistoryPage'));
 const LeaderboardPage = React.lazy(() => import('@/pages/recipient/LeaderboardPage'));
 
+// Community pages (lazy loaded, shared by both role areas)
+const CommunityFeedPage = React.lazy(() => import('@/pages/community/CommunityFeedPage'));
+const PostEditorPage = React.lazy(() => import('@/pages/community/PostEditorPage'));
+const PostDetailPage = React.lazy(() => import('@/pages/community/PostDetailPage'));
+const DirectoryPage = React.lazy(() => import('@/pages/community/DirectoryPage'));
+const MemberProfilePage = React.lazy(() => import('@/pages/community/MemberProfilePage'));
+const MessagesPage = React.lazy(() => import('@/pages/community/MessagesPage'));
+const NotificationsPage = React.lazy(() => import('@/pages/community/NotificationsPage'));
+const CommunityModerationPage = React.lazy(() => import('@/pages/admin/CommunityModerationPage'));
+const CommunityInsightsPage = React.lazy(() => import('@/pages/admin/CommunityInsightsPage'));
+
+/**
+ * Community routes, mounted under both /app (employees) and /admin (HR) so
+ * each role keeps its own shell. Called as a function (not a component) so
+ * React Router sees plain <Route> elements.
+ */
+function communityRoutes() {
+  return (
+    <>
+      <Route path="community" element={<CommunityFeedPage />} />
+      <Route path="community/ask" element={<PostEditorPage initialType="question" />} />
+      <Route path="community/new" element={<PostEditorPage />} />
+      <Route path="community/mine" element={<CommunityFeedPage mode="mine" />} />
+      <Route path="community/saved" element={<CommunityFeedPage mode="saved" />} />
+      <Route path="community/post/:postId" element={<PostDetailPage />} />
+      <Route path="community/post/:postId/edit" element={<PostEditorPage />} />
+      <Route path="directory" element={<DirectoryPage />} />
+      <Route path="directory/:userId" element={<MemberProfilePage />} />
+      <Route path="profile" element={<MemberProfilePage self />} />
+      <Route path="messages" element={<MessagesPage />} />
+      <Route path="messages/:conversationId" element={<MessagesPage />} />
+      <Route path="notifications" element={<NotificationsPage />} />
+    </>
+  );
+}
+
 /**
  * Root route: authenticated users go straight to their role-appropriate
  * dashboard; a first-time visitor sees the landing page instead of being
@@ -68,6 +104,9 @@ function App() {
               <Route path="people" element={<PeoplePage />} />
               <Route path="redemptions" element={<RedemptionsPage />} />
               <Route path="analytics" element={<AnalyticsPage />} />
+              <Route path="community/moderation" element={<CommunityModerationPage />} />
+              <Route path="community/insights" element={<CommunityInsightsPage />} />
+              {communityRoutes()}
             </Route>
 
             {/* Recipient routes */}
@@ -84,6 +123,7 @@ function App() {
               <Route path="catalog" element={<CatalogPage />} />
               <Route path="history" element={<HistoryPage />} />
               <Route path="leaderboard" element={<LeaderboardPage />} />
+              {communityRoutes()}
             </Route>
 
             {/* Root + catch-all */}

@@ -69,7 +69,9 @@ export default function AnalyticsPage() {
   // Prepare data for the donut chart
   const programSplit = useMemo(() => {
     return rawBreakdown.map((item, index) => ({
-      name: item.name,
+      // get_program_breakdown() returns program_name; the client-side
+      // fallback in useProgramBreakdown returns name.
+      name: item.program_name ?? item.name,
       value: item.total_points,
       pct: totalIssued > 0 ? Math.round((item.total_points / totalIssued) * 100) : 0,
       color: COLORS[index % COLORS.length]

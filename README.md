@@ -20,6 +20,7 @@ The product aims to boost employee retention, engagement, and cross-functional c
 5. **Secure Authentication**: Built on Supabase GoTrue with automated Row-Level Security (RLS) and Postgres triggers for seamless onboarding, including admin-configured pending members who are promoted automatically on signup.
 6. **Leaderboard & Badges**: A recipient-facing leaderboard and automatically-awarded achievement badges (First Kudos, Team Player, Top Earner).
 7. **Redemption Fulfillment Queue**: Admins can approve or cancel pending reward redemptions instead of them being purely simulated.
+8. **Employee Community**: Questions with accepted answers, discussions and tips, threaded replies, appreciation, bookmarks, an employee directory, private 1:1 messaging, notifications, and a community reputation (separate from redeemable points) with HR moderation and contribution insights. See the [Community guide](docs/community.md).
 
 ## 🛠 Tech Stack
 - **Frontend**: React (Vite), Tailwind CSS, React Query (Tanstack), Lucide Icons, date-fns.
@@ -39,8 +40,17 @@ To understand the "Why" behind the technical and product choices (e.g., why we c
 # Install dependencies
 npm install
 
+# Configure Supabase (public URL + anon key only)
+cp .env.example .env
+
 # Start the development server
 npm run dev
+
+# Checks
+npm run lint
+npm run build
+npm test          # unit tests
+npm run test:db   # migrations + RLS/security tests on in-memory Postgres
 ```
 
-*Note: You must connect your own Supabase project and run the provided SQL migrations in the `supabase/migrations` folder to initialize the database.*
+*Note: You must connect your own Supabase project and run the provided SQL migrations in the `supabase/migrations` folder (in numeric order, `001`–`015`) to initialize the database. The community migrations and setup are described in [docs/community.md](docs/community.md).*
