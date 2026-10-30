@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/config/supabase';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -37,7 +37,9 @@ export function useNotifications() {
       .channel(`notifications:${userId}`)
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
+        // '*' rather than INSERT: message notifications are re-surfaced by an
+        // upsert (UPDATE) when a conversation gets a new message.
+        { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
         () => queryClient.invalidateQueries({ queryKey: ['notifications', userId] })
       )
       .subscribe();
@@ -63,5 +65,53 @@ export function useMarkNotificationsRead() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
     },
+  });
+}
+
+const NOTIFICATION_PAGE = 20;
+
+/** Full, paginated notification history for the Notifications page. */
+export function useNotificationFeed({ unreadOnly = false } = {}) {
+  const { profile } = useAuth();
+  const userId = profile?.id;
+
+  return useInfiniteQuery({
+    queryKey: ['notifications', userId, 'feed', unreadOnly],
+    initialPageParam: 0,
+    queryFn: async ({ pageParam }) => {
+      const from = pageParam * NOTIFICATION_PAGE;
+      let query = supabase
+        .from('notifications')
+        .select('id, type, title, body, link, read, created_at, actor:users!actor_id(id, name, avatar_url)')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .range(from, from + NOTIFICATION_PAGE - 1);
+      if (unreadOnly) query = query.eq('read', false);
+      const { data, error } = await query;
+      if (error) throw error;
+      return data;
+    },
+    getNextPageParam: (lastPage, allPages) => (lastPage.length === NOTIFICATION_PAGE ? allPages.length : undefined),
+    enabled: !!userId,
+  });
+}
+
+/** Exact unread count (the bell list is capped at 20 rows). */
+export function useUnreadNotificationCount() {
+  const { profile } = useAuth();
+  const userId = profile?.id;
+
+  return useQuery({
+    queryKey: ['notifications', userId, 'unread-count'],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('notifications')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .eq('read', false);
+      if (error) throw error;
+      return count || 0;
+    },
+    enabled: !!userId,
   });
 }

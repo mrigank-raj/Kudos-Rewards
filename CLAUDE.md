@@ -80,6 +80,11 @@ The `transactions` table is the **source of truth** for all point movements. `us
 004_seed_data.sql           — Demo data (org, users, programs, transactions, catalog items, redemptions)
 005_fix_rls.sql             — RLS policy fixes
 006_send_kudos_rpc.sql      — Atomic P2P kudos transfer function
+007–010                     — Teams/pending members, redemption fulfilment, org visibility, reactions/notifications/badges
+011_security_hardening.sql  — Protects users.role/org_id/points_balance; caller checks in points RPCs
+012–015                     — Employee Community (posts, comments, messaging, reputation, moderation) — see docs/community.md
+016_hardening_followups.sql — Revokes API execute on trigger/internal functions, search_path + indexes
+017_leaderboard_and_conversation_role.sql — Org-scoped definer leaderboard; role in conversation list
 create_user_trigger.sql     — Auto-creates public profile when auth.users row is inserted
 create_test_user.sql        — Helper for creating test users
 ```
@@ -244,6 +249,10 @@ npm run lint         # Run oxlint
 ```
 
 ---
+
+## Employee Community
+
+Shared pages live in `src/pages/community/` and are mounted under both `/app/*` and `/admin/*` (`communityRoutes()` in `App.jsx`); HR-only pages are `src/pages/admin/Community*Page.jsx`. Data hooks: `useCommunity`, `useCommunityPeople`, `useMessages`, `useCommunityAdmin`. Never send `author_id`/`org_id` from the client — triggers derive them. Community reputation is separate from points; official points only via `credit_points`. Full details: `docs/community.md`. Tests: `npm test`, `npm run test:db`.
 
 ## Style & Code Conventions
 
