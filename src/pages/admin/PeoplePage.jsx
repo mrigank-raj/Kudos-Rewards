@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react'
-import { ArrowUpDown, Clock, ListFilter, MailPlus, Minus, MoreVertical, Plus, Zap } from 'lucide-react'
+import { ArrowUpDown, Clock, ListFilter, MailPlus, Minus, Plus, UserMinus, Zap } from 'lucide-react'
 import { Avatar, Badge, Card, Checkbox, Dropdown, SearchInput, Sheet, Button, cx } from '@/components/ui'
-import { usePeople, useCreditPoints, useDebitPoints, usePendingMembers, useAddPendingMember } from '@/hooks/usePeople'
+import { usePeople, useCreditPoints, useDebitPoints, usePendingMembers, useAddPendingMember, useRemoveMember, useRemovePendingMember } from '@/hooks/usePeople'
+import { useAuth } from '@/hooks/useAuth'
 import { usePrograms } from '@/hooks/usePrograms'
 import { useToast } from '@/context/ToastContext'
 
@@ -185,7 +186,7 @@ function InviteMemberSheet({ open, onClose }) {
     const errs = {}
     if (!form.name.trim()) errs.name = 'Name is required'
     if (!form.email.trim()) errs.email = 'Email is required'
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errs.email = 'Enter a valid email'
+    else if (!/^[^\s@]+@kiit\.ac\.in$/i.test(form.email.trim())) errs.email = 'Use an official @kiit.ac.in email'
     setErrors(errs)
     return Object.keys(errs).length === 0
   }
@@ -205,7 +206,7 @@ function InviteMemberSheet({ open, onClose }) {
       setForm({ name: '', email: '', role: 'recipient', team: '' })
       onClose()
     } catch (err) {
-      toast.error(err.message?.includes('duplicate') ? 'Someone with this email is already invited.' : (err.message || 'Failed to add member.'))
+      toast.error(err.message?.includes('duplicate') ? 'This email is already on the approved list.' : (err.message || 'Failed to add member.'))
     }
   }
 
@@ -232,13 +233,13 @@ function InviteMemberSheet({ open, onClose }) {
       <div className="space-y-5">
         <div>
           <label className="block text-label-sm text-ink-primary mb-2">Full name</label>
-          <input name="name" value={form.name} onChange={handleChange} placeholder="Jane Doe" className={cx(inputClass, errors.name && 'border-danger-solid')} />
+          <input name="name" value={form.name} onChange={handleChange} placeholder="Full name" className={cx(inputClass, errors.name && 'border-danger-solid')} />
           {errors.name && <p className="mt-1 text-xs text-danger-solid">{errors.name}</p>}
         </div>
 
         <div>
           <label className="block text-label-sm text-ink-primary mb-2">Email</label>
-          <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="jane@company.com" className={cx(inputClass, errors.email && 'border-danger-solid')} />
+          <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="name@kiit.ac.in" className={cx(inputClass, errors.email && 'border-danger-solid')} />
           {errors.email && <p className="mt-1 text-xs text-danger-solid">{errors.email}</p>}
         </div>
 
@@ -253,8 +254,8 @@ function InviteMemberSheet({ open, onClose }) {
         <div>
           <label className="block text-label-sm text-ink-primary mb-2">Role</label>
           <select name="role" value={form.role} onChange={handleChange} className={inputClass}>
-            <option value="recipient">Team member (recipient)</option>
-            <option value="admin">Admin</option>
+            <option value="recipient">Employee</option>
+            <option value="admin">HR</option>
           </select>
         </div>
       </div>
@@ -262,7 +263,106 @@ function InviteMemberSheet({ open, onClose }) {
   )
 }
 
+function RemoveMemberSheet({ person, onClose }) {
+  const removeMember = useRemoveMember()
+  const removePending = useRemovePendingMember()
+  const toast = useToast()
+  const [revoke, setRevoke] = useState(true)
+
+  if (!person) return null
+
+  const busy = removeMember.isPending || removePending.isPending
+
+  const handleRemove = async () => {
+    try {
+      if (person.pending) {
+        await removePending.mutateAsync(person.pendingId)
+        toast.success(`${person.name} removed from the approved list.`)
+      } else {
+        // The server revokes whatever is left at that moment, which may differ
+        // from the balance shown here if they just spent or sent points.
+        const res = await removeMember.mutateAsync({ userId: person.id, revokePoints: revoke })
+        toast.success(res?.points_revoked > 0
+          ? `${person.name} removed. ${res.points_revoked} points revoked.`
+          : `${person.name} removed from the portal.`)
+      }
+      onClose()
+    } catch (err) {
+      toast.error(err.message || 'Could not remove this person.')
+    }
+  }
+
+  const optionClass = (on) => cx(
+    'flex w-full items-start gap-3 rounded-xl border p-3.5 text-left transition',
+    on ? 'border-brand-solid bg-brand-subtle' : 'border-stroke-subtle bg-surface-subtle hover:border-stroke'
+  )
+
+  return (
+    <Sheet
+      open
+      onClose={onClose}
+      title={person.pending ? 'Remove from approved list' : 'Remove from portal'}
+      subtitle={person.name}
+      width={460}
+      footer={
+        <div className="flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
+          <Button variant="secondary" onClick={onClose} className="sm:w-auto" disabled={busy}>
+            Cancel
+          </Button>
+          <button
+            type="button"
+            onClick={handleRemove}
+            disabled={busy}
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-[10px] bg-danger-solid px-[18px] text-label-sm text-white transition hover:brightness-110 active:scale-[0.97] disabled:opacity-50"
+          >
+            <UserMinus size={15} />
+            {busy ? 'Removing...' : person.pending ? 'Remove from list' : 'Remove person'}
+          </button>
+        </div>
+      }
+    >
+      {person.pending ? (
+        <p className="text-body-md text-ink-secondary">
+          {person.name} hasn&apos;t signed up yet. Once removed, they can&apos;t create an account unless HR adds them again.
+        </p>
+      ) : (
+        <div className="space-y-4">
+          <p className="text-body-md text-ink-secondary">
+            {person.name} won&apos;t be able to log in any more. Their past Thank You ! notes, points history and posts stay on record.
+          </p>
+
+          {person.balance > 0 ? (
+            <div className="space-y-2.5" role="radiogroup" aria-label="Remaining points">
+              <p className="text-label-sm text-ink-primary">They still have {person.balance.toLocaleString()} points</p>
+              <button type="button" role="radio" aria-checked={revoke} onClick={() => setRevoke(true)} className={optionClass(revoke)}>
+                <span className="min-w-0">
+                  <span className="block text-label-sm text-ink-primary">Revoke all their points</span>
+                  <span className="block text-body-sm text-ink-muted">Recorded as &ldquo;Points revoked on leaving&rdquo;.</span>
+                </span>
+              </button>
+              <button type="button" role="radio" aria-checked={!revoke} onClick={() => setRevoke(false)} className={optionClass(!revoke)}>
+                <span className="min-w-0">
+                  <span className="block text-label-sm text-ink-primary">Leave the points as they are</span>
+                  <span className="block text-body-sm text-ink-muted">They stay frozen on the closed account.</span>
+                </span>
+              </button>
+            </div>
+          ) : (
+            <p className="text-body-sm text-ink-muted">They have no points left.</p>
+          )}
+
+          <p className="rounded-xl bg-surface-sunken p-3 text-body-sm text-ink-muted">
+            Before leaving, people can use their points in the reward shop or pass them on with Say Thank You !.
+            Any reward requests still waiting must be delivered or cancelled first.
+          </p>
+        </div>
+      )}
+    </Sheet>
+  )
+}
+
 export default function PeoplePage() {
+  const { profile } = useAuth()
   const { data: rawPeople, isLoading } = usePeople()
   const { data: rawPending, isLoading: pendingLoading } = usePendingMembers()
   const creditPoints = useCreditPoints()
@@ -275,6 +375,7 @@ export default function PeoplePage() {
   const [sheetMode, setSheetMode] = useState('credit')
   const [showSheet, setShowSheet] = useState(false)
   const [showInvite, setShowInvite] = useState(false)
+  const [removing, setRemoving] = useState(null)
 
   const people = useMemo(() => {
     return (rawPeople || []).map(p => ({
@@ -286,8 +387,10 @@ export default function PeoplePage() {
       lifetime: p.points_balance || 0,
       joined: new Date(p.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
       pending: false,
+      isHR: p.role === 'admin',
+      isSelf: p.id === profile?.id,
     }))
-  }, [rawPeople])
+  }, [rawPeople, profile?.id])
 
   const pendingPeople = useMemo(() => {
     return (rawPending || []).map(p => ({
@@ -301,6 +404,8 @@ export default function PeoplePage() {
       lifetime: null,
       joined: null,
       pending: true,
+      isHR: p.role === 'admin',
+      isSelf: false,
     }))
   }, [rawPending])
 
@@ -409,19 +514,21 @@ export default function PeoplePage() {
                 <p className="truncate text-label-md text-ink-primary">{person.name}</p>
                 <p className="truncate text-body-sm text-ink-muted">{person.email}</p>
               </div>
-              {!person.pending && (
+              {!person.isSelf && (
                 <button
                   type="button"
-                  aria-label={`More options for ${person.name}`}
-                  className="ml-auto shrink-0 p-1.5 text-ink-muted"
+                  onClick={() => setRemoving(person)}
+                  aria-label={`Remove ${person.name}`}
+                  className="ml-auto shrink-0 p-1.5 text-ink-muted hover:text-danger-solid"
                 >
-                  <MoreVertical size={15} />
+                  <UserMinus size={16} />
                 </button>
               )}
             </div>
 
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <Badge tone="neutral">{person.team || 'Unassigned'}</Badge>
+              {person.isHR && <Badge tone="brand">HR</Badge>}
               {person.pending ? (
                 <Badge tone="gold" dot>
                   <Clock size={11} />
@@ -441,7 +548,7 @@ export default function PeoplePage() {
               )}
             </div>
 
-            {!person.pending && (
+            {!person.pending && !person.isSelf && (
               <div className="mt-3 grid grid-cols-2 gap-2.5">
                 <button
                   type="button"
@@ -509,6 +616,7 @@ export default function PeoplePage() {
                 <td className="py-2.5 pr-4">
                   <div className="flex items-center gap-1.5">
                     <Badge tone="neutral">{person.team || 'Unassigned'}</Badge>
+                    {person.isHR && <Badge tone="brand">HR</Badge>}
                     {person.pending && (
                       <Badge tone="gold" dot>
                         <Clock size={11} />
@@ -538,8 +646,8 @@ export default function PeoplePage() {
                 </td>
 
                 <td className="py-2.5 pr-5">
-                  {!person.pending && (
-                    <div className="flex items-center justify-end gap-1.5">
+                  <div className="flex items-center justify-end gap-1.5">
+                    {!person.pending && !person.isSelf && (<>
                       <button
                         type="button"
                         onClick={() => handleActionClick(person, 'credit')}
@@ -556,8 +664,21 @@ export default function PeoplePage() {
                       >
                         <Minus size={14} className="text-danger-solid" />
                       </button>
-                    </div>
-                  )}
+                    </>)}
+                    {person.isSelf ? (
+                      <span className="font-mono text-[11px] text-ink-muted">You</span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setRemoving(person)}
+                        aria-label={`Remove ${person.name}`}
+                        title="Remove from portal"
+                        className="grid h-8 w-8 place-items-center rounded-lg bg-surface-subtle text-ink-muted transition hover:text-danger-solid active:scale-95"
+                      >
+                        <UserMinus size={14} />
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
@@ -582,6 +703,8 @@ export default function PeoplePage() {
       />
 
       <InviteMemberSheet open={showInvite} onClose={() => setShowInvite(false)} />
+
+      {removing && <RemoveMemberSheet key={removing.id} person={removing} onClose={() => setRemoving(null)} />}
     </div>
   )
 }

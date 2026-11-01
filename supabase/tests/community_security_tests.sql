@@ -31,8 +31,14 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO organizations (id, name)
 SELECT id, 'Test Org ' || k FROM t_ids WHERE k IN ('orgA', 'orgB');
 
+-- Sign-up is invite-only (018): pre-approve the fixture accounts.
+INSERT INTO pending_members (org_id, name, email, role)
+SELECT (SELECT id FROM t_ids WHERE k = CASE WHEN t.k = 'eB' THEN 'orgB' ELSE 'orgA' END), t.k,
+       t.k || '-' || left(t.id::text, 8) || '@kiit.ac.in', CASE WHEN t.k = 'hrA' THEN 'admin' ELSE 'recipient' END
+FROM t_ids t WHERE t.k IN ('hrA', 'e1', 'e2', 'eB');
+
 INSERT INTO auth.users (id, email, aud, role, instance_id)
-SELECT id, k || '-' || left(id::text, 8) || '@community-test.local', 'authenticated', 'authenticated',
+SELECT id, k || '-' || left(id::text, 8) || '@kiit.ac.in', 'authenticated', 'authenticated',
        '00000000-0000-0000-0000-000000000000'
 FROM t_ids WHERE k IN ('hrA', 'e1', 'e2', 'eB');
 

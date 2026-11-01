@@ -200,8 +200,8 @@ export default function CommunityInsightsPage() {
                       <XAxis dataKey="label" tickLine={false} axisLine={false} tick={AXIS} dy={6} />
                       <YAxis tickLine={false} axisLine={false} tick={AXIS} width={40} allowDecimals={false} />
                       <Tooltip contentStyle={{ background: 'rgb(var(--surface-base))', border: '1px solid rgb(var(--stroke-subtle))', borderRadius: 12, fontSize: 12 }} />
-                      <Area isAnimationActive={false} type="monotone" dataKey="posts" name="Posts" stroke="#6366F1" strokeWidth={2.5} fill="#6366F1" fillOpacity={0.12} />
-                      <Area isAnimationActive={false} type="monotone" dataKey="comments" name="Answers & comments" stroke="#10B981" strokeWidth={2.5} fill="#10B981" fillOpacity={0.1} />
+                      <Area isAnimationActive={false} type="monotone" dataKey="posts" name="Posts" stroke="#16A34A" strokeWidth={2.5} fill="#16A34A" fillOpacity={0.12} />
+                      <Area isAnimationActive={false} type="monotone" dataKey="comments" name="Answers & comments" stroke="#3B82F6" strokeWidth={2.5} fill="#3B82F6" fillOpacity={0.1} />
                     </AreaChart>
                   </ResponsiveContainer>
                 )}

@@ -24,8 +24,10 @@ CREATE SCHEMA auth;
 CREATE TABLE auth.users (
   instance_id uuid, id uuid PRIMARY KEY, aud text, role text, email text,
   encrypted_password text, email_confirmed_at timestamptz, raw_user_meta_data jsonb,
-  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now(),
+  banned_until timestamptz
 );
+CREATE TABLE auth.sessions (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid);
 CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $$
   SELECT coalesce(nullif(current_setting('request.jwt.claim.sub', true), ''),
                   (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub'))::uuid
@@ -50,7 +52,10 @@ const MIGRATIONS = [
   '012_community_core.sql', '013_community_messaging.sql',
   '014_community_notifications_reputation.sql', '015_community_moderation.sql',
   '016_hardening_followups.sql', '017_leaderboard_and_conversation_role.sql',
+  '018_kiit_portal.sql', '019_member_removal.sql',
 ]
+
+const TESTS = ['community_security_tests.sql', 'member_removal_tests.sql']
 
 const db = new PGlite()
 await db.exec(SHIM)
@@ -61,6 +66,8 @@ for (const file of MIGRATIONS) {
     // which Postgres rejects on a fresh database (the hosted project was
     // patched by hand). Drop it first so a clean install works.
     if (file.startsWith('008')) await db.exec('DROP FUNCTION IF EXISTS get_top_recipients(uuid, int);')
+    // 018 seeds invites into the KIIT org, which 004 (skipped) would create.
+    if (file.startsWith('018')) await db.exec("INSERT INTO organizations (id, name) VALUES ('a0000000-0000-0000-0000-000000000001', 'KIIT University') ON CONFLICT (id) DO NOTHING;")
     await db.exec(read('supabase', 'migrations', file))
     console.log(`applied  ${file}`)
   } catch (e) {
@@ -71,14 +78,16 @@ for (const file of MIGRATIONS) {
 
 let passed = 0
 try {
-  await db.exec(read('supabase', 'tests', 'community_security_tests.sql'), {
-    onNotice: (n) => {
-      if (n.message.startsWith('PASS') || n.message.startsWith('ALL')) {
-        if (n.message.startsWith('PASS')) passed++
-        console.log(`  ${n.message}`)
-      }
-    },
-  })
+  for (const file of TESTS) {
+    await db.exec(read('supabase', 'tests', file), {
+      onNotice: (n) => {
+        if (n.message.startsWith('PASS') || n.message.startsWith('ALL')) {
+          if (n.message.startsWith('PASS')) passed++
+          console.log(`  ${n.message}`)
+        }
+      },
+    })
+  }
 } catch (e) {
   console.error(`\n  ${e.message}`)
   console.error(`\n${passed} checks passed before the failure.`)

@@ -42,7 +42,7 @@ export default function GiveKudosModal({ isOpen, onClose }) {
         tags,
       })
       
-      addToast('success', 'Kudos sent successfully!')
+      addToast('success', 'Thank You ! sent')
       
       // Reset form
       setToUserId('')
@@ -52,7 +52,7 @@ export default function GiveKudosModal({ isOpen, onClose }) {
       onClose()
     } catch (err) {
       console.error(err)
-      addToast('error', err.message || 'Failed to send Kudos')
+      addToast('error', err.message || 'Failed to send Thank You !')
     }
   }
 
@@ -63,8 +63,8 @@ export default function GiveKudosModal({ isOpen, onClose }) {
     <Sheet
       open={isOpen}
       onClose={onClose}
-      title="Give Kudos"
-      subtitle="Recognition posts to the company feed"
+      title="Say Thank You !"
+      subtitle="Your note appears on the Thank You ! wall"
       icon={<Sparkles size={19} className="text-white" />}
       width={580}
       footer={
@@ -84,14 +84,14 @@ export default function GiveKudosModal({ isOpen, onClose }) {
             </Button>
             <Button className="flex-1 sm:flex-none" disabled={!canSend} onClick={handleSubmit}>
               <Sparkles size={15} />
-              {isSending ? 'Sending...' : 'Send Kudos'}
+              {isSending ? 'Sending...' : 'Send Thank You !'}
             </Button>
           </div>
         </div>
       }
     >
       {/* ------------------------------------------------------- recipient */}
-      <p className="text-label-sm text-ink-primary">Who are you recognizing?</p>
+      <p className="text-label-sm text-ink-primary">Who are you thanking?</p>
 
       <div className="mt-2.5 flex h-11 items-center gap-2.5 rounded-xl border border-stroke-subtle bg-surface-subtle px-3.5">
         <Search size={15} className="text-ink-muted" />
@@ -137,7 +137,7 @@ export default function GiveKudosModal({ isOpen, onClose }) {
                 <span className={cx('text-label-xs truncate w-full text-center', selected ? 'text-brand-text' : 'text-ink-primary')}>
                   {(person.name || 'User').split(' ')[0]}
                 </span>
-                <span className="font-mono text-[11px] leading-3 text-ink-muted truncate w-full text-center">Team</span>
+                <span className="font-mono text-[11px] leading-3 text-ink-muted truncate w-full text-center">{person.role === 'admin' ? 'HR' : 'Employee'}</span>
               </button>
             )
           })
@@ -231,6 +231,15 @@ export default function GiveKudosModal({ isOpen, onClose }) {
           />
         </div>
       )}
+
+      <button
+        type="button"
+        onClick={() => setPoints(maxPoints)}
+        disabled={maxPoints === 0}
+        className="mt-3 text-label-sm text-brand-text transition hover:opacity-80 disabled:pointer-events-none disabled:text-ink-muted"
+      >
+        Send all my points ({formatPoints(maxPoints)})
+      </button>
 
       <p className="mt-4 text-center text-body-sm text-ink-muted sm:hidden">
         Balance after sending{' '}

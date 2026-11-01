@@ -52,7 +52,7 @@ export function useAllRedemptions() {
 }
 
 /**
- * Admin: move a redemption to fulfilled/cancelled/pending via the atomic
+ * Admin: mark a pending redemption fulfilled or cancelled (cancel refunds) via the atomic
  * RPC function (enforces org ownership + admin role server-side too).
  */
 export function useUpdateRedemptionStatus() {

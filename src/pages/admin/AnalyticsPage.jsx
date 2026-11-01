@@ -138,7 +138,7 @@ export default function AnalyticsPage() {
             subtitle="Monthly totals across all programs"
             action={
               <div className="hidden items-center gap-3.5 sm:flex">
-                <Legend color="#6366F1" label="Issued" />
+                <Legend color="#16A34A" label="Issued" />
                 <Legend color="#F43F5E" label="Redeemed" />
               </div>
             }
@@ -154,8 +154,8 @@ export default function AnalyticsPage() {
                 <AreaChart data={summary} margin={{ top: 4, right: 6, left: -18, bottom: 0 }}>
                   <defs>
                     <linearGradient id="gIssued" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#6366F1" stopOpacity={0.26} />
-                      <stop offset="100%" stopColor="#6366F1" stopOpacity={0} />
+                      <stop offset="0%" stopColor="#16A34A" stopOpacity={0.26} />
+                      <stop offset="100%" stopColor="#16A34A" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="gRedeemed" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="#F43F5E" stopOpacity={0.2} />
@@ -175,10 +175,10 @@ export default function AnalyticsPage() {
                     isAnimationActive={false}
                     type="monotone"
                     dataKey="issued"
-                    stroke="#6366F1"
+                    stroke="#16A34A"
                     strokeWidth={2.5}
                     fill="url(#gIssued)"
-                    dot={{ r: 3.5, fill: 'rgb(var(--surface-base))', stroke: '#6366F1', strokeWidth: 2 }}
+                    dot={{ r: 3.5, fill: 'rgb(var(--surface-base))', stroke: '#16A34A', strokeWidth: 2 }}
                     activeDot={{ r: 5 }}
                   />
                   <Area
@@ -326,12 +326,12 @@ export default function AnalyticsPage() {
                   <AreaChart data={redemptionTrend} margin={{ top: 4, right: 2, left: 2, bottom: 0 }}>
                     <defs>
                       <linearGradient id="gTrend" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#6366F1" stopOpacity={0.24} />
-                        <stop offset="100%" stopColor="#6366F1" stopOpacity={0} />
+                        <stop offset="0%" stopColor="#16A34A" stopOpacity={0.24} />
+                        <stop offset="100%" stopColor="#16A34A" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <Tooltip content={<ChartTooltip suffix="%" />} cursor={false} />
-                    <Area isAnimationActive={false} type="monotone" dataKey="rate" stroke="#6366F1" strokeWidth={2.5} fill="url(#gTrend)" dot={false} />
+                    <Area isAnimationActive={false} type="monotone" dataKey="rate" stroke="#16A34A" strokeWidth={2.5} fill="url(#gTrend)" dot={false} />
                   </AreaChart>
                 </ResponsiveContainer>
               )}

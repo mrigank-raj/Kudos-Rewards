@@ -82,16 +82,16 @@ function getInitials(name) {
   return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
 }
 
-export function Logo({ size = 34, showWord = true, onLight = false }) {
+export function Logo({ size = 34, showWord = true }) {
   return (
     <div className="flex items-center gap-3">
-      <span
-        className="grid shrink-0 place-items-center rounded-[10px]"
-        style={{ width: size, height: size, ...(onLight ? {} : BRAND_GRADIENT) }}
-      >
-        <Sparkles size={size * 0.53} className="text-white" />
-      </span>
-      {showWord && <span className="text-heading-md text-ink-primary">Kudos</span>}
+      <img src="/KIIT-logo-HD.webp" alt="KIIT University" className="shrink-0 object-contain" style={{ width: size, height: size }} />
+      {showWord && (
+        <span className="leading-tight">
+          <span className="block text-label-md font-semibold text-ink-primary">KIIT University</span>
+          <span className="block font-mono text-[11px] leading-4 text-ink-muted">Employee Portal</span>
+        </span>
+      )}
     </div>
   )
 }
@@ -100,7 +100,7 @@ function Sidebar({ role, activeKey, isCollapsed, onToggleCollapse, counts }) {
   const { profile } = useAuth()
   const items = NAV[role] || []
 
-  const orgName = profile?.organizations?.name || 'Acme Corp'
+  const orgName = profile?.organizations?.name || 'KIIT University'
   const orgInitial = orgName.charAt(0).toUpperCase()
 
   return (
@@ -320,7 +320,7 @@ function TopBar({ role, onGiveKudos, notifications, unreadCount, onMarkRead }) {
       </form>
 
       <div className="ml-auto flex items-center gap-3">
-        {role === 'recipient' && <PointsPill value={`${profile?.points_balance?.toLocaleString() || 0} pts`} />}
+        <PointsPill value={`${profile?.points_balance?.toLocaleString() || 0} pts`} />
 
         <NotificationsBell notifications={notifications} unreadCount={unreadCount} onMarkRead={onMarkRead} role={role} />
 
@@ -339,7 +339,7 @@ function TopBar({ role, onGiveKudos, notifications, unreadCount, onMarkRead }) {
           <Avatar initials={initials} color={profile?.avatar_url} size="md" />
           <span className="text-left hidden lg:block">
             <span className="block text-label-sm text-ink-primary">{profile?.name || 'User'}</span>
-            <span className="block font-mono text-[11px] leading-4 text-ink-muted capitalize">{profile?.role}</span>
+            <span className="block font-mono text-[11px] leading-4 text-ink-muted">{profile?.role === 'admin' ? 'HR' : 'Employee'}</span>
           </span>
           <ChevronDown size={14} className="text-ink-muted hidden lg:block" />
         </Link>
@@ -354,17 +354,15 @@ function TopBar({ role, onGiveKudos, notifications, unreadCount, onMarkRead }) {
           <LogOut size={17} />
         </button>
 
-        {role === 'recipient' && (
-          <button
-            type="button"
-            onClick={onGiveKudos}
-            className="inline-flex h-[42px] items-center gap-2 rounded-[10px] px-4 text-label-sm text-white shadow-glow-brand transition-all duration-200 ease-smooth hover:brightness-110 active:scale-[0.97]"
-            style={BRAND_GRADIENT}
-          >
-            <Sparkles size={16} />
-            Give Kudos
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={onGiveKudos}
+          className="inline-flex h-[42px] items-center gap-2 rounded-[10px] px-4 text-label-sm text-white shadow-glow-brand transition-all duration-200 ease-smooth hover:brightness-110 active:scale-[0.97]"
+          style={BRAND_GRADIENT}
+        >
+          <Sparkles size={16} />
+          Say Thank You !
+        </button>
       </div>
     </header>
   )
@@ -385,7 +383,7 @@ function MobileHeader({ role, title, onOpenMenu, notifications, unreadCount, onM
       <h1 className="text-heading-md text-ink-primary truncate">{title}</h1>
 
       <div className="ml-auto flex items-center gap-2">
-        {role === 'recipient' && <PointsPill value={(profile?.points_balance || 0).toLocaleString()} size="sm" />}
+        <PointsPill value={(profile?.points_balance || 0).toLocaleString()} size="sm" />
         <NotificationsBell compact notifications={notifications} unreadCount={unreadCount} onMarkRead={onMarkRead} role={role} />
         <button type="button" onClick={toggleTheme} aria-label="Toggle theme" className="p-1.5 text-ink-secondary active:scale-90">
           {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
@@ -420,7 +418,7 @@ function MobileTabBar({ activeKey, onGiveKudos, counts }) {
           <button
             type="button"
             onClick={onGiveKudos}
-            aria-label="Give Kudos"
+            aria-label="Say Thank You !"
             className="absolute left-1/2 top-[-20px] grid h-14 w-14 -translate-x-1/2 place-items-center rounded-full ring-4 ring-surface-nav shadow-glow-brand transition-transform duration-200 ease-smooth active:scale-95"
             style={BRAND_GRADIENT}
           >
@@ -456,13 +454,13 @@ function TabButton({ label, Icon, active, onClick, count = 0 }) {
   )
 }
 
-function MobileDrawer({ open, onClose, role, activeKey, counts }) {
+function MobileDrawer({ open, onClose, role, activeKey, counts, onGiveKudos }) {
   const navigate = useNavigate()
   const { profile, signOut } = useAuth()
 
   if (!open) return null
 
-  const orgName = profile?.organizations?.name || 'Acme Corp'
+  const orgName = profile?.organizations?.name || 'KIIT University'
   const orgInitial = orgName.charAt(0).toUpperCase()
 
   return (
@@ -509,6 +507,21 @@ function MobileDrawer({ open, onClose, role, activeKey, counts }) {
         </nav>
 
         <div className="mt-auto pt-6 flex flex-col gap-2">
+          {/* Employees have the tab-bar button; HR's only mobile entry point is here. */}
+          {role === 'admin' && (
+            <button
+              type="button"
+              onClick={() => {
+                onClose()
+                onGiveKudos()
+              }}
+              className="flex min-h-[48px] items-center justify-center gap-2 rounded-[10px] text-label-md text-white"
+              style={BRAND_GRADIENT}
+            >
+              <Sparkles size={18} />
+              Say Thank You !
+            </button>
+          )}
           <button
             onClick={async () => {
               await signOut()
@@ -588,7 +601,7 @@ export default function AppShell({ children }) {
         onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
         counts={counts}
       />
-      <MobileDrawer open={menuOpen} onClose={() => setMenuOpen(false)} role={role} activeKey={activeKey} counts={counts} />
+      <MobileDrawer open={menuOpen} onClose={() => setMenuOpen(false)} role={role} activeKey={activeKey} counts={counts} onGiveKudos={() => setIsKudosModalOpen(true)} />
 
       <div
         className="flex flex-col min-h-screen transition-all duration-300 md:pl-sidebar"
@@ -623,9 +636,7 @@ export default function AppShell({ children }) {
       {role === 'recipient' && <MobileTabBar activeKey={activeKey} counts={counts} onGiveKudos={() => setIsKudosModalOpen(true)} />}
 
       {/* Global Modals */}
-      {role === 'recipient' && (
-        <GiveKudosModal isOpen={isKudosModalOpen} onClose={() => setIsKudosModalOpen(false)} />
-      )}
+      <GiveKudosModal isOpen={isKudosModalOpen} onClose={() => setIsKudosModalOpen(false)} />
     </div>
   )
 }

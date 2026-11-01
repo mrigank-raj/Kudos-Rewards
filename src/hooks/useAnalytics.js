@@ -40,7 +40,7 @@ export function usePointsSummary() {
         if (tx.type === 'manual_credit' || tx.type === 'earn') {
           months[key].issued += Math.abs(tx.points);
         } else if (tx.type === 'redeem') {
-          months[key].redeemed += Math.abs(tx.points);
+          months[key].redeemed -= tx.points; // refunds are positive redeem rows
         }
       });
 

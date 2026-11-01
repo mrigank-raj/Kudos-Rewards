@@ -90,7 +90,7 @@ function EditProfileForm({ member, onDone }) {
         <p className="mt-1.5 text-body-sm text-ink-muted">{skills.length}/{LIMITS.skillsMax} — colleagues can find you by these in the directory.</p>
       </div>
       <FieldError>{error}</FieldError>
-      <p className="text-body-sm text-ink-muted">Your name, department and photo come from your Kudos account and are managed by HR.</p>
+      <p className="text-body-sm text-ink-muted">Your name, department and photo come from your KIIT employee account and are managed by HR.</p>
       <div className="flex justify-end gap-2">
         <Button variant="secondary" onClick={onDone} disabled={save.isPending}>Cancel</Button>
         <Button type="submit" disabled={save.isPending}>{save.isPending && <Loader2 size={14} className="animate-spin" />} Save profile</Button>
@@ -126,7 +126,7 @@ export default function MemberProfilePage({ self = false }) {
   if (!member) {
     return (
       <Card className="mx-auto max-w-[960px]">
-        <EmptyState icon={UserX} title="Profile not found" body="This person isn't in your organization, or their account was removed." action={<Link to={`${base}/directory`} className="text-label-sm text-brand-text">Back to directory</Link>} />
+        <EmptyState icon={UserX} title="Profile not found" body="This person is no longer at KIIT, or isn't part of your organization." action={<Link to={`${base}/directory`} className="text-label-sm text-brand-text">Back to directory</Link>} />
       </Card>
     )
   }
@@ -152,7 +152,7 @@ export default function MemberProfilePage({ self = false }) {
           <div className="min-w-0 flex-1">
             <h2 className="text-heading-lg text-ink-primary">{member.name}</h2>
             <p className="text-body-md text-ink-secondary">
-              {[member.job_title, member.team].filter(Boolean).join(' · ') || (member.role === 'admin' ? 'HR' : 'Team member')}
+              {[member.job_title, member.team].filter(Boolean).join(' · ') || (member.role === 'admin' ? 'HR' : 'Employee')}
               {member.role === 'admin' && member.job_title && ' · HR'}
             </p>
             {member.joined_at && (
