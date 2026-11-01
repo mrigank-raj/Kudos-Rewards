@@ -6,8 +6,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { usePrograms } from '@/hooks/usePrograms'
 import { useToast } from '@/context/ToastContext'
 
-const TEAMS = ['Design', 'Frontend', 'Backend', 'Product']
-const TEAM_FILTER_OPTIONS = ['All teams', ...TEAMS]
+const ALL_DEPARTMENTS = 'All departments'
 const SORT_OPTIONS = [
   { value: 'balance_desc', label: 'Balance: high to low' },
   { value: 'balance_asc', label: 'Balance: low to high' },
@@ -200,7 +199,7 @@ function InviteMemberSheet({ open, onClose }) {
         name: form.name.trim(),
         email: form.email.trim(),
         role: form.role,
-        team: form.team || null,
+        team: form.team.trim() || null,
       })
       toast.success(`${form.name} added — they'll show up here once they sign up.`)
       setForm({ name: '', email: '', role: 'recipient', team: '' })
@@ -244,11 +243,8 @@ function InviteMemberSheet({ open, onClose }) {
         </div>
 
         <div>
-          <label className="block text-label-sm text-ink-primary mb-2">Team</label>
-          <select name="team" value={form.team} onChange={handleChange} className={inputClass}>
-            <option value="">Unassigned</option>
-            {TEAMS.map((t) => <option key={t} value={t}>{t}</option>)}
-          </select>
+          <label className="block text-label-sm text-ink-primary mb-2">Department (optional)</label>
+          <input name="team" value={form.team} onChange={handleChange} maxLength={60} placeholder="e.g. School of Computer Engineering" className={inputClass} />
         </div>
 
         <div>
@@ -369,7 +365,7 @@ export default function PeoplePage() {
   const debitPoints = useDebitPoints()
 
   const [query, setQuery] = useState('')
-  const [teamFilter, setTeamFilter] = useState('All teams')
+  const [teamFilter, setTeamFilter] = useState(ALL_DEPARTMENTS)
   const [sort, setSort] = useState('balance_desc')
   const [selectedUser, setSelectedUser] = useState(null)
   const [sheetMode, setSheetMode] = useState('credit')
@@ -384,7 +380,6 @@ export default function PeoplePage() {
       color: p.avatar_url,
       team: p.team || null,
       balance: p.points_balance || 0,
-      lifetime: p.points_balance || 0,
       joined: new Date(p.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
       pending: false,
       isHR: p.role === 'admin',
@@ -401,7 +396,6 @@ export default function PeoplePage() {
       initials: (p.name || 'User').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2),
       team: p.team || null,
       balance: null,
-      lifetime: null,
       joined: null,
       pending: true,
       isHR: p.role === 'admin',
@@ -409,9 +403,15 @@ export default function PeoplePage() {
     }))
   }, [rawPending])
 
+  // Departments are free text (migration 020), so offer whatever is in use.
+  const departmentOptions = useMemo(() => {
+    const names = new Set([...people, ...pendingPeople].map((p) => p.team).filter(Boolean))
+    return [ALL_DEPARTMENTS, ...[...names].sort()]
+  }, [people, pendingPeople])
+
   const visible = useMemo(() => {
     const combined = [...people, ...pendingPeople]
-      .filter((p) => teamFilter === 'All teams' || p.team === teamFilter)
+      .filter((p) => teamFilter === ALL_DEPARTMENTS || p.team === teamFilter)
       .filter((p) =>
         p.name.toLowerCase().includes(query.trim().toLowerCase()) ||
         (p.email || '').toLowerCase().includes(query.trim().toLowerCase())
@@ -441,7 +441,7 @@ export default function PeoplePage() {
         <div>
           <h1 className="text-display-lg text-ink-primary">People</h1>
           <p className="mt-1.5 text-body-md text-ink-secondary">
-            {people.length} members across the workspace{pendingPeople.length > 0 ? `, ${pendingPeople.length} invited` : ''}.
+            {people.length} people at KIIT University{pendingPeople.length > 0 ? `, ${pendingPeople.length} invited` : ''}.
           </p>
         </div>
         <div className="ml-auto flex items-center gap-2.5">
@@ -476,7 +476,7 @@ export default function PeoplePage() {
           <Dropdown
             icon={ListFilter}
             className="hidden md:inline-flex"
-            options={TEAM_FILTER_OPTIONS}
+            options={departmentOptions}
             value={teamFilter}
             onChange={setTeamFilter}
           >
@@ -541,9 +541,6 @@ export default function PeoplePage() {
                     <span className="text-label-md text-ink-primary">{person.balance}</span>
                     <span className="font-mono text-[11px] text-ink-muted">pts</span>
                   </span>
-                  <span className="ml-auto font-mono text-[11px] text-ink-muted">
-                    {person.lifetime} lifetime
-                  </span>
                 </>
               )}
             </div>
@@ -581,9 +578,8 @@ export default function PeoplePage() {
                 <Checkbox checked={false} onChange={() => {}} label="Select all" />
               </th>
               <th className="py-3 text-overline-sm uppercase text-ink-muted">Member</th>
-              <th className="py-3 text-overline-sm uppercase text-ink-muted">Team</th>
+              <th className="py-3 text-overline-sm uppercase text-ink-muted">Department</th>
               <th className="py-3 text-right text-overline-sm uppercase text-ink-muted">Balance</th>
-              <th className="py-3 text-right text-overline-sm uppercase text-ink-muted">Lifetime earned</th>
               <th className="py-3 text-right text-overline-sm uppercase text-ink-muted">Joined</th>
               <th className="py-3 pr-5 text-right text-overline-sm uppercase text-ink-muted">Actions</th>
             </tr>
@@ -591,9 +587,9 @@ export default function PeoplePage() {
 
           <tbody>
             {isLoading || pendingLoading ? (
-              <tr><td colSpan="7" className="py-8 text-center text-ink-muted">Loading people...</td></tr>
+              <tr><td colSpan="6" className="py-8 text-center text-ink-muted">Loading people...</td></tr>
             ) : visible.length === 0 ? (
-              <tr><td colSpan="7" className="py-8 text-center text-ink-muted">No members found.</td></tr>
+              <tr><td colSpan="6" className="py-8 text-center text-ink-muted">No members found.</td></tr>
             ) : visible.map((person) => (
               <tr
                 key={person.id}
@@ -635,10 +631,6 @@ export default function PeoplePage() {
                       <span className="ml-1 font-mono text-[11px] text-ink-muted">pts</span>
                     </>
                   )}
-                </td>
-
-                <td className="py-2.5 pr-4 text-right text-label-sm text-ink-secondary">
-                  {person.pending ? '—' : person.lifetime}
                 </td>
 
                 <td className="py-2.5 pr-4 text-right font-mono text-[11px] text-ink-muted">

@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { Area, AreaChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import { ArrowDownRight, Calendar, Download, Info } from 'lucide-react'
-import { Avatar, BRAND_GRADIENT, Card, Dropdown, ProgressBar, SectionTitle, SegmentedTabs, TrendPill, cx } from '@/components/ui'
+import { Calendar, Download, Info } from 'lucide-react'
+import { Avatar, BRAND_GRADIENT, Card, Dropdown, ProgressBar, SectionTitle, SegmentedTabs, cx } from '@/components/ui'
 import { usePointsSummary, useTopRecipients, useProgramBreakdown } from '@/hooks/useAnalytics'
 
 const TIME_RANGE_OPTIONS = [
@@ -310,10 +310,6 @@ export default function AnalyticsPage() {
             <SectionTitle title="Redemption rate" />
             <p className="mt-2.5 flex items-center gap-2.5">
               <span className="text-numeric-xl text-ink-primary">{redemptionRate}%</span>
-              {/* Note: This trend pill is a placeholder. Calculating actual month-over-month trend would require a more complex query */}
-              {redemptionRate > 0 && (
-                <TrendPill tone="success" icon={ArrowDownRight}>Steady</TrendPill>
-              )}
             </p>
 
             <div className="mt-3.5 h-[76px] w-full">

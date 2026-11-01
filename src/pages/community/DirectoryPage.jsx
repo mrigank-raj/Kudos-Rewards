@@ -4,10 +4,7 @@ import { Award, CircleCheck, Search, Users } from 'lucide-react'
 import { Card, Dropdown, EmptyState, SearchInput } from '@/components/ui'
 import { ErrorState, LoadMore, LoadingCards, UserAvatar } from '@/components/community/CommunityUI'
 import { useAreaBase } from '@/hooks/useCommunity'
-import { useDirectory, useOrgSkills } from '@/hooks/useCommunityPeople'
-
-// users.team CHECK constraint (migration 007).
-const TEAMS = ['Design', 'Frontend', 'Backend', 'Product']
+import { useDirectory, useOrgDepartments, useOrgSkills } from '@/hooks/useCommunityPeople'
 
 function MemberCard({ member, base }) {
   return (
@@ -56,6 +53,7 @@ export default function DirectoryPage() {
 
   const query = useDirectory({ search, team, skill })
   const { data: skills = [] } = useOrgSkills()
+  const { data: departments = [] } = useOrgDepartments()
   const members = useMemo(() => query.data?.pages.flat() || [], [query.data])
 
   const setParam = (key, value) => {
@@ -79,7 +77,7 @@ export default function DirectoryPage() {
           aria-label="Search the directory"
         />
         <Dropdown
-          options={[{ value: '', label: 'All departments' }, ...TEAMS.map((t) => ({ value: t, label: t }))]}
+          options={[{ value: '', label: 'All departments' }, ...departments.map((t) => ({ value: t, label: t }))]}
           value={team}
           onChange={(v) => setParam('team', v)}
           align="right"

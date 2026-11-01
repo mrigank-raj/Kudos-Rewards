@@ -163,7 +163,7 @@ function Sidebar({ role, activeKey, isCollapsed, onToggleCollapse, counts }) {
         {!isCollapsed && (
           <div className="min-w-0 flex-1">
             <p className="text-label-sm text-ink-primary truncate">{orgName}</p>
-            <p className="font-mono text-[11px] leading-4 text-ink-muted">Workspace</p>
+            <p className="font-mono text-[11px] leading-4 text-ink-muted">Bhubaneswar, Odisha</p>
           </div>
         )}
         {isCollapsed && (
@@ -539,7 +539,7 @@ function MobileDrawer({ open, onClose, role, activeKey, counts, onGiveKudos }) {
             </span>
             <div>
               <p className="text-label-sm text-ink-primary">{orgName}</p>
-              <p className="font-mono text-[11px] leading-4 text-ink-muted">Workspace</p>
+              <p className="font-mono text-[11px] leading-4 text-ink-muted">Bhubaneswar, Odisha</p>
             </div>
           </div>
         </div>

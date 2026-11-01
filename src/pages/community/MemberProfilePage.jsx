@@ -55,7 +55,7 @@ function EditProfileForm({ member, onDone }) {
   return (
     <form onSubmit={submit} className="mt-5 space-y-4 border-t border-stroke-subtle pt-5" noValidate>
       <Field label="Job title" hint={<CharCount value={jobTitle} max={LIMITS.jobTitleMax} />}>
-        <Input value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} placeholder="e.g. Senior Frontend Engineer" />
+        <Input value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} placeholder="e.g. Assistant Professor" />
       </Field>
       <Field label="About you" hint={<CharCount value={bio} max={LIMITS.bioMax} />}>
         <Textarea rows={3} value={bio} onChange={(e) => setBio(e.target.value)} placeholder="What you work on and what people can ask you about" />

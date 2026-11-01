@@ -18,7 +18,7 @@ export default function GiveKudosModal({ isOpen, onClose }) {
 
   const { recipients, loadingRecipients, sendKudos, isSending } = useKudos()
   const { profile } = useAuth()
-  const { addToast } = useToast()
+  const toast = useToast()
 
   const maxPoints = profile?.points_balance || 0
   const balanceAfter = maxPoints - (points || 0)
@@ -42,7 +42,7 @@ export default function GiveKudosModal({ isOpen, onClose }) {
         tags,
       })
       
-      addToast('success', 'Thank You ! sent')
+      toast.success('Thank You ! sent')
       
       // Reset form
       setToUserId('')
@@ -52,7 +52,7 @@ export default function GiveKudosModal({ isOpen, onClose }) {
       onClose()
     } catch (err) {
       console.error(err)
-      addToast('error', err.message || 'Failed to send Thank You !')
+      toast.error(err.message || 'Failed to send Thank You !')
     }
   }
 

@@ -191,7 +191,9 @@ export function Toggle({ checked, onChange, label }) {
     >
       <span
         className={cx(
-          'absolute top-[2.5px] h-[17px] w-[17px] rounded-full bg-white shadow-sm',
+          // left-0: without it the knob starts from the button's centred
+          // static position and slides past the track's right edge.
+          'absolute left-0 top-[2.5px] h-[17px] w-[17px] rounded-full bg-white shadow-sm',
           'transition-transform duration-300 ease-smooth',
           checked ? 'translate-x-[18.5px]' : 'translate-x-[2.5px]'
         )}

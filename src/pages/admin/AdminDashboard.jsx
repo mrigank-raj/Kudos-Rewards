@@ -35,7 +35,7 @@ export default function AdminDashboard() {
       if (!orgId) return null
 
       const [usersRes, programsRes, txRes, redemptionsRes, recentTxRes] = await Promise.all([
-        supabase.from('users').select('id, created_at').eq('org_id', orgId).eq('role', 'recipient').is('removed_at', null),
+        supabase.from('users').select('id, created_at, points_balance').eq('org_id', orgId).eq('role', 'recipient').is('removed_at', null),
         supabase.from('reward_programs').select('*').eq('org_id', orgId).eq('is_active', true),
         supabase.from('transactions').select('points, type, user_id, created_at, reward_programs(name)').in('type', ['manual_credit', 'earn']),
         supabase.from('redemptions').select('id, created_at'),
@@ -144,17 +144,12 @@ export default function AdminDashboard() {
     }
   })
 
-  // Demo budget target — there's no real budget-setting concept in the
-  // schema yet, so the ceiling is illustrative; "used" is a genuine
-  // all-time sum of issued points, not scoped to the range picker above.
-  const allTimeIssued = stats.transactions.reduce((sum, t) => sum + (t.points || 0), 0)
-  const BUDGET = {
-    total: 500000,
-    used: allTimeIssued,
-    resets: 'Annual target · resets yearly'
-  }
-  const burnPct = Math.min(100, (BUDGET.used / BUDGET.total) * 100)
-  const remaining = Math.max(0, BUDGET.total - BUDGET.used)
+  // All-time, real numbers only. Thank You ! transfers ('earn') move points
+  // between people, so "given by HR" counts official credits alone.
+  const givenByHR = stats.transactions
+    .filter((t) => t.type === 'manual_credit')
+    .reduce((sum, t) => sum + (t.points || 0), 0)
+  const heldByEmployees = stats.users.reduce((sum, u) => sum + (u.points_balance || 0), 0)
 
   return (
     <div className="mx-auto max-w-[1120px] animate-fade-in">
@@ -162,7 +157,7 @@ export default function AdminDashboard() {
         <div>
           <h1 className="text-display-lg text-ink-primary">Dashboard</h1>
           <p className="mt-1.5 text-body-md text-ink-secondary">
-            Program health across {profile?.organizations?.name || 'your workspace'}.
+            Program health across {profile?.organizations?.name || 'KIIT University'}.
           </p>
         </div>
         <div className="ml-auto flex items-center gap-2.5">
@@ -223,7 +218,7 @@ export default function AdminDashboard() {
           <div className="p-5 pb-4">
             <SectionTitle
               title="Recent ledger activity"
-              subtitle="Every debit and credit across the workspace"
+              subtitle="Every debit and credit across KIIT University"
             />
           </div>
 
@@ -269,21 +264,16 @@ export default function AdminDashboard() {
         {/* ------------------------------------------------ right column */}
         <div className="flex flex-col gap-4">
           <Card>
-            <h3 className="text-heading-sm text-ink-primary">Quarterly points budget</h3>
-            <p className="mt-0.5 text-body-sm text-ink-muted">{BUDGET.resets}</p>
+            <h3 className="text-heading-sm text-ink-primary">Points overview</h3>
+            <p className="mt-0.5 text-body-sm text-ink-muted">All time</p>
 
-            <p className="mt-4 flex items-baseline gap-1.5">
-              <span className="text-numeric-xl text-ink-primary">{formatPoints(BUDGET.used)}</span>
-              <span className="text-label-sm text-ink-muted">of {formatPoints(BUDGET.total)}</span>
-            </p>
-
-            <ProgressBar value={burnPct} height={8} className="mt-3.5" style={BRAND_GRADIENT} />
-
-            <div className="mt-2.5 flex items-center">
-              <span className="text-label-xs text-ink-secondary">{Math.round(burnPct)}% committed</span>
-              <span className="ml-auto font-mono text-[11px] text-ink-muted">
-                {formatPoints(remaining)} left
-              </span>
+            <div className="mt-4 flex items-baseline">
+              <span className="text-label-sm text-ink-secondary">Given out by HR</span>
+              <span className="ml-auto text-numeric-lg text-ink-primary">{formatPoints(givenByHR)}</span>
+            </div>
+            <div className="mt-2.5 flex items-baseline">
+              <span className="text-label-sm text-ink-secondary">Employees currently hold</span>
+              <span className="ml-auto text-numeric-lg text-ink-primary">{formatPoints(heldByEmployees)}</span>
             </div>
           </Card>
 

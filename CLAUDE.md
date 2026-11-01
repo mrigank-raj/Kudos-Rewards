@@ -87,6 +87,7 @@ The `transactions` table is the **source of truth** for all point movements. `us
 017_leaderboard_and_conversation_role.sql — Org-scoped definer leaderboard; role in conversation list
 018_kiit_portal.sql         — KIIT rebrand: invite-only sign-up (@kiit.ac.in + pending_members), Thank You ! copy, demo data removed
 019_member_removal.sql      — HR removes people (users.removed_at, login ban, optional point revoke); reward cancel refunds; HR can't redeem
+020_kiit_data_cleanup.sql   — Free-text departments, no rule-based programs, university wording for programs/categories
 create_user_trigger.sql     — Auto-creates public profile when auth.users row is inserted
 create_test_user.sql        — Helper for creating test users
 ```
