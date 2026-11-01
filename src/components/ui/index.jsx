@@ -186,7 +186,7 @@ export function Toggle({ checked, onChange, label }) {
         'relative h-[22px] w-[38px] shrink-0 rounded-full transition-colors duration-300 ease-smooth',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-solid/40 focus-visible:ring-offset-2',
         'focus-visible:ring-offset-surface-base',
-        checked ? 'bg-brand-solid' : 'bg-stroke'
+        checked ? 'bg-brand-solid' : 'bg-stroke-strong'
       )}
     >
       <span

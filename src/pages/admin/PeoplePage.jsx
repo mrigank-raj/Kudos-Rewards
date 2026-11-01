@@ -58,6 +58,7 @@ function DepartmentSheet({ person, onClose }) {
     >
       <label className="block text-label-sm text-ink-primary mb-2">Department</label>
       <input
+        autoFocus
         value={team}
         onChange={(e) => setTeam(e.target.value)}
         maxLength={60}
@@ -166,7 +167,7 @@ function CreditDebitSheet({ open, onClose, user, initialMode = 'credit', onCredi
       <div className="space-y-5">
         {/* User Info */}
         <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-surface-sunken">
-          <Avatar initials={user.name.charAt(0)} size="lg" />
+          <Avatar initials={(user.name || '?').split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)} color={user.avatar_url} size="lg" />
           <div className="min-w-0">
             <p className="font-medium text-ink-primary">{user.name}</p>
             <p className="text-body-sm text-ink-muted">
@@ -384,7 +385,7 @@ function RemoveMemberSheet({ person, onClose }) {
             type="button"
             onClick={handleRemove}
             disabled={busy}
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-[10px] bg-danger-solid px-[18px] text-label-sm text-white transition hover:brightness-110 active:scale-[0.97] disabled:opacity-50"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-[10px] bg-danger-solid px-[18px] text-label-sm text-ink-inverse transition hover:brightness-110 active:scale-[0.97] disabled:opacity-50"
           >
             <UserMinus size={15} />
             {busy ? 'Removing...' : person.pending ? 'Remove from list' : 'Remove person'}
@@ -456,7 +457,7 @@ export default function PeoplePage() {
       color: p.avatar_url,
       team: p.team || null,
       balance: p.points_balance || 0,
-      joined: new Date(p.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+      joined: new Date(p.created_at).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }),
       pending: false,
       isHR: p.role === 'admin',
       isSelf: p.id === profile?.id,
@@ -753,15 +754,19 @@ export default function PeoplePage() {
         </div>
       </Card>
 
-      <CreditDebitSheet
-        open={showSheet}
+      {/* Mounted per open (keyed by person + mode) so a cancelled amount,
+          reason or armed big-credit confirmation never carries over to the
+          next person. */}
+      {showSheet && <CreditDebitSheet
+        key={`${selectedUser?.id}-${sheetMode}`}
+        open
         onClose={() => setShowSheet(false)}
         user={selectedUser}
         initialMode={sheetMode}
         onCredit={async (p) => await creditPoints.mutateAsync(p)}
         onDebit={async (p) => await debitPoints.mutateAsync(p)}
         isLoading={creditPoints.isPending || debitPoints.isPending}
-      />
+      />}
 
       <InviteMemberSheet open={showInvite} onClose={() => setShowInvite(false)} />
 

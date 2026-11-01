@@ -24,7 +24,7 @@ export const NAV = {
     { key: 'analytics', path: '/admin/analytics', label: 'Analytics', icon: BarChart3, section: 'Menu' },
     { key: 'community', path: '/admin/community', label: 'Community', icon: MessagesSquare, section: 'Community' },
     { key: 'moderation', path: '/admin/community/moderation', label: 'Moderation', icon: ShieldAlert, section: 'Community' },
-    { key: 'insights', path: '/admin/community/insights', label: 'Contributions', icon: TrendingUp, section: 'Community' },
+    { key: 'insights', path: '/admin/community/insights', label: 'Community insights', icon: TrendingUp, section: 'Community' },
     { key: 'directory', path: '/admin/directory', label: 'Directory', icon: Contact, section: 'Community' },
     { key: 'messages', path: '/admin/messages', label: 'Messages', icon: MessagesSquare, section: 'Community', badge: 'messages' },
     { key: 'notifications', path: '/admin/notifications', label: 'Notifications', icon: Bell, section: 'Community', badge: 'notifications' },

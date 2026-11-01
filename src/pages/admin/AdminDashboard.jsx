@@ -141,7 +141,7 @@ export default function AdminDashboard() {
       amount: tx.points,
       initials,
       color: tx.users?.avatar_url,
-      when: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+      when: date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
     }
   })
 
@@ -170,7 +170,7 @@ export default function AdminDashboard() {
             style={BRAND_GRADIENT}
           >
             <Plus size={15} />
-            Issue points
+            Give points
           </button>
         </div>
       </div>
@@ -321,7 +321,7 @@ export default function AdminDashboard() {
         style={BRAND_GRADIENT}
       >
         <Plus size={17} />
-        Issue points
+        Give points
       </button>
     </div>
   )

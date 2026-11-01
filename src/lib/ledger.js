@@ -16,3 +16,8 @@ export function describeTransaction(tx) {
     default: return { title: 'Points update', icon: 'Zap', kind: 'Earned' }
   }
 }
+
+/** Rank with ties: 1 + how many are strictly ahead. Medals only make sense above 0. */
+export function rankWithTies(points, all) {
+  return 1 + all.filter((p) => Number(p) > Number(points)).length
+}

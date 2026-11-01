@@ -5,6 +5,8 @@ import { useAllRedemptions, useUpdateRedemptionStatus } from '@/hooks/useRedempt
 import { useToast } from '@/context/ToastContext'
 
 const STATUS_TONE = { pending: 'gold', fulfilled: 'success', cancelled: 'danger' }
+// DB status 'fulfilled' is shown as Approved, matching the employee's notification.
+const STATUS_LABEL = { pending: 'Pending', fulfilled: 'Approved', cancelled: 'Cancelled', all: 'All' }
 const formatPoints = (p) => (p || 0).toLocaleString()
 
 export default function RedemptionsPage() {
@@ -14,6 +16,8 @@ export default function RedemptionsPage() {
 
   const [filter, setFilter] = useState('pending')
   const [actingId, setActingId] = useState(null)
+  // Both actions are final, so each needs a second click: { id, status }.
+  const [confirming, setConfirming] = useState(null)
 
   const redemptions = useMemo(() => {
     return (rawRedemptions || []).map((r) => ({
@@ -40,9 +44,10 @@ export default function RedemptionsPage() {
 
   const handleAction = async (redemptionId, status) => {
     setActingId(redemptionId)
+    setConfirming(null)
     try {
       await updateStatus.mutateAsync({ redemptionId, status })
-      toast.success(status === 'fulfilled' ? 'Marked as fulfilled.' : 'Redemption cancelled and points refunded.')
+      toast.success(status === 'fulfilled' ? 'Approved. The employee has been notified.' : 'Cancelled and points refunded. The employee has been notified.')
     } catch (err) {
       toast.error(err.message || 'Failed to update redemption.')
     } finally {
@@ -52,7 +57,7 @@ export default function RedemptionsPage() {
 
   const tabs = ['pending', 'fulfilled', 'cancelled', 'all'].map((key) => ({
     value: key,
-    label: key === 'all' ? 'All' : key.charAt(0).toUpperCase() + key.slice(1),
+    label: STATUS_LABEL[key],
     count: counts[key],
   }))
 
@@ -103,30 +108,54 @@ export default function RedemptionsPage() {
                   <p className="truncate text-label-sm text-ink-primary">{r.itemName}</p>
                   <p className="flex items-center gap-1.5 text-body-sm text-ink-muted">
                     <Zap size={12} className="text-gold-solid" fill="currentColor" />
-                    {formatPoints(r.pointsSpent)} pts · {r.createdAt.toLocaleDateString()}
+                    {formatPoints(r.pointsSpent)} pts · {r.createdAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </p>
                 </div>
 
                 <div className="ml-0 flex items-center gap-2 sm:ml-auto">
-                  <Badge tone={STATUS_TONE[r.status]} dot className="capitalize">
-                    {r.status}
+                  <Badge tone={STATUS_TONE[r.status]} dot>
+                    {STATUS_LABEL[r.status] || r.status}
                   </Badge>
 
-                  {r.status === 'pending' && (
+                  {r.status === 'pending' && confirming?.id === r.id && (
                     <div className="ml-2 flex items-center gap-1.5">
                       <button
                         type="button"
-                        onClick={() => handleAction(r.id, 'fulfilled')}
+                        onClick={() => handleAction(r.id, confirming.status)}
                         disabled={actingId === r.id}
-                        aria-label={`Mark ${r.itemName} for ${r.userName} as fulfilled`}
-                        className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-success-subtle px-2.5 text-label-xs text-success-text transition active:scale-95 disabled:opacity-50"
+                        className={cx(
+                          'inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-label-xs transition active:scale-95 disabled:opacity-50',
+                          confirming.status === 'fulfilled' ? 'bg-success-subtle text-success-text' : 'bg-danger-subtle text-danger-text'
+                        )}
                       >
-                        <Check size={13} />
-                        Fulfill
+                        {confirming.status === 'fulfilled' ? <Check size={13} /> : <X size={13} />}
+                        {confirming.status === 'fulfilled' ? 'Yes, approve' : `Yes, cancel & refund ${formatPoints(r.pointsSpent)} pts`}
                       </button>
                       <button
                         type="button"
-                        onClick={() => handleAction(r.id, 'cancelled')}
+                        onClick={() => setConfirming(null)}
+                        className="inline-flex h-8 items-center rounded-lg bg-surface-subtle px-2.5 text-label-xs text-ink-secondary transition hover:text-ink-primary"
+                      >
+                        Back
+                      </button>
+                    </div>
+                  )}
+
+                  {r.status === 'pending' && confirming?.id !== r.id && (
+                    <div className="ml-2 flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setConfirming({ id: r.id, status: 'fulfilled' })}
+                        disabled={actingId === r.id}
+                        aria-label={`Approve ${r.itemName} for ${r.userName}`}
+                        className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-success-subtle px-2.5 text-label-xs text-success-text transition active:scale-95 disabled:opacity-50"
+                      >
+                        <Check size={13} />
+                        Approve
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setConfirming({ id: r.id, status: 'cancelled' })}
                         disabled={actingId === r.id}
                         aria-label={`Cancel ${r.itemName} for ${r.userName}`}
                         className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-danger-subtle px-2.5 text-label-xs text-danger-text transition active:scale-95 disabled:opacity-50"

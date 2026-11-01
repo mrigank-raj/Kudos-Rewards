@@ -27,6 +27,8 @@
   --color-surface-nav: rgb(var(--surface-nav));
 
   /* Stroke */
+  /* Plain `stroke` was used (bg-stroke, border-stroke) but never defined. */
+  --color-stroke: rgb(var(--stroke-default));
   --color-stroke-subtle: rgb(var(--stroke-subtle));
   --color-stroke-default: rgb(var(--stroke-default));
   --color-stroke-strong: rgb(var(--stroke-strong));

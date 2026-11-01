@@ -106,18 +106,18 @@ export default function GiveKudosModal({ isOpen, onClose, initialUserId }) {
         <input
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search your teammates"
+          placeholder="Search colleagues"
           className="min-w-0 flex-1 bg-transparent text-body-sm text-ink-primary outline-none placeholder:text-ink-muted"
         />
       </div>
 
-      <div className="mt-3 flex gap-2.5 overflow-x-auto pb-1 [scrollbar-width:none] md:grid md:grid-cols-4 md:overflow-visible [&::-webkit-scrollbar]:hidden">
+      <div className="mt-3 flex gap-2.5 overflow-x-auto pb-1 [scrollbar-width:none] md:grid md:max-h-[232px] md:grid-cols-4 md:overflow-x-visible md:overflow-y-auto [&::-webkit-scrollbar]:hidden">
         {loadingRecipients ? (
           <p className="text-body-sm text-ink-muted px-2 py-4">Loading team members...</p>
         ) : filteredRecipients.length === 0 ? (
           <p className="text-body-sm text-ink-muted px-2 py-4">No matching teammates found.</p>
         ) : (
-          filteredRecipients.slice(0, 4).map((person) => {
+          filteredRecipients.map((person) => {
             const selected = person.id === toUserId
             const initials = (person.name || 'User').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
 
