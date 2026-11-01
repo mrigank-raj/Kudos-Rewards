@@ -18,6 +18,16 @@ export function AuthProvider({ children }) {
         .single();
 
       if (error) throw error;
+
+      // HR removed this person (migration 019). Their login is already
+      // blocked server-side; drop the local session too.
+      if (data.removed_at) {
+        await supabase.auth.signOut({ scope: 'local' });
+        setSession(null);
+        setProfile(null);
+        return null;
+      }
+
       setProfile(data);
       return data;
     } catch (err) {
@@ -58,17 +68,25 @@ export function AuthProvider({ children }) {
     return () => subscription.unsubscribe();
   }, [fetchProfile]);
 
+  // Re-check on tab focus so someone HR removes mid-session is signed out
+  // when they come back to the tab, not only on the next hard refresh.
+  useEffect(() => {
+    const userId = session?.user?.id;
+    if (!userId) return;
+    const onFocus = () => fetchProfile(userId);
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [session?.user?.id, fetchProfile]);
+
   // Sign up: create auth user → reconcile profile row created by the
   // `handle_new_user` trigger.
   //
-  // The trigger (see supabase/migrations/007_team_and_pending_members.sql)
-  // fires synchronously when the auth user is created, before this
-  // function continues — so a `users` row for this id already exists by
-  // the time we get here. It's either a pending-member-aware row (correct
-  // org/role/team already applied) or a generic recipient default. We
-  // update only the fields we own client-side, so we never clobber a
-  // pending-member assignment we can't see from here.
-  const signUp = async ({ email, password, name, role, orgName }) => {
+  // The trigger (see supabase/migrations/018_kiit_portal.sql) fires
+  // synchronously when the auth user is created and rejects any email HR
+  // hasn't invited, so a `users` row with the invited org/role/team
+  // already exists by the time we get here. We update only the fields we
+  // own client-side.
+  const signUp = async ({ email, password, name }) => {
     // 1. Create the auth user (this also fires handle_new_user server-side,
     //    which reads full_name from the metadata for the profile name)
     const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -82,36 +100,18 @@ export function AuthProvider({ children }) {
     const userId = authData.user?.id;
     if (!userId) throw new Error('Sign up failed — no user ID returned.');
 
-    if (role === 'admin') {
-      // Admins always create a fresh organization. role/org_id are
-      // protected columns (migration 011), so this has to happen inside a
-      // server-side function that only allows it for a brand-new account.
-      if (!authData.session) {
-        throw new Error('Email confirmation is enabled for this project — admin signup needs it turned off (see docs/community.md).');
-      }
-      const { error: orgError } = await supabase.rpc('register_admin_organization', {
-        p_org_name: orgName || `${name}'s Organization`,
-        p_name: name,
-      });
+    // Role/org/team come from the HR invite via the handle_new_user trigger
+    // (migration 018). Only sync the display name. An update, not an
+    // upsert: an upsert sends a partial row that fails the users.email NOT
+    // NULL check. With email confirmation on there's no session yet and
+    // the full_name metadata above already covers it.
+    if (authData.session) {
+      const { error: profileError } = await supabase
+        .from('users')
+        .update({ name })
+        .eq('id', userId);
 
-      if (orgError) throw orgError;
-    } else {
-      // Recipients: leave org_id/role/team alone — the trigger already set
-      // them correctly (from a pending invite, or the default org). Only
-      // sync the display name, in case it differs from the trigger's
-      // email-derived guess. An update, not an upsert: an upsert sends a
-      // partial row that fails the users.email NOT NULL check before the
-      // conflict is detected, so signup always errored. If email
-      // confirmation is on there's no session yet and this is a no-op —
-      // the full_name metadata above already covers it.
-      if (authData.session) {
-        const { error: profileError } = await supabase
-          .from('users')
-          .update({ name })
-          .eq('id', userId);
-
-        if (profileError) throw profileError;
-      }
+      if (profileError) throw profileError;
     }
 
     // 2. Fetch the reconciled profile

@@ -42,7 +42,7 @@ export default function RedemptionsPage() {
     setActingId(redemptionId)
     try {
       await updateStatus.mutateAsync({ redemptionId, status })
-      toast.success(status === 'fulfilled' ? 'Marked as fulfilled.' : 'Redemption cancelled.')
+      toast.success(status === 'fulfilled' ? 'Marked as fulfilled.' : 'Redemption cancelled and points refunded.')
     } catch (err) {
       toast.error(err.message || 'Failed to update redemption.')
     } finally {

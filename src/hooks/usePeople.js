@@ -3,7 +3,8 @@ import { supabase } from '@/config/supabase';
 import { useAuth } from '@/hooks/useAuth';
 
 /**
- * Fetch all users (recipients) in the current admin's organization.
+ * Fetch everyone (HR and employees) still at the organization. Removed
+ * people keep their row for history but are hidden here.
  */
 export function usePeople() {
   const { profile } = useAuth();
@@ -17,7 +18,7 @@ export function usePeople() {
         .from('users')
         .select('*')
         .eq('org_id', orgId)
-        .eq('role', 'recipient')
+        .is('removed_at', null)
         .order('name', { ascending: true });
 
       if (error) throw error;
@@ -152,6 +153,45 @@ export function useAddPendingMember() {
 
       if (error) throw error;
       return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pending-members'] });
+    },
+  });
+}
+
+/**
+ * HR removes someone from the portal (remove_member RPC, migration 019):
+ * login blocked, history kept, optionally revoking their remaining points.
+ */
+export function useRemoveMember() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ userId, revokePoints }) => {
+      const { data, error } = await supabase.rpc('remove_member', {
+        p_user_id: userId,
+        p_revoke_points: revokePoints,
+      });
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['people'] });
+      queryClient.invalidateQueries({ queryKey: ['kudos_recipients'] });
+    },
+  });
+}
+
+/** HR deletes someone from the approved list before they've signed up. */
+export function useRemovePendingMember() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (pendingId) => {
+      const { error } = await supabase.from('pending_members').delete().eq('id', pendingId);
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pending-members'] });

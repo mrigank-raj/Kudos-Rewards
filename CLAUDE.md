@@ -85,6 +85,8 @@ The `transactions` table is the **source of truth** for all point movements. `us
 012–015                     — Employee Community (posts, comments, messaging, reputation, moderation) — see docs/community.md
 016_hardening_followups.sql — Revokes API execute on trigger/internal functions, search_path + indexes
 017_leaderboard_and_conversation_role.sql — Org-scoped definer leaderboard; role in conversation list
+018_kiit_portal.sql         — KIIT rebrand: invite-only sign-up (@kiit.ac.in + pending_members), Thank You ! copy, demo data removed
+019_member_removal.sql      — HR removes people (users.removed_at, login ban, optional point revoke); reward cancel refunds; HR can't redeem
 create_user_trigger.sql     — Auto-creates public profile when auth.users row is inserted
 create_test_user.sql        — Helper for creating test users
 ```
@@ -137,12 +139,11 @@ All point-mutating operations use **SECURITY DEFINER** Postgres functions to gua
 
 ## Authentication Flow
 
-1. **Signup:** `AuthContext.signUp()` → creates `auth.users` row → Postgres trigger `handle_new_user` auto-creates `public.users` row with role='recipient', org_id=Acme Corp, 500 starting points.
-2. **Signup (Admin):** `AuthContext.signUp()` also creates an `organizations` row and sets `org_id`.
-3. **Login:** `AuthContext.signIn()` → fetches profile from `users` table (including joined org name).
-4. **Route protection:** `ProtectedRoute` component checks `isAuthenticated` and `profile.role` against `allowedRole` prop.
+1. **Signup (invite-only):** `AuthContext.signUp()` → creates `auth.users` row → trigger `handle_new_user` (migration 018) rejects any email that isn't `@kiit.ac.in` AND in `pending_members`; otherwise creates the `public.users` row with the invite's role/org and 500 starting points. HR invites people from the People page. There is no self-service admin/org signup.
+2. **Login:** `AuthContext.signIn()` → fetches profile from `users` table (including joined org name).
+3. **Route protection:** `ProtectedRoute` component checks `isAuthenticated` and `profile.role` against `allowedRole` prop.
 
-**Hardcoded value:** The `create_user_trigger.sql` trigger assigns all new signups to org `a0000000-0000-0000-0000-000000000001` (Acme Corp). This is an MVP shortcut.
+**Single org:** `a0000000-0000-0000-0000-000000000001` is KIIT University; all invites point to it.
 
 ---
 

@@ -320,7 +320,7 @@ function TopBar({ role, onGiveKudos, notifications, unreadCount, onMarkRead }) {
       </form>
 
       <div className="ml-auto flex items-center gap-3">
-        {role === 'recipient' && <PointsPill value={`${profile?.points_balance?.toLocaleString() || 0} pts`} />}
+        <PointsPill value={`${profile?.points_balance?.toLocaleString() || 0} pts`} />
 
         <NotificationsBell notifications={notifications} unreadCount={unreadCount} onMarkRead={onMarkRead} role={role} />
 
@@ -354,17 +354,15 @@ function TopBar({ role, onGiveKudos, notifications, unreadCount, onMarkRead }) {
           <LogOut size={17} />
         </button>
 
-        {role === 'recipient' && (
-          <button
-            type="button"
-            onClick={onGiveKudos}
-            className="inline-flex h-[42px] items-center gap-2 rounded-[10px] px-4 text-label-sm text-white shadow-glow-brand transition-all duration-200 ease-smooth hover:brightness-110 active:scale-[0.97]"
-            style={BRAND_GRADIENT}
-          >
-            <Sparkles size={16} />
-            Say Thank You !
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={onGiveKudos}
+          className="inline-flex h-[42px] items-center gap-2 rounded-[10px] px-4 text-label-sm text-white shadow-glow-brand transition-all duration-200 ease-smooth hover:brightness-110 active:scale-[0.97]"
+          style={BRAND_GRADIENT}
+        >
+          <Sparkles size={16} />
+          Say Thank You !
+        </button>
       </div>
     </header>
   )
@@ -385,7 +383,7 @@ function MobileHeader({ role, title, onOpenMenu, notifications, unreadCount, onM
       <h1 className="text-heading-md text-ink-primary truncate">{title}</h1>
 
       <div className="ml-auto flex items-center gap-2">
-        {role === 'recipient' && <PointsPill value={(profile?.points_balance || 0).toLocaleString()} size="sm" />}
+        <PointsPill value={(profile?.points_balance || 0).toLocaleString()} size="sm" />
         <NotificationsBell compact notifications={notifications} unreadCount={unreadCount} onMarkRead={onMarkRead} role={role} />
         <button type="button" onClick={toggleTheme} aria-label="Toggle theme" className="p-1.5 text-ink-secondary active:scale-90">
           {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
@@ -456,7 +454,7 @@ function TabButton({ label, Icon, active, onClick, count = 0 }) {
   )
 }
 
-function MobileDrawer({ open, onClose, role, activeKey, counts }) {
+function MobileDrawer({ open, onClose, role, activeKey, counts, onGiveKudos }) {
   const navigate = useNavigate()
   const { profile, signOut } = useAuth()
 
@@ -509,6 +507,21 @@ function MobileDrawer({ open, onClose, role, activeKey, counts }) {
         </nav>
 
         <div className="mt-auto pt-6 flex flex-col gap-2">
+          {/* Employees have the tab-bar button; HR's only mobile entry point is here. */}
+          {role === 'admin' && (
+            <button
+              type="button"
+              onClick={() => {
+                onClose()
+                onGiveKudos()
+              }}
+              className="flex min-h-[48px] items-center justify-center gap-2 rounded-[10px] text-label-md text-white"
+              style={BRAND_GRADIENT}
+            >
+              <Sparkles size={18} />
+              Say Thank You !
+            </button>
+          )}
           <button
             onClick={async () => {
               await signOut()
@@ -588,7 +601,7 @@ export default function AppShell({ children }) {
         onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
         counts={counts}
       />
-      <MobileDrawer open={menuOpen} onClose={() => setMenuOpen(false)} role={role} activeKey={activeKey} counts={counts} />
+      <MobileDrawer open={menuOpen} onClose={() => setMenuOpen(false)} role={role} activeKey={activeKey} counts={counts} onGiveKudos={() => setIsKudosModalOpen(true)} />
 
       <div
         className="flex flex-col min-h-screen transition-all duration-300 md:pl-sidebar"
@@ -623,9 +636,7 @@ export default function AppShell({ children }) {
       {role === 'recipient' && <MobileTabBar activeKey={activeKey} counts={counts} onGiveKudos={() => setIsKudosModalOpen(true)} />}
 
       {/* Global Modals */}
-      {role === 'recipient' && (
-        <GiveKudosModal isOpen={isKudosModalOpen} onClose={() => setIsKudosModalOpen(false)} />
-      )}
+      <GiveKudosModal isOpen={isKudosModalOpen} onClose={() => setIsKudosModalOpen(false)} />
     </div>
   )
 }

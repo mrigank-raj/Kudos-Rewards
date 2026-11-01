@@ -126,7 +126,7 @@ export default function MemberProfilePage({ self = false }) {
   if (!member) {
     return (
       <Card className="mx-auto max-w-[960px]">
-        <EmptyState icon={UserX} title="Profile not found" body="This person isn't in your organization, or their account was removed." action={<Link to={`${base}/directory`} className="text-label-sm text-brand-text">Back to directory</Link>} />
+        <EmptyState icon={UserX} title="Profile not found" body="This person is no longer at KIIT, or isn't part of your organization." action={<Link to={`${base}/directory`} className="text-label-sm text-brand-text">Back to directory</Link>} />
       </Card>
     )
   }

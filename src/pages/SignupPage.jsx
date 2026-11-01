@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { ArrowRight, Building2, Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
+import { ArrowRight, Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
 import { Button, Field, Input, cx } from '@/components/ui';
 import AuthBrandPanel from '@/components/auth/AuthBrandPanel';
 
@@ -13,8 +13,6 @@ export default function SignupPage() {
     name: '',
     email: '',
     password: '',
-    role: 'recipient',
-    orgName: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
@@ -50,9 +48,6 @@ export default function SignupPage() {
     } else if (form.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters.';
     }
-    if (form.role === 'admin' && !form.orgName.trim()) {
-      newErrors.orgName = 'Organization name is required for HR.';
-    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -71,8 +66,6 @@ export default function SignupPage() {
         email: form.email.trim(),
         password: form.password,
         name: form.name.trim(),
-        role: form.role,
-        orgName: form.orgName.trim(),
       });
 
       if (profile?.role === 'admin') {
@@ -81,7 +74,11 @@ export default function SignupPage() {
         navigate('/app/dashboard', { replace: true });
       }
     } catch (err) {
-      if (err.message?.toLowerCase().includes('already registered') || err.message?.toLowerCase().includes('already been registered')) {
+      // Uninvited emails are rejected by the handle_new_user trigger, which
+      // Supabase Auth reports only as a generic database error.
+      if (err.message?.toLowerCase().includes('database error')) {
+        setServerError("This email isn't registered with KIIT HR yet. Please contact HR to be added.");
+      } else if (err.message?.toLowerCase().includes('already registered') || err.message?.toLowerCase().includes('already been registered')) {
         setServerError('An account with this email already exists. Try signing in instead.');
       } else {
         setServerError(err.message || 'Something went wrong. Please try again.');
@@ -163,35 +160,6 @@ export default function SignupPage() {
               />
             </Field>
             {errors.password && <p className="-mt-2 text-xs text-danger-solid">{errors.password}</p>}
-
-            <Field label="Role">
-              <select
-                name="role"
-                value={form.role}
-                onChange={handleChange}
-                className="w-full h-[46px] rounded-xl border border-stroke bg-surface-base px-3.5 text-body-md text-ink-primary outline-none focus:border-brand-solid focus:shadow-focus-brand"
-              >
-                <option value="recipient">Employee</option>
-                <option value="admin">HR</option>
-              </select>
-            </Field>
-
-            {form.role === 'admin' && (
-              <>
-                <Field label="Organization name">
-                  <Input
-                    icon={Building2}
-                    type="text"
-                    name="orgName"
-                    value={form.orgName}
-                    onChange={handleChange}
-                    placeholder="KIIT University"
-                    invalid={!!errors.orgName}
-                  />
-                </Field>
-                {errors.orgName && <p className="-mt-2 text-xs text-danger-solid">{errors.orgName}</p>}
-              </>
-            )}
           </div>
 
           {serverError && (

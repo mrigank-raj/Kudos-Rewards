@@ -32,8 +32,9 @@ export default function HistoryPage() {
     for (let i = 0; i < validTxs.length; i++) {
       const tx = validTxs[i]
       
-      if (tx.points > 0) earned += tx.points
-      if (tx.type === 'redeem') redeemed += Math.abs(tx.points)
+      // Reward refunds are positive 'redeem' rows, so they net out of redeemed.
+      if (tx.type === 'redeem') redeemed -= tx.points
+      else if (tx.points > 0) earned += tx.points
       if (tx.type === 'manual_debit') debited += Math.abs(tx.points)
 
       txsWithBalance.push({
@@ -53,13 +54,13 @@ export default function HistoryPage() {
       let icon = 'Zap'
       if (tx.type === 'redeem') icon = 'Gift'
       else if (tx.type === 'manual_debit') icon = 'ArrowDownCircle'
-      else if (tx.reason?.toLowerCase().includes('kudos')) icon = 'Sparkles'
+      else if (/kudos|thank you/i.test(tx.reason || '')) icon = 'Sparkles'
 
       if (!grouped[monthYear]) grouped[monthYear] = []
       
       grouped[monthYear].push({
         id: tx.id,
-        title: tx.type === 'earn' || tx.type === 'manual_credit' ? 'Earned points' : (tx.type === 'redeem' ? 'Redeemed reward' : 'Debited points'),
+        title: tx.type === 'earn' || tx.type === 'manual_credit' ? 'Earned points' : (tx.type === 'redeem' ? (tx.points > 0 ? 'Reward refunded' : 'Redeemed reward') : 'Debited points'),
         meta: tx.reason || (tx.reward_programs?.name ? `via ${tx.reward_programs.name}` : 'System transaction'),
         amount: tx.points,
         icon,

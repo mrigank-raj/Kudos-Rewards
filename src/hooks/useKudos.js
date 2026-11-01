@@ -32,7 +32,7 @@ export function useKudos() {
     enabled: !!profile?.org_id,
   });
 
-  // Fetch all other active recipients in the org (for the dropdown)
+  // Everyone else still at the org, HR included (for the dropdown)
   const { data: recipients, isLoading: loadingRecipients } = useQuery({
     queryKey: ['kudos_recipients', profile?.org_id],
     queryFn: async () => {
@@ -40,9 +40,9 @@ export function useKudos() {
 
       const { data, error } = await supabase
         .from('users')
-        .select('id, name, email, avatar_url')
+        .select('id, name, email, avatar_url, role')
         .eq('org_id', profile.org_id)
-        .eq('role', 'recipient')
+        .is('removed_at', null)
         .neq('id', profile.id) // Exclude self
         .order('name', { ascending: true });
 

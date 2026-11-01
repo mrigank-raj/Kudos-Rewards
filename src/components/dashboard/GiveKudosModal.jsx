@@ -137,7 +137,7 @@ export default function GiveKudosModal({ isOpen, onClose }) {
                 <span className={cx('text-label-xs truncate w-full text-center', selected ? 'text-brand-text' : 'text-ink-primary')}>
                   {(person.name || 'User').split(' ')[0]}
                 </span>
-                <span className="font-mono text-[11px] leading-3 text-ink-muted truncate w-full text-center">Team</span>
+                <span className="font-mono text-[11px] leading-3 text-ink-muted truncate w-full text-center">{person.role === 'admin' ? 'HR' : 'Employee'}</span>
               </button>
             )
           })
@@ -231,6 +231,15 @@ export default function GiveKudosModal({ isOpen, onClose }) {
           />
         </div>
       )}
+
+      <button
+        type="button"
+        onClick={() => setPoints(maxPoints)}
+        disabled={maxPoints === 0}
+        className="mt-3 text-label-sm text-brand-text transition hover:opacity-80 disabled:pointer-events-none disabled:text-ink-muted"
+      >
+        Send all my points ({formatPoints(maxPoints)})
+      </button>
 
       <p className="mt-4 text-center text-body-sm text-ink-muted sm:hidden">
         Balance after sending{' '}

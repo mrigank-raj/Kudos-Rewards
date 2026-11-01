@@ -35,7 +35,7 @@ export default function AdminDashboard() {
       if (!orgId) return null
 
       const [usersRes, programsRes, txRes, redemptionsRes, recentTxRes] = await Promise.all([
-        supabase.from('users').select('id, created_at').eq('org_id', orgId).eq('role', 'recipient'),
+        supabase.from('users').select('id, created_at').eq('org_id', orgId).eq('role', 'recipient').is('removed_at', null),
         supabase.from('reward_programs').select('*').eq('org_id', orgId).eq('is_active', true),
         supabase.from('transactions').select('points, type, user_id, created_at, reward_programs(name)').in('type', ['manual_credit', 'earn']),
         supabase.from('redemptions').select('id, created_at'),

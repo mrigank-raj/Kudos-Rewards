@@ -169,7 +169,7 @@ export default function RecipientDashboard() {
     title: tx.type === 'earn' ? 'Earned points' : 'Redeemed reward',
     amount: tx.type === 'earn' ? tx.amount : -tx.amount,
     date: new Date(tx.created_at).toLocaleDateString(),
-    icon: tx.type === 'earn' ? (tx.description?.toLowerCase().includes('kudos') ? 'Sparkles' : 'Zap') : 'Gift',
+    icon: tx.type === 'earn' ? (/kudos|thank you/i.test(tx.description || '') ? 'Sparkles' : 'Zap') : 'Gift',
     meta: tx.description || 'System transaction'
   }))
 

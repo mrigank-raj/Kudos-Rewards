@@ -40,7 +40,10 @@ export default function LoginPage() {
       }
     } catch (err) {
       console.error("Supabase Login Error:", err);
-      setError(err.message || 'Sign in failed. Please try again.');
+      // Removed people are banned in Supabase Auth (migration 019).
+      setError(/banned/i.test(err.message || '')
+        ? 'Your account has been closed. Contact HR.'
+        : (err.message || 'Sign in failed. Please try again.'));
     } finally {
       setLoading(false);
     }
@@ -83,14 +86,7 @@ export default function LoginPage() {
           </div>
 
           <div className="mt-4">
-            <Field
-              label="Password"
-              hint={
-                <button type="button" className="text-label-sm text-brand-text transition hover:opacity-80">
-                  Forgot password?
-                </button>
-              }
-            >
+            <Field label="Password">
               <Input
                 icon={Lock}
                 type={showPassword ? 'text' : 'password'}
