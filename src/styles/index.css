@@ -268,6 +268,17 @@
   #root {
     height: 100%;
   }
+
+  /* Chrome paints autofilled inputs with its own light background, which
+     ignores background-color. Delaying that transition indefinitely keeps
+     our (transparent) field background in both themes. */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-text-fill-color: rgb(var(--ink-primary));
+    caret-color: rgb(var(--ink-primary));
+    transition: background-color 600000s 0s, color 600000s 0s;
+  }
 }
 
 html {
@@ -288,10 +299,14 @@ body {
    Focus & Accessibility
    ============================================================ */
 
-:focus-visible {
-  outline: 2px solid rgb(var(--brand-solid));
-  outline-offset: 2px;
-  border-radius: 4px;
+/* Layered so components' own focus styles (outline-none + ring) win;
+   unlayered, this drew a second outline inside every focused input. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid rgb(var(--brand-solid));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
 }
 
 /* ============================================================
