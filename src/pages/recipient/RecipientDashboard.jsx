@@ -6,6 +6,7 @@ import { useTransactions } from '@/hooks/useTransactions'
 import { useKudos } from '@/hooks/useKudos'
 import { useReactions, useToggleReaction, REACTION_EMOJIS } from '@/hooks/useReactions'
 import { useMyBadges } from '@/hooks/useBadges'
+import { useCatalog } from '@/hooks/useCatalog'
 import {
   AvatarStack, Badge, Card, Dropdown, IconTile, PointsPill, ProgressBar,
   SectionTitle, VAULT_GRADIENT, cx,
@@ -14,7 +15,6 @@ import {
 // Shared map so community badges (migration 014) render with their icons too.
 import { BADGE_ICONS } from '@/components/community/badgeIcons'
 
-const NEXT_REWARD = { name: 'Wireless Earbuds', cost: 3000 }
 const VALUE_FILTER_OPTIONS = ['All', 'Teamwork', 'Innovation', 'Impact', 'Leadership']
 
 /** True the moment `date` shares today's month+day and is at least a year old. */
@@ -30,17 +30,29 @@ function isAnniversaryToday(dateStr) {
 const formatPoints = (p) => (p || 0).toLocaleString()
 const signedPoints = (p) => p > 0 ? `+${p}` : `${p}`
 
+// Viewer's local clock.
+function greeting() {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'Good morning'
+  if (hour < 17) return 'Good afternoon'
+  return 'Good evening'
+}
+
 export function BalanceCard({ balance, onRedeem, compact = false }) {
   const safeBalance = balance || 0
-  const remaining = Math.max(0, NEXT_REWARD.cost - safeBalance)
-  const pct = Math.min(100, (safeBalance / NEXT_REWARD.cost) * 100)
+  const { data: catalog } = useCatalog()
+  // Cheapest reward not yet affordable; once everything is affordable, the
+  // priciest one (shown as complete). Catalog comes sorted by cost.
+  const nextReward = catalog?.find((item) => item.points_cost > safeBalance) || catalog?.at(-1)
+  const remaining = nextReward ? Math.max(0, nextReward.points_cost - safeBalance) : 0
+  const pct = nextReward ? Math.min(100, (safeBalance / nextReward.points_cost) * 100) : 0
 
   return (
     <div
       className={cx('relative overflow-hidden rounded-[20px] shadow-elevation-lg', compact ? 'p-5' : 'p-6 md:p-7')}
       style={VAULT_GRADIENT}
     >
-      <div className="pointer-events-none absolute -right-16 -top-28 h-72 w-72 rounded-full bg-[#6b5afa] opacity-55 blur-[90px]" />
+      <div className="pointer-events-none absolute -right-16 -top-28 h-72 w-72 rounded-full bg-[#1BD15A] opacity-30 blur-[90px]" />
 
       <div className="relative flex items-start">
         <div>
@@ -54,22 +66,22 @@ export function BalanceCard({ balance, onRedeem, compact = false }) {
         </div>
       </div>
 
-      <div className="relative mt-6">
+      {nextReward && <div className="relative mt-6">
         <div className="flex items-center text-label-xs text-white/70">
           <span>
-            {formatPoints(remaining)} pts to {NEXT_REWARD.name}
+            {remaining > 0 ? `${formatPoints(remaining)} pts to ${nextReward.name}` : 'You can afford every reward'}
           </span>
           <span className="ml-auto font-mono text-[11px] text-white/50">
-            {formatPoints(safeBalance)} / {formatPoints(NEXT_REWARD.cost)}
+            {formatPoints(safeBalance)} / {formatPoints(nextReward.points_cost)}
           </span>
         </div>
         <ProgressBar
           value={pct}
           height={6}
           className="mt-2.5 bg-white/[0.14]"
-          style={{ backgroundImage: 'linear-gradient(90deg, #8c80ff 0%, #fbbf24 100%)' }}
+          style={{ backgroundImage: 'linear-gradient(90deg, #1BD15A 0%, #fbbf24 100%)' }}
         />
-      </div>
+      </div>}
 
       <div className="relative mt-6 flex flex-wrap gap-2.5">
         <button
@@ -206,7 +218,7 @@ export default function RecipientDashboard() {
   return (
     <div className="mx-auto max-w-[1120px] animate-fade-in">
       <div className="hidden lg:block">
-        <h1 className="text-display-lg text-ink-primary">Good afternoon, {firstName}</h1>
+        <h1 className="text-display-lg text-ink-primary">{greeting()}, {firstName}</h1>
         <p className="mt-1.5 text-body-md text-ink-secondary">
           You have {formatPoints(balance)} points ready to spend.
         </p>
