@@ -268,7 +268,7 @@ export function PointsPill({ value, className, size = 'md' }) {
   return (
     <span
       className={cx(
-        'inline-flex items-center gap-1.5 rounded-full border border-gold-border bg-gold-subtle text-gold-text',
+        'inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-gold-border bg-gold-subtle text-gold-text',
         size === 'sm' ? 'px-2.5 py-1 text-label-xs' : 'px-3 py-1.5 text-label-sm',
         className
       )}

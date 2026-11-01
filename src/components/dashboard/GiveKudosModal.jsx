@@ -14,7 +14,8 @@ export default function GiveKudosModal({ isOpen, onClose }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [message, setMessage] = useState('')
   const [tags, setTags] = useState(['Teamwork'])
-  const [points, setPoints] = useState(500)
+  // null = no points attached; points are optional and must be chosen.
+  const [points, setPoints] = useState(null)
 
   const { recipients, loadingRecipients, sendKudos, isSending } = useKudos()
   const { profile } = useAuth()
@@ -47,7 +48,7 @@ export default function GiveKudosModal({ isOpen, onClose }) {
       // Reset form
       setToUserId('')
       setMessage('')
-      setPoints(500)
+      setPoints(null)
       setTags(['Teamwork'])
       onClose()
     } catch (err) {
@@ -189,7 +190,7 @@ export default function GiveKudosModal({ isOpen, onClose }) {
             <button
               key={amount}
               type="button"
-              onClick={() => setPoints(amount)}
+              onClick={() => setPoints(on ? null : amount)}
               className={cx(
                 'inline-flex h-11 items-center justify-center gap-1.5 rounded-xl border text-label-sm',
                 'transition-all duration-200 ease-smooth active:scale-[0.97]',

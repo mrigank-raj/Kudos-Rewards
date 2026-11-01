@@ -357,7 +357,7 @@ function TopBar({ role, onGiveKudos, notifications, unreadCount, onMarkRead }) {
         <button
           type="button"
           onClick={onGiveKudos}
-          className="inline-flex h-[42px] items-center gap-2 rounded-[10px] px-4 text-label-sm text-white shadow-glow-brand transition-all duration-200 ease-smooth hover:brightness-110 active:scale-[0.97]"
+          className="inline-flex h-[42px] shrink-0 items-center gap-2 whitespace-nowrap rounded-[10px] px-4 text-label-sm text-white shadow-glow-brand transition-all duration-200 ease-smooth hover:brightness-110 active:scale-[0.97]"
           style={BRAND_GRADIENT}
         >
           <Sparkles size={16} />

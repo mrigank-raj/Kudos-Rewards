@@ -30,12 +30,20 @@ function isAnniversaryToday(dateStr) {
 const formatPoints = (p) => (p || 0).toLocaleString()
 const signedPoints = (p) => p > 0 ? `+${p}` : `${p}`
 
-// Viewer's local clock.
+// Viewer's local clock. Morning starts at 5, so just past midnight is
+// still "evening".
 function greeting() {
   const hour = new Date().getHours()
-  if (hour < 12) return 'Good morning'
-  if (hour < 17) return 'Good afternoon'
+  if (hour >= 5 && hour < 12) return 'Good morning'
+  if (hour >= 12 && hour < 17) return 'Good afternoon'
   return 'Good evening'
+}
+
+// AvatarStack draws from initials + color, not name.
+function wallPerson(user) {
+  const name = user?.name || 'Unknown'
+  const initials = name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
+  return { name, initials, color: user?.avatar_url }
 }
 
 export function BalanceCard({ balance, onRedeem, compact = false }) {
@@ -191,8 +199,8 @@ export default function RecipientDashboard() {
   const mappedFeed = useMemo(() => {
     const mapped = (kudosFeed || []).map(post => ({
       id: post.id,
-      from: { name: post.from_user?.name || 'Unknown', avatar: post.from_user?.avatar_url },
-      to: { name: post.to_user?.name || 'Unknown', avatar: post.to_user?.avatar_url },
+      from: wallPerson(post.from_user),
+      to: wallPerson(post.to_user),
       time: new Date(post.created_at).toLocaleDateString(),
       points: post.points_included || 0,
       message: post.message,
