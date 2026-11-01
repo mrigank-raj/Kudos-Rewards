@@ -3,6 +3,7 @@ import { Area, AreaChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAx
 import { Calendar, Download, Info } from 'lucide-react'
 import { Avatar, BRAND_GRADIENT, Card, Dropdown, ProgressBar, SectionTitle, SegmentedTabs, cx } from '@/components/ui'
 import { usePointsSummary, useTopRecipients, useProgramBreakdown } from '@/hooks/useAnalytics'
+import { downloadCsv } from '@/lib/csv'
 
 const TIME_RANGE_OPTIONS = [
   { value: '3', label: 'Last 3 months' },
@@ -94,6 +95,17 @@ export default function AnalyticsPage() {
     }))
   }, [rawTopRecipients])
 
+  const exportReport = () => downloadCsv(`kiit-points-report-${new Date().toISOString().slice(0, 10)}.csv`, [
+    ['Month', 'Issued by HR', 'Redeemed'],
+    ...summary.map((m) => [m.month, Number(m.issued), Number(m.redeemed)]),
+    [],
+    ['Top earners', 'Points earned'],
+    ...topEarners.map((p) => [p.name, Number(p.points)]),
+    [],
+    ['Program', 'Points issued'],
+    ...programSplit.map((p) => [p.name, Number(p.value)]),
+  ])
+
   // Prepare data for the redemption trend area chart
   const redemptionTrend = useMemo(() => {
     return summary.map(monthData => ({
@@ -108,13 +120,14 @@ export default function AnalyticsPage() {
         <div>
           <h1 className="text-display-lg text-ink-primary">Analytics</h1>
           <p className="mt-1.5 text-body-md text-ink-secondary">
-            Where points go, who drives culture, and what it costs.
+            Where points go and who is being recognised.
           </p>
         </div>
         <div className="ml-auto flex items-center gap-2.5">
           <Dropdown icon={Calendar} options={TIME_RANGE_OPTIONS} value={timeRange} onChange={setTimeRange} />
           <button
             type="button"
+            onClick={exportReport}
             className="inline-flex h-10 items-center gap-2 rounded-[10px] border border-stroke bg-surface-base px-3.5 text-label-sm text-ink-primary transition hover:bg-surface-subtle active:scale-[0.98]"
           >
             <Download size={15} className="text-ink-secondary" />
@@ -284,7 +297,7 @@ export default function AnalyticsPage() {
 
                   <div className="w-[150px] shrink-0">
                     <p className="truncate text-label-sm text-ink-primary">{person.name}</p>
-                    <p className="truncate text-body-sm text-ink-muted">{person.team || 'Unassigned'}</p>
+                    {person.team && <p className="truncate text-body-sm text-ink-muted">{person.team}</p>}
                   </div>
 
                   <ProgressBar
@@ -340,7 +353,7 @@ export default function AnalyticsPage() {
               Worth a look
             </p>
             <p className="mt-2.5 text-body-sm text-ink-secondary">
-              Total points issued is <strong>{formatPoints(totalIssued)}</strong>. 
+              Total points issued is <strong>{formatPoints(totalIssued)}</strong>.
               Currently, <strong>{redemptionRate}%</strong> of those points have been redeemed.
             </p>
           </div>

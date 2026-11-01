@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { format } from 'date-fns'
-import { ArrowLeft, Award, CircleCheck, Heart, Info, Loader2, MessageSquare, Pencil, PenSquare, Send, UserX, X } from 'lucide-react'
+import { ArrowLeft, Award, CircleCheck, Heart, Info, Loader2, MessageSquare, Pencil, PenSquare, Send, Sparkles, UserX, X } from 'lucide-react'
 import { Button, Card, EmptyState, Field, Input, SectionTitle } from '@/components/ui'
 import PostCard from '@/components/community/PostCard'
 import { BadgeChip, CharCount, ErrorState, FieldError, LoadMore, LoadingCards, Textarea, TimeAgo, UserAvatar } from '@/components/community/CommunityUI'
@@ -70,7 +70,7 @@ function EditProfileForm({ member, onDone }) {
             onKeyDown={(e) => {
               if (e.key === 'Enter') { e.preventDefault(); addSkills() }
             }}
-            placeholder="e.g. react, sql, onboarding"
+            placeholder="e.g. Python, research methods, mentoring"
             aria-label="Add skills, comma separated"
           />
           <Button variant="secondary" onClick={addSkills} disabled={!skillInput.trim()}>Add</Button>
@@ -90,7 +90,7 @@ function EditProfileForm({ member, onDone }) {
         <p className="mt-1.5 text-body-sm text-ink-muted">{skills.length}/{LIMITS.skillsMax} — colleagues can find you by these in the directory.</p>
       </div>
       <FieldError>{error}</FieldError>
-      <p className="text-body-sm text-ink-muted">Your name, department and photo come from your KIIT employee account and are managed by HR.</p>
+      <p className="text-body-sm text-ink-muted">Your department is set by HR. Ask HR if it's missing or wrong.</p>
       <div className="flex justify-end gap-2">
         <Button variant="secondary" onClick={onDone} disabled={save.isPending}>Cancel</Button>
         <Button type="submit" disabled={save.isPending}>{save.isPending && <Loader2 size={14} className="animate-spin" />} Save profile</Button>
@@ -174,9 +174,14 @@ export default function MemberProfilePage({ self = false }) {
             {isMe ? (
               !editing && <Button variant="secondary" onClick={() => setEditing(true)}><Pencil size={15} /> Edit profile</Button>
             ) : (
-              <Button onClick={message} disabled={startConversation.isPending}>
-                {startConversation.isPending ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />} Message
-              </Button>
+              <>
+                <Button variant="secondary" onClick={() => window.dispatchEvent(new CustomEvent('kiit:say-thank-you', { detail: { userId: member.user_id } }))}>
+                  <Sparkles size={15} /> Say Thank You !
+                </Button>
+                <Button onClick={message} disabled={startConversation.isPending}>
+                  {startConversation.isPending ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />} Message
+                </Button>
+              </>
             )}
           </div>
         </div>
@@ -240,7 +245,7 @@ export default function MemberProfilePage({ self = false }) {
               {contributions.isLoading ? (
                 <p className="mt-3 text-body-sm text-ink-muted">Loading…</p>
               ) : !contributions.data?.length ? (
-                <p className="mt-3 text-body-sm text-ink-muted">Nothing yet — answer a question to earn your first points.</p>
+                <p className="mt-3 text-body-sm text-ink-muted">Nothing yet — answer a question to earn your first reputation.</p>
               ) : (
                 <ul className="mt-3 divide-y divide-stroke-subtle">
                   {contributions.data.map((c) => (

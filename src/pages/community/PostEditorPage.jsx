@@ -238,7 +238,7 @@ export default function PostEditorPage({ initialType }) {
           </div>
 
           <p className="rounded-xl bg-surface-subtle px-3.5 py-3 text-body-sm text-ink-muted">
-            Attachments aren't supported yet — link to shared documents instead. Don't post passwords, customer data or anything confidential.
+            Attachments aren't supported yet — link to shared documents instead. Don't post passwords, student data or anything confidential.
           </p>
         </Card>
 

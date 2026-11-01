@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Check, Search, Sparkles, Zap } from 'lucide-react'
 import { Avatar, Badge, Button, Sheet, cx } from '@/components/ui'
 import { useKudos } from '@/hooks/useKudos'
@@ -6,15 +6,17 @@ import { useAuth } from '@/hooks/useAuth'
 import { useToast } from '@/context/ToastContext'
 
 const MAX_MESSAGE = 280
+const MIN_MESSAGE = 3 // matches send_kudos (migration 021)
 const POINT_PRESETS = [100, 250, 500]
 const VALUE_TAGS = ['Teamwork', 'Innovation', 'Impact', 'Leadership']
 
-export default function GiveKudosModal({ isOpen, onClose }) {
+export default function GiveKudosModal({ isOpen, onClose, initialUserId }) {
   const [toUserId, setToUserId] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [message, setMessage] = useState('')
   const [tags, setTags] = useState(['Teamwork'])
-  const [points, setPoints] = useState(500)
+  // null = no points attached; points are optional and must be chosen.
+  const [points, setPoints] = useState(null)
 
   const { recipients, loadingRecipients, sendKudos, isSending } = useKudos()
   const { profile } = useAuth()
@@ -22,14 +24,20 @@ export default function GiveKudosModal({ isOpen, onClose }) {
 
   const maxPoints = profile?.points_balance || 0
   const balanceAfter = maxPoints - (points || 0)
-  const canSend = toUserId && message.trim().length > 0 && balanceAfter >= 0 && !isSending
+  const canSend = toUserId && message.trim().length >= MIN_MESSAGE && balanceAfter >= 0 && !isSending
+
+  // Opened from someone's profile: preselect them.
+  useEffect(() => {
+    if (isOpen && initialUserId) setToUserId(initialUserId)
+  }, [isOpen, initialUserId])
 
   const toggleTag = (tag) =>
     setTags((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]))
 
-  const filteredRecipients = (recipients || []).filter(r => 
-    r.name.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  // Selected person first, so a preselected colleague is always visible.
+  const filteredRecipients = (recipients || [])
+    .filter((r) => r.id === toUserId || r.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    .sort((a, b) => (b.id === toUserId) - (a.id === toUserId))
 
   const handleSubmit = async () => {
     if (!canSend) return
@@ -41,13 +49,13 @@ export default function GiveKudosModal({ isOpen, onClose }) {
         points: points || 0,
         tags,
       })
-      
+
       toast.success('Thank You ! sent')
-      
+
       // Reset form
       setToUserId('')
       setMessage('')
-      setPoints(500)
+      setPoints(null)
       setTags(['Teamwork'])
       onClose()
     } catch (err) {
@@ -112,7 +120,7 @@ export default function GiveKudosModal({ isOpen, onClose }) {
           filteredRecipients.slice(0, 4).map((person) => {
             const selected = person.id === toUserId
             const initials = (person.name || 'User').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-            
+
             return (
               <button
                 key={person.id}
@@ -189,7 +197,7 @@ export default function GiveKudosModal({ isOpen, onClose }) {
             <button
               key={amount}
               type="button"
-              onClick={() => setPoints(amount)}
+              onClick={() => setPoints(on ? null : amount)}
               className={cx(
                 'inline-flex h-11 items-center justify-center gap-1.5 rounded-xl border text-label-sm',
                 'transition-all duration-200 ease-smooth active:scale-[0.97]',
@@ -217,10 +225,10 @@ export default function GiveKudosModal({ isOpen, onClose }) {
           Custom
         </button>
       </div>
-      
+
       {points !== null && !POINT_PRESETS.includes(points) && (
         <div className="mt-3">
-          <input 
+          <input
             type="number"
             min="0"
             max={maxPoints}

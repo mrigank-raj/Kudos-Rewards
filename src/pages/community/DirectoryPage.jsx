@@ -30,8 +30,8 @@ function MemberCard({ member, base }) {
         </div>
       )}
       <div className="mt-auto flex items-center gap-4 pt-3 text-body-sm text-ink-muted">
-        <span title="Community reputation" className="inline-flex items-center gap-1"><Award size={13} className="text-gold-solid" /> {Number(member.reputation)}</span>
-        <span title="Accepted answers" className="inline-flex items-center gap-1"><CircleCheck size={13} className="text-success-solid" /> {Number(member.accepted_answers)}</span>
+        <span title="Community reputation" className="inline-flex items-center gap-1"><Award size={13} className="text-gold-solid" /> {Number(member.reputation)} rep</span>
+        <span title="Accepted answers" className="inline-flex items-center gap-1"><CircleCheck size={13} className="text-success-solid" /> {Number(member.accepted_answers)} solved</span>
         {member.badges?.length > 0 && <span>{member.badges.length} badge{member.badges.length > 1 ? 's' : ''}</span>}
       </div>
     </Link>

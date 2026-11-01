@@ -268,7 +268,7 @@ export function PointsPill({ value, className, size = 'md' }) {
   return (
     <span
       className={cx(
-        'inline-flex items-center gap-1.5 rounded-full border border-gold-border bg-gold-subtle text-gold-text',
+        'inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-gold-border bg-gold-subtle text-gold-text',
         size === 'sm' ? 'px-2.5 py-1 text-label-xs' : 'px-3 py-1.5 text-label-sm',
         className
       )}
@@ -408,12 +408,13 @@ export function ChipRow({ options, value, onChange, className }) {
   return (
     <div className={cx('flex flex-nowrap gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden', className)}>
       {options.map((opt) => {
-        const active = opt === value
+        const key = typeof opt === 'string' ? opt : opt.value
+        const active = key === value
         return (
           <button
-            key={opt}
+            key={key}
             type="button"
-            onClick={() => onChange?.(opt)}
+            onClick={() => onChange?.(key)}
             className={cx(
               'shrink-0 rounded-full px-3.5 py-2 text-label-xs transition-all duration-200 ease-smooth active:scale-95',
               active
@@ -421,7 +422,7 @@ export function ChipRow({ options, value, onChange, className }) {
                 : 'bg-surface-base border border-stroke-subtle text-ink-secondary hover:text-ink-primary'
             )}
           >
-            {opt}
+            {typeof opt === 'string' ? opt : opt.label}
           </button>
         )
       })}

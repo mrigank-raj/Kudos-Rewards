@@ -198,3 +198,19 @@ export function useRemovePendingMember() {
     },
   });
 }
+
+/** HR sets (or clears, with '') someone's department (set_member_department, migration 021). */
+export function useSetDepartment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ userId, team }) => {
+      const { error } = await supabase.rpc('set_member_department', { p_user_id: userId, p_team: team });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['people'] });
+      queryClient.invalidateQueries({ queryKey: ['community'] });
+    },
+  });
+}
