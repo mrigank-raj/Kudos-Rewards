@@ -1,13 +1,13 @@
 import { useState, useCallback, useMemo } from 'react'
 import {
   ArrowRight, ArrowUpDown, Coffee, Film, Gift, Lock, Mail,
-  Shield, Shirt, SlidersHorizontal, Sun, Zap
+  Shield, Shirt, SlidersHorizontal, Zap
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useCatalog, useCatalogCategories } from '@/hooks/useCatalog'
-import { useRedeemReward } from '@/hooks/useRedemptions'
-import { supabase } from '@/config/supabase'
-import { ChipRow, Dropdown, ProgressBar, SearchInput, SegmentedTabs, Sheet, Button, Divider, cx } from '@/components/ui'
+import { useRedeemReward, useRedemptions } from '@/hooks/useRedemptions'
+import { useToast } from '@/context/ToastContext'
+import { Badge, Card, ChipRow, Dropdown, ProgressBar, SearchInput, SectionTitle, SegmentedTabs, Sheet, Button, Divider, cx } from '@/components/ui'
 
 const SORT_OPTIONS = [
   { value: 'points_asc', label: 'Points: low to high' },
@@ -15,28 +15,26 @@ const SORT_OPTIONS = [
   { value: 'name_asc', label: 'Name: A to Z' },
 ]
 
-const ICONS = {
-  'Gift Cards': Coffee,
-  'Experiences': Film,
-  'Company Swag': Shirt,
-  'Time Off': Sun,
+// Keys are catalog_items.category values (CHECK constraint, migration 001).
+const CATEGORY = {
+  gift_card: { label: 'Gift cards', icon: Coffee, gradient: { from: '#14632f', to: '#1a8f47' } },
+  experience: { label: 'Experiences', icon: Film, gradient: { from: '#0f4a24', to: '#14632f' } },
+  merchandise: { label: 'Merchandise', icon: Shirt, gradient: { from: '#1a8f47', to: '#b45309' } },
 }
-
-const GRADIENTS = [
-  { from: '#f59e0b', to: '#ef4444' },
-  { from: '#10b981', to: '#3b82f6' },
-  { from: '#6366f1', to: '#a855f7' },
-  { from: '#ec4899', to: '#f43f5e' }
-]
+const categoryLabel = (c) => CATEGORY[c]?.label || c
 
 function getIconForCategory(cat) {
-  return ICONS[cat] || Gift
+  return CATEGORY[cat]?.icon || Gift
 }
 
-function getGradient(id) {
-  if (!id) return GRADIENTS[0]
-  const idx = String(id).charCodeAt(0) % GRADIENTS.length
-  return GRADIENTS[idx]
+function getGradient(cat) {
+  return CATEGORY[cat]?.gradient || CATEGORY.gift_card.gradient
+}
+
+const STATUS = {
+  pending: { label: 'Waiting for HR', tone: 'gold' },
+  fulfilled: { label: 'Approved', tone: 'success' },
+  cancelled: { label: 'Cancelled · refunded', tone: 'danger' },
 }
 
 const formatPoints = (p) => (p || 0).toLocaleString()
@@ -55,9 +53,9 @@ function Row({ label, value, tone, emphasis }) {
 function RedeemSheet({ open, onClose, reward, userBalance, onConfirm, isRedeeming }) {
   const { profile } = useAuth()
   if (!reward) return null
-  
+
   const Icon = getIconForCategory(reward.category)
-  const gradient = getGradient(reward.id)
+  const gradient = getGradient(reward.category)
   const after = userBalance - reward.points_cost
 
   return (
@@ -88,7 +86,7 @@ function RedeemSheet({ open, onClose, reward, userBalance, onConfirm, isRedeemin
         </span>
         <div className="min-w-0">
           <p className="truncate text-label-md text-ink-primary md:text-heading-sm">{reward.name}</p>
-          <p className="mt-0.5 truncate text-body-sm text-ink-muted">{reward.description} · Digital delivery</p>
+          <p className="mt-0.5 truncate text-body-sm text-ink-muted">{reward.description}</p>
         </div>
         <span className="ml-auto hidden shrink-0 items-center gap-1.5 md:flex">
           <Zap size={15} className="text-gold-solid" fill="currentColor" />
@@ -109,11 +107,11 @@ function RedeemSheet({ open, onClose, reward, userBalance, onConfirm, isRedeemin
       <ul className="mt-4 space-y-2.5">
         <li className="flex items-center gap-2.5 text-body-sm text-ink-muted">
           <Mail size={15} className="shrink-0" />
-          Recorded against {profile?.email || 'your account'} right away
+          HR is notified and will arrange it with you at {profile?.email || 'your email'}
         </li>
         <li className="flex items-center gap-2.5 text-body-sm text-ink-muted">
           <Shield size={15} className="shrink-0" />
-          Redemptions are final and logged to the ledger
+          If HR can't fulfil it, the request is cancelled and your points come back
         </li>
       </ul>
     </Sheet>
@@ -122,8 +120,8 @@ function RedeemSheet({ open, onClose, reward, userBalance, onConfirm, isRedeemin
 
 function RewardCard({ reward, userBalance, onRedeem }) {
   const Icon = getIconForCategory(reward.category)
-  const gradient = getGradient(reward.id)
-  
+  const gradient = getGradient(reward.category)
+
   const cost = reward.points_cost || 0
   const locked = cost > userBalance
   const short = Math.max(0, cost - userBalance)
@@ -143,6 +141,16 @@ function RewardCard({ reward, userBalance, onRedeem }) {
         style={{ backgroundImage: `linear-gradient(135deg, ${gradient.from} 0%, ${gradient.to} 100%)` }}
       >
         <div className="pointer-events-none absolute -right-10 -top-16 h-44 w-44 rounded-full bg-white/[0.16] blur-[50px]" />
+        {/* Photo when there is one; the gradient + icon stays underneath if it fails to load. */}
+        {reward.image_url && (
+          <img
+            src={reward.image_url}
+            alt=""
+            loading="lazy"
+            onError={(e) => { e.currentTarget.style.display = 'none' }}
+            className={cx('absolute inset-0 h-full w-full object-cover', locked && 'opacity-60 grayscale')}
+          />
+        )}
         <Icon
           className={cx(
             'relative transition-transform duration-500 ease-smooth',
@@ -152,7 +160,7 @@ function RewardCard({ reward, userBalance, onRedeem }) {
           strokeWidth={1.6}
         />
         <span className="absolute left-3 top-3 hidden rounded-full border border-white/25 bg-white/20 px-2.5 py-1 font-mono text-[11px] leading-4 text-white/95 md:block">
-          {reward.category}
+          {categoryLabel(reward.category)}
         </span>
         {locked && (
           <span className="absolute right-3 top-3 grid h-6 w-6 place-items-center rounded-full border border-white/25 bg-white/20 md:h-7 md:w-7">
@@ -168,7 +176,7 @@ function RewardCard({ reward, userBalance, onRedeem }) {
           <span className="hidden md:inline">{reward.name}</span>
         </h3>
         <p className="mt-0.5 font-mono text-[11px] leading-4 text-ink-muted md:mt-1 md:font-sans md:text-body-sm">
-          <span className="md:hidden">{reward.category}</span>
+          <span className="md:hidden">{categoryLabel(reward.category)}</span>
           <span className="hidden md:inline truncate block">{reward.description}</span>
         </p>
 
@@ -214,13 +222,13 @@ function RewardCard({ reward, userBalance, onRedeem }) {
 }
 
 export default function CatalogPage() {
-  const { profile, user } = useAuth()
+  const { profile } = useAuth()
   const { data: items, isLoading } = useCatalog()
-  const rawCategories = useCatalogCategories()
-  
-  // Create tabs array including "All"
-  const categories = ['All', ...rawCategories]
+  // useCatalogCategories already starts with 'All'.
+  const categories = useCatalogCategories().map((c) => (c === 'All' ? c : { value: c, label: categoryLabel(c) }))
   const redeemReward = useRedeemReward()
+  const { data: myRequests = [] } = useRedemptions()
+  const toast = useToast()
 
   const [category, setCategory] = useState('All')
   const [query, setQuery] = useState('')
@@ -245,32 +253,19 @@ export default function CatalogPage() {
     [items, category, query, sort]
   )
 
+  // The hook expects catalogItemId; it used to receive rewardId, so every
+  // redeem reached the server with no item and failed silently.
   const handleConfirmRedeem = useCallback(async () => {
     if (!selectedItem) return
-
-    const payload = {
-      rewardId: selectedItem.id,
-      pointsCost: selectedItem.points_cost,
+    try {
+      const res = await redeemReward.mutateAsync({ catalogItemId: selectedItem.id })
+      setLocalBalance(res?.new_balance ?? null)
+      toast.success(`Requested ${selectedItem.name}. HR has been notified.`)
+      setSelectedItem(null)
+    } catch (err) {
+      toast.error(err.message || 'Could not redeem this reward.')
     }
-
-    await redeemReward.mutateAsync(payload)
-
-    setLocalBalance((prev) => {
-      const base = prev ?? profile?.points_balance ?? 0
-      return base - payload.pointsCost
-    })
-
-    if (user?.id) {
-      const { data } = await supabase
-        .from('users')
-        .select('points_balance')
-        .eq('id', user.id)
-        .single()
-      if (data) setLocalBalance(data.points_balance)
-    }
-    
-    setSelectedItem(null)
-  }, [redeemReward, selectedItem, profile, user])
+  }, [redeemReward, selectedItem, toast])
 
   return (
     <div className="mx-auto max-w-[1120px] animate-fade-in">
@@ -278,7 +273,9 @@ export default function CatalogPage() {
         <div>
           <h1 className="text-display-lg text-ink-primary">Rewards catalog</h1>
           <p className="mt-1.5 text-body-md text-ink-secondary">
-            {items?.length || 0} rewards available. Points never expire.
+            {visible.length === (items?.length || 0)
+              ? `${visible.length} rewards available.`
+              : `Showing ${visible.length} of ${items?.length || 0} rewards.`} Points never expire.
           </p>
         </div>
         <div className="ml-auto flex items-center gap-2.5 rounded-xl border border-stroke-subtle bg-surface-base px-4 py-2.5 shadow-elevation-sm">
@@ -345,8 +342,27 @@ export default function CatalogPage() {
         </div>
       )}
 
+      {myRequests.length > 0 && (
+        <Card flush className="mt-8">
+          <div className="p-5 pb-3">
+            <SectionTitle title="My reward requests" subtitle="HR reviews every request" />
+          </div>
+          {myRequests.map((r) => (
+            <div key={r.id} className="flex items-center gap-3 border-t border-stroke-subtle px-5 py-3">
+              <div className="min-w-0">
+                <p className="truncate text-label-sm text-ink-primary">{r.catalog_items?.name || 'Reward'}</p>
+                <p className="font-mono text-[11px] text-ink-muted">
+                  {new Date(r.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })} · {formatPoints(r.points_spent)} pts
+                </p>
+              </div>
+              <Badge tone={STATUS[r.status]?.tone || 'neutral'} className="ml-auto shrink-0">{STATUS[r.status]?.label || r.status}</Badge>
+            </div>
+          ))}
+        </Card>
+      )}
+
       {/* Redeem Modal */}
-      <RedeemSheet 
+      <RedeemSheet
         open={!!selectedItem}
         onClose={() => setSelectedItem(null)}
         reward={selectedItem}

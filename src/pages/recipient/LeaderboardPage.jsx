@@ -14,8 +14,9 @@ export default function LeaderboardPage() {
   const ranked = useMemo(() => {
     if (!rawTopRecipients.length) return []
     const maxPoints = rawTopRecipients[0].total_earned || 1
-    return rawTopRecipients.map((person, index) => ({
-      rank: index + 1,
+    // Ties share a rank: 1 + number of people strictly ahead.
+    return rawTopRecipients.map((person) => ({
+      rank: 1 + rawTopRecipients.filter((o) => Number(o.total_earned) > Number(person.total_earned)).length,
       id: person.user_id,
       name: person.user_name,
       initials: (person.user_name || 'User').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2),
@@ -28,6 +29,7 @@ export default function LeaderboardPage() {
   }, [rawTopRecipients, profile?.id])
 
   const myEntry = ranked.find((p) => p.isMe)
+  const onBoard = myEntry && myEntry.points > 0
 
   return (
     <div className="mx-auto max-w-[720px] animate-fade-in">
@@ -43,16 +45,18 @@ export default function LeaderboardPage() {
         <div className="flex items-center gap-3.5">
           <span
             className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-label-md text-white"
-            style={myEntry && myEntry.rank <= 3 ? { background: MEDALS[myEntry.rank - 1] } : { background: 'var(--brand-gradient)' }}
+            style={onBoard && myEntry.rank <= 3 ? { background: MEDALS[myEntry.rank - 1] } : { background: 'var(--brand-gradient)' }}
           >
-            {myEntry ? `#${myEntry.rank}` : <Trophy size={18} />}
+            {onBoard ? `#${myEntry.rank}` : <Trophy size={18} />}
           </span>
           <div className="min-w-0">
             <p className="text-label-md text-ink-primary">
-              {myEntry ? `You're ranked #${myEntry.rank}` : "You're not on the board yet"}
+              {onBoard ? `You're ranked #${myEntry.rank}` : "You're not on the board yet"}
             </p>
             <p className="text-body-sm text-ink-muted">
-              {formatPoints(profile?.points_balance)} pts available · keep earning to climb
+              {onBoard
+                ? `${formatPoints(myEntry.points)} pts earned all time`
+                : 'Points from HR and Thank You ! notes you receive count here.'}
             </p>
           </div>
         </div>
@@ -81,9 +85,9 @@ export default function LeaderboardPage() {
                 <span
                   className={cx(
                     'grid h-[26px] w-[26px] shrink-0 place-items-center rounded-full text-label-xs',
-                    person.rank > 3 && 'bg-surface-subtle text-ink-muted'
+                    !(person.points > 0 && person.rank <= 3) && 'bg-surface-subtle text-ink-muted'
                   )}
-                  style={person.rank <= 3 ? { background: MEDALS[person.rank - 1], color: '#fff' } : undefined}
+                  style={person.points > 0 && person.rank <= 3 ? { background: MEDALS[person.rank - 1], color: '#fff' } : undefined}
                 >
                   {person.rank}
                 </span>
@@ -94,7 +98,7 @@ export default function LeaderboardPage() {
                   <p className="truncate text-label-sm text-ink-primary">
                     {person.name}{person.isMe && <span className="ml-1.5 text-body-sm text-ink-muted">(you)</span>}
                   </p>
-                  <p className="truncate text-body-sm text-ink-muted">{person.team || 'Unassigned'}</p>
+                  {person.team && <p className="truncate text-body-sm text-ink-muted">{person.team}</p>}
                 </div>
 
                 <ProgressBar

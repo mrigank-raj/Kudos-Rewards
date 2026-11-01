@@ -1,12 +1,73 @@
 import { useState, useMemo } from 'react'
-import { ArrowUpDown, Clock, ListFilter, MailPlus, Minus, Plus, UserMinus, Zap } from 'lucide-react'
-import { Avatar, Badge, Card, Checkbox, Dropdown, SearchInput, Sheet, Button, cx } from '@/components/ui'
-import { usePeople, useCreditPoints, useDebitPoints, usePendingMembers, useAddPendingMember, useRemoveMember, useRemovePendingMember } from '@/hooks/usePeople'
+import { ArrowUpDown, Clock, ListFilter, MailPlus, Minus, Pencil, Plus, UserMinus, Zap } from 'lucide-react'
+import { Avatar, Badge, Card, Dropdown, SearchInput, Sheet, Button, cx } from '@/components/ui'
+import { usePeople, useCreditPoints, useDebitPoints, usePendingMembers, useAddPendingMember, useRemoveMember, useRemovePendingMember, useSetDepartment } from '@/hooks/usePeople'
 import { useAuth } from '@/hooks/useAuth'
 import { usePrograms } from '@/hooks/usePrograms'
 import { useToast } from '@/context/ToastContext'
 
 const ALL_DEPARTMENTS = 'All departments'
+const BIG_CREDIT = 2000
+
+/** Department badge; for people who have signed up, HR can click to edit it. */
+function DepartmentChip({ person, onEdit }) {
+  if (person.pending) return <Badge tone="neutral">{person.team || 'No department'}</Badge>
+  return (
+    <button
+      type="button"
+      onClick={() => onEdit(person)}
+      title="Set department"
+      className="inline-flex items-center gap-1 rounded-full bg-surface-subtle px-2 py-0.5 text-label-xs text-ink-secondary transition hover:text-ink-primary"
+    >
+      {person.team || 'No department'}
+      <Pencil size={11} className="text-ink-muted" />
+    </button>
+  )
+}
+
+function DepartmentSheet({ person, onClose }) {
+  const setDepartment = useSetDepartment()
+  const toast = useToast()
+  const [team, setTeam] = useState(person.team || '')
+
+  const save = async () => {
+    try {
+      await setDepartment.mutateAsync({ userId: person.id, team })
+      toast.success(team.trim() ? `${person.name} is now in ${team.trim()}.` : `Department cleared for ${person.name}.`)
+      onClose()
+    } catch (err) {
+      toast.error(err.message || 'Could not set the department.')
+    }
+  }
+
+  return (
+    <Sheet
+      open
+      onClose={onClose}
+      title="Set department"
+      subtitle={person.name}
+      width={420}
+      footer={
+        <div className="flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
+          <Button variant="secondary" onClick={onClose} className="sm:w-auto" disabled={setDepartment.isPending}>Cancel</Button>
+          <Button onClick={save} className="sm:w-auto" disabled={setDepartment.isPending}>
+            {setDepartment.isPending ? 'Saving...' : 'Save'}
+          </Button>
+        </div>
+      }
+    >
+      <label className="block text-label-sm text-ink-primary mb-2">Department</label>
+      <input
+        value={team}
+        onChange={(e) => setTeam(e.target.value)}
+        maxLength={60}
+        placeholder="e.g. School of Computer Engineering"
+        className="w-full h-11 rounded-xl border border-stroke-subtle bg-surface-subtle px-3.5 text-body-sm text-ink-primary outline-none focus:border-brand-solid focus:ring-1 focus:ring-brand-solid"
+      />
+      <p className="mt-2 text-body-sm text-ink-muted">Leave empty to clear it. Used by the community &ldquo;My Department&rdquo; tab and filters.</p>
+    </Sheet>
+  )
+}
 const SORT_OPTIONS = [
   { value: 'balance_desc', label: 'Balance: high to low' },
   { value: 'balance_asc', label: 'Balance: low to high' },
@@ -20,6 +81,7 @@ function CreditDebitSheet({ open, onClose, user, initialMode = 'credit', onCredi
   const [mode, setMode] = useState(initialMode)
   const [form, setForm] = useState({ points: '', reason: '', programId: '' })
   const [errors, setErrors] = useState({})
+  const [confirmBig, setConfirmBig] = useState(false)
 
   // Update mode if it changes from props
   useMemo(() => { if (open) setMode(initialMode) }, [open, initialMode])
@@ -27,6 +89,7 @@ function CreditDebitSheet({ open, onClose, user, initialMode = 'credit', onCredi
   const handleChange = (e) => {
     const { name, value } = e.target
     setForm((prev) => ({ ...prev, [name]: value }))
+    if (name === 'points') setConfirmBig(false)
     if (errors[name]) {
       setErrors((prev) => { const n = { ...prev }; delete n[name]; return n })
     }
@@ -48,6 +111,12 @@ function CreditDebitSheet({ open, onClose, user, initialMode = 'credit', onCredi
     e.preventDefault()
     if (!validate()) return
 
+    // A typo like 50000 for 500 has no undo except a manual debit.
+    if (mode === 'credit' && Number(form.points) > BIG_CREDIT && !confirmBig) {
+      setConfirmBig(true)
+      return
+    }
+
     const payload = {
       userId: user.id,
       points: Number(form.points),
@@ -65,6 +134,7 @@ function CreditDebitSheet({ open, onClose, user, initialMode = 'credit', onCredi
       }
       onClose()
       setForm({ points: '', reason: '', programId: '' })
+      setConfirmBig(false)
     } catch (err) {
       toast.error(err.message || `Failed to ${mode} points.`)
     }
@@ -79,7 +149,7 @@ function CreditDebitSheet({ open, onClose, user, initialMode = 'credit', onCredi
     <Sheet
       open={open}
       onClose={onClose}
-      title={`${mode === 'credit' ? 'Credit' : 'Debit'} Points`}
+      title={`${mode === 'credit' ? 'Credit' : 'Debit'} points`}
       subtitle={`Adjusting balance for ${user.name}`}
       width={480}
       footer={
@@ -88,7 +158,7 @@ function CreditDebitSheet({ open, onClose, user, initialMode = 'credit', onCredi
             Cancel
           </Button>
           <Button onClick={handleSubmit} className="sm:w-auto" disabled={isLoading}>
-            {isLoading ? 'Processing...' : mode === 'credit' ? 'Credit points' : 'Debit points'}
+            {isLoading ? 'Processing...' : confirmBig ? `Yes, credit ${Number(form.points).toLocaleString()} points` : mode === 'credit' ? 'Credit points' : 'Debit points'}
           </Button>
         </div>
       }
@@ -137,6 +207,11 @@ function CreditDebitSheet({ open, onClose, user, initialMode = 'credit', onCredi
             className={cx(inputClass, errors.points && 'border-danger-solid')}
           />
           {errors.points && <p className="mt-1 text-xs text-danger-solid">{errors.points}</p>}
+          {confirmBig && (
+            <p className="mt-2 rounded-lg border border-gold-border bg-gold-subtle p-2.5 text-body-sm text-gold-text">
+              That's a large credit. Check the amount, then press the button again to confirm.
+            </p>
+          )}
         </div>
 
         <div>
@@ -151,7 +226,7 @@ function CreditDebitSheet({ open, onClose, user, initialMode = 'credit', onCredi
 
         {mode === 'credit' && activePrograms.length > 0 && (
           <div>
-            <label className="block text-label-sm text-ink-primary mb-2">Link to Program (Optional)</label>
+            <label className="block text-label-sm text-ink-primary mb-2">Link to program (optional)</label>
             <select
               name="programId" value={form.programId} onChange={handleChange}
               className={inputClass}
@@ -372,6 +447,7 @@ export default function PeoplePage() {
   const [showSheet, setShowSheet] = useState(false)
   const [showInvite, setShowInvite] = useState(false)
   const [removing, setRemoving] = useState(null)
+  const [editingDept, setEditingDept] = useState(null)
 
   const people = useMemo(() => {
     return (rawPeople || []).map(p => ({
@@ -527,7 +603,7 @@ export default function PeoplePage() {
             </div>
 
             <div className="mt-3 flex flex-wrap items-center gap-2">
-              <Badge tone="neutral">{person.team || 'Unassigned'}</Badge>
+              <DepartmentChip person={person} onEdit={setEditingDept} />
               {person.isHR && <Badge tone="brand">HR</Badge>}
               {person.pending ? (
                 <Badge tone="gold" dot>
@@ -574,10 +650,7 @@ export default function PeoplePage() {
         <table className="w-full">
           <thead>
             <tr className="bg-surface-sunken text-left">
-              <th className="w-[52px] py-3 pl-5">
-                <Checkbox checked={false} onChange={() => {}} label="Select all" />
-              </th>
-              <th className="py-3 text-overline-sm uppercase text-ink-muted">Member</th>
+              <th className="py-3 pl-5 text-overline-sm uppercase text-ink-muted">Member</th>
               <th className="py-3 text-overline-sm uppercase text-ink-muted">Department</th>
               <th className="py-3 text-right text-overline-sm uppercase text-ink-muted">Balance</th>
               <th className="py-3 text-right text-overline-sm uppercase text-ink-muted">Joined</th>
@@ -587,19 +660,15 @@ export default function PeoplePage() {
 
           <tbody>
             {isLoading || pendingLoading ? (
-              <tr><td colSpan="6" className="py-8 text-center text-ink-muted">Loading people...</td></tr>
+              <tr><td colSpan="5" className="py-8 text-center text-ink-muted">Loading people...</td></tr>
             ) : visible.length === 0 ? (
-              <tr><td colSpan="6" className="py-8 text-center text-ink-muted">No members found.</td></tr>
+              <tr><td colSpan="5" className="py-8 text-center text-ink-muted">No members found.</td></tr>
             ) : visible.map((person) => (
               <tr
                 key={person.id}
                 className={cx('border-t border-stroke-subtle transition-colors hover:bg-surface-subtle/60', person.pending && 'opacity-70')}
               >
-                <td className="py-2.5 pl-5">
-                  <Checkbox checked={false} onChange={() => {}} label={`Select ${person.name}`} />
-                </td>
-
-                <td className="py-2.5 pr-4">
+                <td className="py-2.5 pl-5 pr-4">
                   <div className="flex items-center gap-3">
                     <Avatar initials={person.initials} color={person.color} size="md" />
                     <div className="min-w-0">
@@ -611,7 +680,7 @@ export default function PeoplePage() {
 
                 <td className="py-2.5 pr-4">
                   <div className="flex items-center gap-1.5">
-                    <Badge tone="neutral">{person.team || 'Unassigned'}</Badge>
+                    <DepartmentChip person={person} onEdit={setEditingDept} />
                     {person.isHR && <Badge tone="brand">HR</Badge>}
                     {person.pending && (
                       <Badge tone="gold" dot>
@@ -695,6 +764,8 @@ export default function PeoplePage() {
       />
 
       <InviteMemberSheet open={showInvite} onClose={() => setShowInvite(false)} />
+
+      {editingDept && <DepartmentSheet key={editingDept.id} person={editingDept} onClose={() => setEditingDept(null)} />}
 
       {removing && <RemoveMemberSheet key={removing.id} person={removing} onClose={() => setRemoving(null)} />}
     </div>

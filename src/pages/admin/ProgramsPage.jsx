@@ -76,12 +76,12 @@ function ProgramSheet({ open, onClose, program, onSubmit, isLoading }) {
   }
 
   const inputClass = "w-full h-11 rounded-xl border border-stroke-subtle bg-surface-subtle px-3.5 text-body-sm text-ink-primary outline-none focus:border-brand-solid focus:ring-1 focus:ring-brand-solid"
-  
+
   return (
     <Sheet
       open={open}
       onClose={onClose}
-      title={isEditing ? 'Edit Program' : 'Create Program'}
+      title={isEditing ? 'Edit program' : 'Create program'}
       subtitle={isEditing ? 'Update program details' : 'Define how points are earned'}
       icon={<Star size={19} className="text-white" />}
       width={480}
@@ -98,7 +98,7 @@ function ProgramSheet({ open, onClose, program, onSubmit, isLoading }) {
     >
       <div className="space-y-5">
         <div>
-          <label className="block text-label-sm text-ink-primary mb-2">Program Name</label>
+          <label className="block text-label-sm text-ink-primary mb-2">Program name</label>
           <input
             name="name" value={form.name} onChange={handleChange}
             placeholder="e.g. Spot Bonus, Teaching Excellence"
@@ -117,7 +117,7 @@ function ProgramSheet({ open, onClose, program, onSubmit, isLoading }) {
         </div>
 
         <div>
-          <label className="block text-label-sm text-ink-primary mb-2">Points Value</label>
+          <label className="block text-label-sm text-ink-primary mb-2">Points value</label>
           <input
             name="points_value" type="number" value={form.points_value} onChange={handleChange}
             placeholder="e.g. 500"

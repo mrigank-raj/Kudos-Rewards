@@ -37,7 +37,7 @@ export function usePointsSummary() {
         const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
         if (!months[key]) months[key] = { month: key, issued: 0, redeemed: 0 };
 
-        if (tx.type === 'manual_credit' || tx.type === 'earn') {
+        if (tx.type === 'manual_credit') {
           months[key].issued += Math.abs(tx.points);
         } else if (tx.type === 'redeem') {
           months[key].redeemed -= tx.points; // refunds are positive redeem rows

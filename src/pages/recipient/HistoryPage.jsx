@@ -1,96 +1,86 @@
 import { useState, useMemo } from 'react'
 import {
-  ArrowDownRight, ArrowUpRight, Calendar, Download, Gift, Sparkles, Zap, ArrowDownCircle
+  ArrowDownRight, ArrowUpRight, Calendar, Download, Gift, PartyPopper, Send, Sparkles, Zap, ArrowDownCircle
 } from 'lucide-react'
 import { useTransactions } from '@/hooks/useTransactions'
 import { useAuth } from '@/hooks/useAuth'
 import { Card, ChipRow, Dropdown, IconTile, SegmentedTabs, cx } from '@/components/ui'
+import { downloadCsv } from '@/lib/csv'
+import { describeTransaction } from '@/lib/ledger'
 
-const ICONS = { Gift, Sparkles, Zap, ArrowUpRight, ArrowDownRight, ArrowDownCircle }
-const FILTERS = ['All', 'Earned', 'Redeemed', 'Debited']
+const ICONS = { Gift, Sparkles, Zap, ArrowUpRight, ArrowDownRight, ArrowDownCircle, Send, PartyPopper }
+const FILTERS = ['All', 'Earned', 'Redeemed', 'Sent', 'Deducted']
+const RANGES = [
+  { value: '30', label: 'Last 30 days' },
+  { value: '180', label: 'Last 6 months' },
+  { value: 'all', label: 'All time' },
+]
 
 const formatPoints = (p) => (p || 0).toLocaleString()
 const signedPoints = (p) => p > 0 ? `+${p.toLocaleString()}` : `${p.toLocaleString()}`
 
 export default function HistoryPage() {
   const [filter, setFilter] = useState('All')
+  const [range, setRange] = useState('all')
   const { data: transactions, isLoading } = useTransactions('all')
   const { profile } = useAuth()
 
-  const { groups, summary } = useMemo(() => {
+  const { groups, rows, summary } = useMemo(() => {
     let earned = 0
     let redeemed = 0
-    let debited = 0
-    
-    // Calculate running balance from the end to the start
-    // since the array is sorted descending by created_at.
-    const txsWithBalance = []
-    let currentBal = profile?.points_balance || 0
-    
-    const validTxs = transactions || []
-    
-    for (let i = 0; i < validTxs.length; i++) {
-      const tx = validTxs[i]
-      
-      // Reward refunds are positive 'redeem' rows, so they net out of redeemed.
-      if (tx.type === 'redeem') redeemed -= tx.points
-      else if (tx.points > 0) earned += tx.points
-      if (tx.type === 'manual_debit') debited += Math.abs(tx.points)
+    let given = 0
 
-      txsWithBalance.push({
-        ...tx,
-        running_balance: currentBal
-      })
+    // Running balance walks backwards from today (rows are newest first),
+    // over every row, before any filtering.
+    let currentBal = profile?.points_balance || 0
+    const since = range === 'all' ? null : Date.now() - Number(range) * 86400000
+
+    const all = (transactions || []).map((tx) => {
+      const d = describeTransaction(tx)
+      if (tx.type === 'redeem') redeemed -= tx.points // refunds net out
+      else if (tx.points > 0) earned += tx.points
+      else given -= tx.points
+      const row = {
+        id: tx.id,
+        ...d,
+        meta: tx.reason || (tx.reward_programs?.name ? `via ${tx.reward_programs.name}` : ''),
+        amount: tx.points,
+        date: new Date(tx.created_at),
+        balance: currentBal,
+      }
       currentBal -= tx.points
-    }
+      return row
+    })
+
+    const visibleRows = all
+      .filter((r) => !since || r.date.getTime() >= since)
+      .filter((r) => filter === 'All' || r.kind === filter)
 
     const grouped = {}
-    
-    txsWithBalance.forEach(tx => {
-      const date = new Date(tx.created_at)
-      const monthYear = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-      const whenStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
-      
-      let icon = 'Zap'
-      if (tx.type === 'redeem') icon = 'Gift'
-      else if (tx.type === 'manual_debit') icon = 'ArrowDownCircle'
-      else if (/kudos|thank you/i.test(tx.reason || '')) icon = 'Sparkles'
-
-      if (!grouped[monthYear]) grouped[monthYear] = []
-      
-      grouped[monthYear].push({
-        id: tx.id,
-        title: tx.type === 'earn' || tx.type === 'manual_credit' ? 'Earned points' : (tx.type === 'redeem' ? (tx.points > 0 ? 'Reward refunded' : 'Redeemed reward') : 'Debited points'),
-        meta: tx.reason || (tx.reward_programs?.name ? `via ${tx.reward_programs.name}` : 'System transaction'),
-        amount: tx.points,
-        icon,
-        when: whenStr,
-        balance: tx.running_balance,
-        rawType: tx.type
+    visibleRows.forEach((r) => {
+      const month = r.date.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })
+      ;(grouped[month] ||= []).push({
+        ...r,
+        when: r.date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }),
       })
     })
 
-    const groupArray = Object.keys(grouped).map(month => ({
-      month,
-      rows: grouped[month].filter((row) => {
-        if (filter === 'All') return true
-        if (filter === 'Earned') return row.amount > 0
-        if (filter === 'Redeemed') return row.rawType === 'redeem'
-        if (filter === 'Debited') return row.rawType === 'manual_debit'
-        return true
-      })
-    })).filter(g => g.rows.length > 0)
-
     return {
-      groups: groupArray,
+      rows: visibleRows,
+      groups: Object.keys(grouped).map((month) => ({ month, rows: grouped[month] })),
       summary: [
         { label: 'Current balance', value: formatPoints(profile?.points_balance), icon: 'Zap', tone: 'brand', sub: 'Available to spend' },
-        { label: 'Total earned', value: formatPoints(earned), icon: 'ArrowUpRight', tone: 'success', sub: 'All time' },
-        { label: 'Total redeemed', value: formatPoints(redeemed), icon: 'Gift', tone: 'warning', sub: 'All time' },
-        { label: 'Total debited', value: formatPoints(debited), icon: 'ArrowDownCircle', tone: 'danger', sub: 'All time' },
-      ]
+        { label: 'Total earned', value: formatPoints(earned), icon: 'ArrowUpRight', tone: 'success', sub: 'Welcome, HR and Thank You ! points' },
+        { label: 'Spent on rewards', value: formatPoints(redeemed), icon: 'Gift', tone: 'warning', sub: 'After refunds' },
+        { label: 'Given & deducted', value: formatPoints(given), icon: 'ArrowDownCircle', tone: 'danger', sub: 'Thank You ! sent and HR deductions' },
+      ],
     }
-  }, [transactions, profile, filter])
+  }, [transactions, profile, filter, range])
+
+  const exportCsv = () => downloadCsv(`kiit-points-history-${new Date().toISOString().slice(0, 10)}.csv`, [
+    ['Date', 'Type', 'Details', 'Points', 'Balance after'],
+    ...rows.map((r) => [r.date.toLocaleString('en-IN'), r.title, r.meta, r.amount, r.balance]),
+  ])
 
   return (
     <div className="mx-auto max-w-[1120px] animate-fade-in">
@@ -102,10 +92,12 @@ export default function HistoryPage() {
           </p>
         </div>
         <div className="ml-auto flex items-center gap-2.5">
-          <Dropdown icon={Calendar}>Last 6 months</Dropdown>
+          <Dropdown icon={Calendar} options={RANGES} value={range} onChange={setRange} align="right" />
           <button
             type="button"
-            className="inline-flex h-10 items-center gap-2 rounded-[10px] border border-stroke bg-surface-base px-3.5 text-label-sm text-ink-primary transition hover:bg-surface-subtle active:scale-[0.98]"
+            onClick={exportCsv}
+            disabled={rows.length === 0}
+            className="inline-flex h-10 items-center gap-2 rounded-[10px] border border-stroke bg-surface-base px-3.5 text-label-sm text-ink-primary transition hover:bg-surface-subtle active:scale-[0.98] disabled:opacity-50"
           >
             <Download size={15} className="text-ink-secondary" />
             Export CSV
@@ -139,7 +131,7 @@ export default function HistoryPage() {
       <Card flush className="mt-4 md:mt-5">
         <div className="hidden items-center px-5 py-3.5 md:flex">
           <SegmentedTabs options={FILTERS} value={filter} onChange={setFilter} size="sm" />
-          <span className="ml-auto font-mono text-[11px] text-ink-muted">{transactions?.length || 0} transactions</span>
+          <span className="ml-auto font-mono text-[11px] text-ink-muted">{rows.length} transaction{rows.length === 1 ? '' : 's'}</span>
         </div>
 
         {isLoading ? (
@@ -169,7 +161,7 @@ export default function HistoryPage() {
 
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-label-sm text-ink-primary md:text-label-md">{row.title}</p>
-                      <p className="truncate text-body-sm text-ink-muted">{row.meta}</p>
+                      {row.meta && <p className="truncate text-body-sm text-ink-muted">{row.meta}</p>}
                     </div>
 
                     <span className="ml-auto hidden shrink-0 font-mono text-[11px] text-ink-muted md:block">

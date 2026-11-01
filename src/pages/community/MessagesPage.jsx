@@ -57,7 +57,7 @@ function NewConversationSheet({ open, onClose }) {
                   <UserAvatar user={{ name: p.name, avatar_url: p.avatar_url }} size="md" />
                   <span className="min-w-0">
                     <span className="block truncate text-label-sm text-ink-primary">{p.name}</span>
-                    <span className="block truncate text-body-sm text-ink-muted">{[p.job_title, p.team].filter(Boolean).join(' · ') || 'Team member'}</span>
+                    <span className="block truncate text-body-sm text-ink-muted">{[p.job_title, p.team].filter(Boolean).join(' · ') || (p.role === 'admin' ? 'HR' : 'Employee')}</span>
                   </span>
                 </button>
               </li>
@@ -152,7 +152,7 @@ function Thread({ conversation, base }) {
         <div className="min-w-0">
           <Link to={`${base}/directory/${conversation.other_user_id}`} className="block truncate text-label-sm text-ink-primary hover:underline">{conversation.other_name}</Link>
           <p className="truncate text-body-sm text-ink-muted">
-            {[conversation.other_job_title, conversation.other_team, conversation.other_role === 'admin' && 'HR'].filter(Boolean).join(' · ') || 'Team member'}
+            {[conversation.other_job_title, conversation.other_team, conversation.other_role === 'admin' && 'HR'].filter(Boolean).join(' · ') || 'Employee'}
           </p>
         </div>
       </header>

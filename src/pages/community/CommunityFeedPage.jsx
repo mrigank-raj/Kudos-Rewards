@@ -55,7 +55,7 @@ function HelpSidebar({ base }) {
           {unanswered.isLoading ? (
             <p className="py-3 text-body-sm text-ink-muted">Loading…</p>
           ) : items.length === 0 ? (
-            <p className="py-3 text-body-sm text-ink-muted">Every question has an answer. Nice work, team.</p>
+            <p className="py-3 text-body-sm text-ink-muted">No open questions right now.</p>
           ) : (
             <ul className="divide-y divide-stroke-subtle">
               {items.map((p) => (
@@ -188,7 +188,7 @@ export default function CommunityFeedPage({ mode = 'feed' }) {
           <div className="mt-4 space-y-3">
             {departmentUnavailable ? (
               <Card>
-                <EmptyState icon={MessagesSquare} title="No department on your profile" body="Department filtering uses the team HR assigned to you. Ask HR to set your team, or browse all posts." />
+                <EmptyState icon={MessagesSquare} title="No department on your profile" body="HR hasn't set your department yet. Ask HR to add it on the People page, or browse all posts." />
               </Card>
             ) : query.isLoading ? (
               <LoadingCards />

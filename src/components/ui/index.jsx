@@ -408,12 +408,13 @@ export function ChipRow({ options, value, onChange, className }) {
   return (
     <div className={cx('flex flex-nowrap gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden', className)}>
       {options.map((opt) => {
-        const active = opt === value
+        const key = typeof opt === 'string' ? opt : opt.value
+        const active = key === value
         return (
           <button
-            key={opt}
+            key={key}
             type="button"
-            onClick={() => onChange?.(opt)}
+            onClick={() => onChange?.(key)}
             className={cx(
               'shrink-0 rounded-full px-3.5 py-2 text-label-xs transition-all duration-200 ease-smooth active:scale-95',
               active
@@ -421,7 +422,7 @@ export function ChipRow({ options, value, onChange, className }) {
                 : 'bg-surface-base border border-stroke-subtle text-ink-secondary hover:text-ink-primary'
             )}
           >
-            {opt}
+            {typeof opt === 'string' ? opt : opt.label}
           </button>
         )
       })}

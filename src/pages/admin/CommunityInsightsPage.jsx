@@ -104,7 +104,7 @@ function AwardPointsSheet({ person, onClose }) {
       open={!!person}
       onClose={credit.isPending ? undefined : onClose}
       title={`Award points to ${person?.name}`}
-      subtitle="Credits the official rewards wallet via the standard admin workflow."
+      subtitle="Credits the official rewards wallet via the standard HR workflow."
       icon={<Zap size={17} className="text-white" />}
       width={500}
       footer={

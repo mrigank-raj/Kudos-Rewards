@@ -7,6 +7,7 @@ import { useKudos } from '@/hooks/useKudos'
 import { useReactions, useToggleReaction, REACTION_EMOJIS } from '@/hooks/useReactions'
 import { useMyBadges } from '@/hooks/useBadges'
 import { useCatalog } from '@/hooks/useCatalog'
+import { describeTransaction } from '@/lib/ledger'
 import {
   AvatarStack, Badge, Card, Dropdown, IconTile, PointsPill, ProgressBar,
   SectionTitle, VAULT_GRADIENT, cx,
@@ -76,12 +77,14 @@ export function BalanceCard({ balance, onRedeem, compact = false }) {
 
       {nextReward && <div className="relative mt-6">
         <div className="flex items-center text-label-xs text-white/70">
-          <span>
-            {remaining > 0 ? `${formatPoints(remaining)} pts to ${nextReward.name}` : 'You can afford every reward'}
+          <span className="truncate">
+            {remaining > 0 ? `Next reward: ${nextReward.name}` : 'You can afford every reward'}
           </span>
-          <span className="ml-auto font-mono text-[11px] text-white/50">
-            {formatPoints(safeBalance)} / {formatPoints(nextReward.points_cost)}
-          </span>
+          {remaining > 0 && (
+            <span className="ml-auto shrink-0 pl-3 font-mono text-[11px] text-white/60">
+              {formatPoints(remaining)} pts to go
+            </span>
+          )}
         </div>
         <ProgressBar
           value={pct}
@@ -187,12 +190,10 @@ export default function RecipientDashboard() {
   // transactions rows carry signed `points` and a `reason`.
   const mappedActivity = (transactions || []).slice(0, 5).map(tx => ({
     id: tx.id,
-    title: tx.type === 'redeem'
-      ? (tx.points > 0 ? 'Reward refunded' : 'Reward redeemed')
-      : (tx.points > 0 ? 'Points received' : 'Points deducted'),
+    title: describeTransaction(tx).title,
     amount: tx.points,
-    date: new Date(tx.created_at).toLocaleDateString(),
-    icon: tx.type === 'redeem' ? 'Gift' : (/kudos|thank you/i.test(tx.reason || '') ? 'Sparkles' : 'Zap'),
+    date: new Date(tx.created_at).toLocaleDateString('en-IN'),
+    icon: describeTransaction(tx).icon,
     meta: tx.reason || tx.reward_programs?.name || 'Points update'
   }))
 

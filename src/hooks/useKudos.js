@@ -11,7 +11,7 @@ export function useKudos() {
     queryKey: ['kudos_feed', profile?.org_id],
     queryFn: async () => {
       if (!profile?.org_id) return [];
-      
+
       const { data, error } = await supabase
         .from('kudos')
         .select(`
@@ -68,9 +68,9 @@ export function useKudos() {
     },
     onSuccess: () => {
       // Refresh the kudos feed and the user's balance
-      queryClient.invalidateQueries(['kudos_feed']);
-      queryClient.invalidateQueries(['auth_profile']);
-      queryClient.invalidateQueries(['transactions']);
+      queryClient.invalidateQueries({ queryKey: ['kudos_feed'] });
+      queryClient.invalidateQueries({ queryKey: ['user-transactions'] });
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
       refreshProfile();
     }
   });

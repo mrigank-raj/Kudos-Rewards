@@ -180,7 +180,7 @@ function LogTab() {
             <UserAvatar user={a.moderator} size="sm" />
             <div className="min-w-0 flex-1 text-body-sm">
               <p className="text-ink-primary">
-                <span className="font-medium">{a.moderator?.name || 'Former admin'}</span> {ACTION_LABEL[a.action]?.toLowerCase() || a.action}
+                <span className="font-medium">{a.moderator?.name || 'Former HR'}</span> {ACTION_LABEL[a.action]?.toLowerCase() || a.action}
                 {a.target_author?.name && <> · {a.target_author.name}</>}
               </p>
               {a.target_label && <p className="truncate text-ink-muted">{a.target_label}</p>}

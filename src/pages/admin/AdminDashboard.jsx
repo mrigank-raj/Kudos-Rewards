@@ -37,8 +37,9 @@ export default function AdminDashboard() {
       const [usersRes, programsRes, txRes, redemptionsRes, recentTxRes] = await Promise.all([
         supabase.from('users').select('id, created_at, points_balance').eq('org_id', orgId).eq('role', 'recipient').is('removed_at', null),
         supabase.from('reward_programs').select('*').eq('org_id', orgId).eq('is_active', true),
-        supabase.from('transactions').select('points, type, user_id, created_at, reward_programs(name)').in('type', ['manual_credit', 'earn']),
-        supabase.from('redemptions').select('id, created_at'),
+        // Issued = HR credits only; Thank You ! transfers aren't new points.
+        supabase.from('transactions').select('points, type, user_id, created_at, reward_programs(name)').eq('type', 'manual_credit'),
+        supabase.from('redemptions').select('id, created_at').neq('status', 'cancelled'),
         supabase.from('transactions').select('*, users(name, avatar_url)').order('created_at', { ascending: false }).limit(50),
       ])
 
@@ -77,7 +78,7 @@ export default function AdminDashboard() {
 
     const splitMap = {}
     txInRange.forEach((tx) => {
-      const progName = tx.reward_programs?.name || 'Manual Credit'
+      const progName = tx.reward_programs?.name || 'Direct credit'
       splitMap[progName] = (splitMap[progName] || 0) + (tx.points || 0)
     })
     const colors = ['#f59e0b', '#3b82f6', '#ec4899', '#10b981', '#8b5cf6']
@@ -126,8 +127,8 @@ export default function AdminDashboard() {
         : {}),
     },
     { label: 'Programs running', value: stats.activePrograms.toString(), icon: 'Trophy' },
-    { label: 'Points issued', value: formatPoints(scoped.totalPointsIssued), icon: 'Zap', unit: 'pts' },
-    { label: 'Total redemptions', value: scoped.totalRedemptions.toLocaleString(), icon: 'Gift' },
+    { label: 'Points issued by HR', value: formatPoints(scoped.totalPointsIssued), icon: 'Zap', unit: 'pts' },
+    { label: 'Reward requests', value: scoped.totalRedemptions.toLocaleString(), icon: 'Gift' },
   ]
 
   const mappedLedger = (scoped.recentTx || []).map(tx => {
@@ -311,7 +312,7 @@ export default function AdminDashboard() {
           </Card>
         </div>
       </div>
-      
+
       {/* mobile primary action */}
       <button
         type="button"

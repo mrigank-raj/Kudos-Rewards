@@ -5,7 +5,7 @@ import { useTheme } from '@/context/ThemeContext'
 import { useNotifications, useMarkNotificationsRead, useUnreadNotificationCount } from '@/hooks/useNotifications'
 import { useMessagesRealtime, useUnreadMessageCount } from '@/hooks/useMessages'
 import {
-  BarChart3, Bell, Bookmark, ChevronDown, CircleHelp, Contact, FileText, Gift, History, LayoutDashboard,
+  BarChart3, Bell, Bookmark, CircleHelp, Contact, FileText, Gift, History, LayoutDashboard,
   Menu, MessagesSquare, Moon, Search, ShieldAlert, Sparkles, Sun, TrendingUp, Trophy, User, UserRound, Users, X, LogOut,
   PanelLeftClose, PanelLeftOpen
 } from 'lucide-react'
@@ -32,17 +32,17 @@ export const NAV = {
   ],
   recipient: [
     { key: 'dashboard', path: '/app/dashboard', label: 'Home', icon: LayoutDashboard, section: 'Menu' },
-    { key: 'community', path: '/app/community', label: 'Community', icon: MessagesSquare, section: 'Menu' },
-    { key: 'ask', path: '/app/community/ask', label: 'Ask for Help', icon: CircleHelp, section: 'Menu' },
-    { key: 'mine', path: '/app/community/mine', label: 'My Posts', icon: FileText, section: 'Menu' },
-    { key: 'saved', path: '/app/community/saved', label: 'Saved Posts', icon: Bookmark, section: 'Menu' },
-    { key: 'messages', path: '/app/messages', label: 'Messages', icon: MessagesSquare, section: 'Menu', badge: 'messages' },
+    { key: 'catalog', path: '/app/catalog', label: 'Rewards', icon: Gift, section: 'Menu' },
+    { key: 'history', path: '/app/history', label: 'Points history', icon: History, section: 'Menu' },
+    { key: 'leaderboard', path: '/app/leaderboard', label: 'Leaderboard', icon: Trophy, section: 'Menu' },
     { key: 'notifications', path: '/app/notifications', label: 'Notifications', icon: Bell, section: 'Menu', badge: 'notifications' },
-    { key: 'directory', path: '/app/directory', label: 'Directory', icon: Contact, section: 'Menu' },
     { key: 'profile', path: '/app/profile', label: 'My Profile', icon: UserRound, section: 'Menu' },
-    { key: 'catalog', path: '/app/catalog', label: 'Rewards', icon: Gift, section: 'Rewards' },
-    { key: 'leaderboard', path: '/app/leaderboard', label: 'Leaderboard', icon: Trophy, section: 'Rewards' },
-    { key: 'history', path: '/app/history', label: 'History', icon: History, section: 'Rewards' },
+    { key: 'community', path: '/app/community', label: 'Community', icon: MessagesSquare, section: 'Community' },
+    { key: 'ask', path: '/app/community/ask', label: 'Ask for Help', icon: CircleHelp, section: 'Community' },
+    { key: 'mine', path: '/app/community/mine', label: 'My Posts', icon: FileText, section: 'Community' },
+    { key: 'saved', path: '/app/community/saved', label: 'Saved Posts', icon: Bookmark, section: 'Community' },
+    { key: 'messages', path: '/app/messages', label: 'Messages', icon: MessagesSquare, section: 'Community', badge: 'messages' },
+    { key: 'directory', path: '/app/directory', label: 'Directory', icon: Contact, section: 'Community' },
   ],
 }
 
@@ -123,9 +123,12 @@ function Sidebar({ role, activeKey, isCollapsed, onToggleCollapse, counts }) {
       <nav aria-label="Main" className="-mx-1 mt-[18px] min-h-0 flex-1 overflow-y-auto px-1 pb-3 [scrollbar-width:thin]">
         {groupBySection(items).map(({ section, items: group }) => (
           <div key={section} className="mt-3 first:mt-0">
-            <p className={cx("text-overline-sm text-ink-muted uppercase mb-2", isCollapsed ? "text-center px-0 text-[10px]" : "px-3")}>
-              {isCollapsed ? section.slice(0, 4) : section}
-            </p>
+            {/* Collapsed: a divider, not a truncated label ("REWA"). */}
+            {isCollapsed ? (
+              <div className="mx-3 mb-2 h-px bg-stroke-subtle" aria-hidden />
+            ) : (
+              <p className="text-overline-sm text-ink-muted uppercase mb-2 px-3">{section}</p>
+            )}
             <div className="flex flex-col gap-[3px]">
               {group.map(({ key, path, label, icon: Icon, badge }) => {
                 const isActive = key === activeKey
@@ -341,7 +344,6 @@ function TopBar({ role, onGiveKudos, notifications, unreadCount, onMarkRead }) {
             <span className="block text-label-sm text-ink-primary">{profile?.name || 'User'}</span>
             <span className="block font-mono text-[11px] leading-4 text-ink-muted">{profile?.role === 'admin' ? 'HR' : 'Employee'}</span>
           </span>
-          <ChevronDown size={14} className="text-ink-muted hidden lg:block" />
         </Link>
 
         <button
@@ -553,6 +555,21 @@ export default function AppShell({ children }) {
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
   const [isKudosModalOpen, setIsKudosModalOpen] = useState(false)
+  const [kudosTarget, setKudosTarget] = useState(null)
+
+  // Profiles ask for a Thank You ! aimed at someone; the modal lives here.
+  useEffect(() => {
+    const open = (e) => {
+      setKudosTarget(e.detail?.userId || null)
+      setIsKudosModalOpen(true)
+    }
+    window.addEventListener('kiit:say-thank-you', open)
+    return () => window.removeEventListener('kiit:say-thank-you', open)
+  }, [])
+  const openKudos = () => {
+    setKudosTarget(null)
+    setIsKudosModalOpen(true)
+  }
 
   // Single subscription for the whole shell — see the comment on
   // NotificationsBell for why this can't live inside it.
@@ -601,7 +618,7 @@ export default function AppShell({ children }) {
         onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
         counts={counts}
       />
-      <MobileDrawer open={menuOpen} onClose={() => setMenuOpen(false)} role={role} activeKey={activeKey} counts={counts} onGiveKudos={() => setIsKudosModalOpen(true)} />
+      <MobileDrawer open={menuOpen} onClose={() => setMenuOpen(false)} role={role} activeKey={activeKey} counts={counts} onGiveKudos={openKudos} />
 
       <div
         className="flex flex-col min-h-screen transition-all duration-300 md:pl-sidebar"
@@ -609,7 +626,7 @@ export default function AppShell({ children }) {
       >
         <TopBar
           role={role}
-          onGiveKudos={() => setIsKudosModalOpen(true)}
+          onGiveKudos={openKudos}
           notifications={notifications}
           unreadCount={unreadNotifications}
           onMarkRead={handleMarkRead}
@@ -633,10 +650,10 @@ export default function AppShell({ children }) {
         </main>
       </div>
 
-      {role === 'recipient' && <MobileTabBar activeKey={activeKey} counts={counts} onGiveKudos={() => setIsKudosModalOpen(true)} />}
+      {role === 'recipient' && <MobileTabBar activeKey={activeKey} counts={counts} onGiveKudos={openKudos} />}
 
       {/* Global Modals */}
-      <GiveKudosModal isOpen={isKudosModalOpen} onClose={() => setIsKudosModalOpen(false)} />
+      <GiveKudosModal isOpen={isKudosModalOpen} initialUserId={kudosTarget} onClose={() => setIsKudosModalOpen(false)} />
     </div>
   )
 }
