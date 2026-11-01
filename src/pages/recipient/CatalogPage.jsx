@@ -141,7 +141,15 @@ function RewardCard({ reward, userBalance, onRedeem }) {
         style={{ backgroundImage: `linear-gradient(135deg, ${gradient.from} 0%, ${gradient.to} 100%)` }}
       >
         <div className="pointer-events-none absolute -right-10 -top-16 h-44 w-44 rounded-full bg-white/[0.16] blur-[50px]" />
-        {/* Photo when there is one; the gradient + icon stays underneath if it fails to load. */}
+        <Icon
+          className={cx(
+            'relative transition-transform duration-500 ease-smooth',
+            locked ? 'text-white/40' : 'text-white/95 group-hover:scale-110'
+          )}
+          size={34}
+          strokeWidth={1.6}
+        />
+        {/* Photo covers the icon; if it fails to load, the gradient + icon show. */}
         {reward.image_url && (
           <img
             src={reward.image_url}
@@ -151,19 +159,11 @@ function RewardCard({ reward, userBalance, onRedeem }) {
             className={cx('absolute inset-0 h-full w-full object-cover', locked && 'opacity-60 grayscale')}
           />
         )}
-        <Icon
-          className={cx(
-            'relative transition-transform duration-500 ease-smooth',
-            locked ? 'text-white/40' : 'text-white/95 group-hover:scale-110'
-          )}
-          size={34}
-          strokeWidth={1.6}
-        />
-        <span className="absolute left-3 top-3 hidden rounded-full border border-white/25 bg-white/20 px-2.5 py-1 font-mono text-[11px] leading-4 text-white/95 md:block">
+        <span className="absolute left-3 top-3 hidden rounded-full border border-white/20 bg-black/55 px-2.5 py-1 font-mono text-[11px] leading-4 text-white backdrop-blur-sm md:block">
           {categoryLabel(reward.category)}
         </span>
         {locked && (
-          <span className="absolute right-3 top-3 grid h-6 w-6 place-items-center rounded-full border border-white/25 bg-white/20 md:h-7 md:w-7">
+          <span className="absolute right-3 top-3 grid h-6 w-6 place-items-center rounded-full border border-white/20 bg-black/55 backdrop-blur-sm md:h-7 md:w-7">
             <Lock size={12} className="text-white/90" />
           </span>
         )}
@@ -349,13 +349,13 @@ export default function CatalogPage() {
           </div>
           {myRequests.map((r) => (
             <div key={r.id} className="flex items-center gap-3 border-t border-stroke-subtle px-5 py-3">
+              <Badge tone={STATUS[r.status]?.tone || 'neutral'} className="shrink-0">{STATUS[r.status]?.label || r.status}</Badge>
               <div className="min-w-0">
                 <p className="truncate text-label-sm text-ink-primary">{r.catalog_items?.name || 'Reward'}</p>
                 <p className="font-mono text-[11px] text-ink-muted">
                   {new Date(r.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })} · {formatPoints(r.points_spent)} pts
                 </p>
               </div>
-              <Badge tone={STATUS[r.status]?.tone || 'neutral'} className="ml-auto shrink-0">{STATUS[r.status]?.label || r.status}</Badge>
             </div>
           ))}
         </Card>

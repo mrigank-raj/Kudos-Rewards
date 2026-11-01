@@ -171,7 +171,7 @@ export default function CommunityInsightsPage() {
           <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
             <Kpi icon={MessagesSquare} label="Posts" value={o.posts} hint={`${o.questions} questions · ${o.tips} tips`} tone="text-brand-solid" />
             <Kpi icon={CircleCheck} label="Resolution rate" value={resolutionRate == null ? '—' : `${resolutionRate}%`} hint={`${o.resolved_questions} of ${o.questions} questions`} tone="text-success-solid" />
-            <Kpi icon={Users} label="Active members" value={o.active_members} hint={`of ${o.members} in the org`} tone="text-brand-solid" />
+            <Kpi icon={Users} label="Active members" value={o.active_members} hint={`of ${o.members} people`} tone="text-brand-solid" />
             <Kpi icon={Heart} label="Appreciations" value={o.appreciations} hint={`${o.comments} answers & comments`} tone="text-danger-solid" />
           </div>
 
@@ -282,7 +282,7 @@ export default function CommunityInsightsPage() {
       </Card>
 
       <Card className="mt-4">
-        <SectionTitle title="How reputation is earned" subtitle="Calculated in the database; employees can't set it and it's separate from points" />
+        <SectionTitle title="How reputation is earned" subtitle="Worked out automatically from community activity. Nobody can edit it, and it's separate from points." />
         <ul className="mt-3 grid gap-2 sm:grid-cols-2">
           {REPUTATION_RULES.map((r) => (
             <li key={r.kind} className="flex gap-3 rounded-xl bg-surface-subtle p-3 text-body-sm">

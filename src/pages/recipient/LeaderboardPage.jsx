@@ -3,6 +3,7 @@ import { Trophy, Zap } from 'lucide-react'
 import { Avatar, Card, ProgressBar, SectionTitle, cx } from '@/components/ui'
 import { useAuth } from '@/hooks/useAuth'
 import { useTopRecipients } from '@/hooks/useAnalytics'
+import { rankWithTies } from '@/lib/ledger'
 
 const MEDALS = ['#fbbf24', '#9ca3af', '#b45309']
 const formatPoints = (p) => (p || 0).toLocaleString()
@@ -14,9 +15,9 @@ export default function LeaderboardPage() {
   const ranked = useMemo(() => {
     if (!rawTopRecipients.length) return []
     const maxPoints = rawTopRecipients[0].total_earned || 1
-    // Ties share a rank: 1 + number of people strictly ahead.
+    const totals = rawTopRecipients.map((p) => p.total_earned)
     return rawTopRecipients.map((person) => ({
-      rank: 1 + rawTopRecipients.filter((o) => Number(o.total_earned) > Number(person.total_earned)).length,
+      rank: rankWithTies(person.total_earned, totals),
       id: person.user_id,
       name: person.user_name,
       initials: (person.user_name || 'User').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2),

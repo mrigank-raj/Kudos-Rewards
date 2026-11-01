@@ -4,6 +4,10 @@ import { Calendar, Download, Info } from 'lucide-react'
 import { Avatar, BRAND_GRADIENT, Card, Dropdown, ProgressBar, SectionTitle, SegmentedTabs, cx } from '@/components/ui'
 import { usePointsSummary, useTopRecipients, useProgramBreakdown } from '@/hooks/useAnalytics'
 import { downloadCsv } from '@/lib/csv'
+import { rankWithTies } from '@/lib/ledger'
+
+// '2026-11' -> 'Nov 2026'
+const formatMonth = (m) => (/^\d{4}-\d{2}$/.test(m) ? new Date(`${m}-01T00:00:00`).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : m)
 
 const TIME_RANGE_OPTIONS = [
   { value: '3', label: 'Last 3 months' },
@@ -20,7 +24,7 @@ function ChartTooltip({ active, payload, label, suffix = '' }) {
   if (!active || !payload?.length) return null
   return (
     <div className="rounded-xl border border-stroke-subtle bg-surface-raised px-3 py-2 shadow-elevation-lg">
-      <p className="font-mono text-[11px] text-ink-muted">{label}</p>
+      <p className="font-mono text-[11px] text-ink-muted">{formatMonth(label)}</p>
       {payload.map((entry) => (
         <p key={entry.dataKey} className="mt-1 flex items-center gap-2 text-label-xs text-ink-primary">
           <span className="h-2 w-2 rounded-full" style={{ background: entry.color }} />
@@ -63,7 +67,9 @@ export default function AnalyticsPage() {
     const redeemed = summary.reduce((s, m) => s + m.redeemed, 0)
     return {
       totalIssued: issued,
-      redemptionRate: issued > 0 ? Math.round((redeemed / issued) * 100) : 0,
+      // Employees also spend their welcome points, so spent can exceed what
+      // HR issued; cap at 100 rather than show e.g. 200%.
+      redemptionRate: issued > 0 ? Math.min(100, Math.round((redeemed / issued) * 100)) : 0,
     }
   }, [summary])
 
@@ -83,8 +89,9 @@ export default function AnalyticsPage() {
   const topEarners = useMemo(() => {
     if (!rawTopRecipients.length) return []
     const maxPoints = rawTopRecipients[0].total_earned || 1
-    return rawTopRecipients.map((person, index) => ({
-      rank: index + 1,
+    const totals = rawTopRecipients.map((p) => p.total_earned)
+    return rawTopRecipients.map((person) => ({
+      rank: rankWithTies(person.total_earned, totals),
       id: person.user_id,
       name: person.user_name,
       initials: (person.user_name || 'User').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2),
@@ -106,11 +113,14 @@ export default function AnalyticsPage() {
     ...programSplit.map((p) => [p.name, Number(p.value)]),
   ])
 
+  // Nothing issued or redeemed yet: show an empty state, not a lone dot on a fake axis.
+  const hasActivity = summary.some((m) => Number(m.issued) > 0 || Number(m.redeemed) > 0)
+
   // Prepare data for the redemption trend area chart
   const redemptionTrend = useMemo(() => {
     return summary.map(monthData => ({
       month: monthData.month,
-      rate: monthData.issued > 0 ? Math.round((monthData.redeemed / monthData.issued) * 100) : 0
+      rate: monthData.issued > 0 ? Math.min(100, Math.round((monthData.redeemed / monthData.issued) * 100)) : 0
     }))
   }, [summary])
 
@@ -160,8 +170,8 @@ export default function AnalyticsPage() {
           <div className="mt-5 h-[200px] w-full md:h-[220px]">
             {summaryLoading ? (
               <div className="h-full flex items-center justify-center text-ink-muted">Loading chart...</div>
-            ) : summary.length === 0 ? (
-              <div className="h-full flex items-center justify-center text-ink-muted">No data available</div>
+            ) : !hasActivity ? (
+              <div className="h-full flex items-center justify-center px-6 text-center text-body-sm text-ink-muted">No points issued or redeemed yet. HR credits and reward requests will appear here month by month.</div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={summary} margin={{ top: 4, right: 6, left: -18, bottom: 0 }}>
@@ -175,7 +185,7 @@ export default function AnalyticsPage() {
                       <stop offset="100%" stopColor="#F43F5E" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <XAxis dataKey="month" tickLine={false} axisLine={false} tick={AXIS} dy={6} />
+                  <XAxis dataKey="month" tickLine={false} axisLine={false} tick={AXIS} dy={6} tickFormatter={formatMonth} />
                   <YAxis
                     tickLine={false}
                     axisLine={false}
@@ -268,7 +278,7 @@ export default function AnalyticsPage() {
         <Card>
           <SectionTitle
             title="Top earners"
-            subtitle="Who is driving recognition across your organization"
+            subtitle="Employees who have received the most points"
             action={<span className="font-mono text-[11px] text-ink-muted">All time</span>}
           />
 
@@ -280,15 +290,15 @@ export default function AnalyticsPage() {
             ) : (
               topEarners.map((person, i) => (
                 <div
-                  key={person.rank}
+                  key={person.id}
                   className={cx('flex items-center gap-3.5 py-2.5', i > 0 && 'border-t border-stroke-subtle')}
                 >
                   <span
                     className={cx(
                       'grid h-[26px] w-[26px] shrink-0 place-items-center rounded-full text-label-xs',
-                      person.rank > 3 && 'bg-surface-subtle text-ink-muted'
+                      !(person.points > 0 && person.rank <= 3) && 'bg-surface-subtle text-ink-muted'
                     )}
-                    style={person.rank <= 3 ? { background: MEDALS[person.rank - 1], color: '#fff' } : undefined}
+                    style={person.points > 0 && person.rank <= 3 ? { background: MEDALS[person.rank - 1], color: '#fff' } : undefined}
                   >
                     {person.rank}
                   </span>
@@ -320,7 +330,7 @@ export default function AnalyticsPage() {
         {/* ------------------------------------------------ right column */}
         <div className="flex flex-col gap-4 md:gap-5">
           <Card>
-            <SectionTitle title="Redemption rate" />
+            <SectionTitle title="Redemption rate" subtitle="Points spent on rewards vs points HR issued" />
             <p className="mt-2.5 flex items-center gap-2.5">
               <span className="text-numeric-xl text-ink-primary">{redemptionRate}%</span>
             </p>
@@ -328,8 +338,8 @@ export default function AnalyticsPage() {
             <div className="mt-3.5 h-[76px] w-full">
               {summaryLoading ? (
                 <div className="h-full flex items-center justify-center text-ink-muted">...</div>
-              ) : redemptionTrend.length === 0 ? (
-                <div className="h-full flex items-center justify-center text-ink-muted">No data</div>
+              ) : !hasActivity || redemptionTrend.length < 2 ? (
+                <div className="h-full flex items-center justify-center text-body-sm text-ink-muted">Not enough data yet</div>
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={redemptionTrend} margin={{ top: 4, right: 2, left: 2, bottom: 0 }}>
@@ -347,16 +357,18 @@ export default function AnalyticsPage() {
             </div>
           </Card>
 
-          <div className="rounded-2xl border border-brand-border bg-brand-subtle p-4 md:p-5">
-            <p className="flex items-center gap-2.5 text-label-sm text-brand-text">
-              <Info size={16} className="text-brand-solid" />
-              Worth a look
-            </p>
-            <p className="mt-2.5 text-body-sm text-ink-secondary">
-              Total points issued is <strong>{formatPoints(totalIssued)}</strong>.
-              Currently, <strong>{redemptionRate}%</strong> of those points have been redeemed.
-            </p>
-          </div>
+          {totalIssued > 0 && (
+            <div className="rounded-2xl border border-brand-border bg-brand-subtle p-4 md:p-5">
+              <p className="flex items-center gap-2.5 text-label-sm text-brand-text">
+                <Info size={16} className="text-brand-solid" />
+                Worth a look
+              </p>
+              <p className="mt-2.5 text-body-sm text-ink-secondary">
+                HR has issued <strong>{formatPoints(totalIssued)}</strong> points in this period, and{' '}
+                <strong>{redemptionRate}%</strong> of that has been spent on rewards.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Hand, MoreVertical, Plus, Search, Star, Zap } from 'lucide-react'
+import { Hand, Pencil, Plus, Star, Zap } from 'lucide-react'
 import {
   AvatarStack, BRAND_GRADIENT, Badge, ChipRow, SearchInput, SegmentedTabs, Toggle, Sheet, Button, cx
 } from '@/components/ui'
@@ -149,7 +149,6 @@ export default function ProgramsPage() {
         icon: ICONS[idx],
         on: p.is_active,
         status: p.is_active ? 'Active' : 'Inactive',
-        type: p.trigger_type === 'rule' ? 'Rule-based' : 'Manual',
         people: [], // no real DB data for who claimed it yet
       }
     })
@@ -214,7 +213,7 @@ export default function ProgramsPage() {
         <div>
           <h1 className="text-display-lg text-ink-primary">Reward programs</h1>
           <p className="mt-1.5 text-body-md text-ink-secondary">
-            Define how points are earned. {programs.length} programs configured.
+            Award these from the People page with the + button. {programs.length} programs.
           </p>
         </div>
         <button
@@ -237,9 +236,6 @@ export default function ProgramsPage() {
           className="flex-1 md:max-w-[280px] md:flex-none"
         />
         <SegmentedTabs className="hidden md:inline-flex" options={tabs} value={filter} onChange={setFilter} />
-        <span className="ml-auto hidden font-mono text-[11px] text-ink-muted md:block">
-          {programs.length} total programs
-        </span>
       </div>
 
       <ChipRow
@@ -282,7 +278,6 @@ export default function ProgramsPage() {
                   <p className="mt-0.5 flex items-center gap-1.5 text-label-xs">
                     <span className={cx('h-1.5 w-1.5 rounded-full', STATUS_DOT[tone])} />
                     <span className={STATUS_TEXT[tone]}>{program.status}</span>
-                    <span className="text-ink-muted">· {program.type}</span>
                   </p>
                 </div>
 
@@ -291,10 +286,11 @@ export default function ProgramsPage() {
                   <button
                     type="button"
                     onClick={() => handleEditClick(program)}
-                    aria-label={`More options for ${program.name}`}
+                    aria-label={`Edit ${program.name}`}
+                    title="Edit program"
                     className="p-1.5 text-ink-muted transition hover:text-ink-secondary"
                   >
-                    <MoreVertical size={15} />
+                    <Pencil size={14} />
                   </button>
                 </div>
               </div>
@@ -309,7 +305,6 @@ export default function ProgramsPage() {
                 <Badge tone={tone} dot>
                   {program.status}
                 </Badge>
-                <Badge tone="neutral">{program.type}</Badge>
               </div>
 
               <div className="mt-3.5 h-px bg-stroke-subtle md:mt-4" />
@@ -324,9 +319,6 @@ export default function ProgramsPage() {
                 {program.people.length > 0 && (
                   <AvatarStack people={program.people} size="xs" className="ml-auto" />
                 )}
-                <span className="ml-auto font-mono text-[11px] text-ink-muted md:hidden">
-                  ---
-                </span>
               </div>
             </article>
           )
