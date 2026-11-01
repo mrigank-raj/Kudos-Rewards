@@ -321,7 +321,7 @@ export default function RecipientDashboard() {
         <Card flush className="self-start">
           <div className="p-5 pb-4">
             <SectionTitle
-              title="Company recognition"
+              title="Thank You ! wall"
               subtitle="Live across your organization"
               action={
                 <Dropdown
@@ -338,7 +338,7 @@ export default function RecipientDashboard() {
           <div className="flex flex-col gap-2.5 border-t border-stroke-subtle p-4">
             {mappedFeed.length === 0 ? (
               <div className="text-center text-body-sm text-ink-muted py-4">
-                {valueFilter === 'All' ? 'No kudos yet. Be the first to send one!' : `No ${valueFilter.toLowerCase()} kudos yet.`}
+                {valueFilter === 'All' ? 'No Thank You ! notes yet. Be the first to send one!' : `No ${valueFilter.toLowerCase()} Thank You ! notes yet.`}
               </div>
             ) : (
               mappedFeed.map((post) => (

@@ -4,7 +4,7 @@
 @source "../";
 
 /* ============================================================
-   Kudos Design System — Tailwind V4 Theme
+   KIIT University Employee Portal Design System — Tailwind V4 Theme
    Migrated from the Claude redesign's Tailwind V3 config + CSS tokens.
    ============================================================ */
 
@@ -139,9 +139,9 @@
   --shadow-elevation-sm: 0 1px 2px rgb(0 0 0 / 0.04), 0 1px 3px rgb(0 0 0 / 0.05);
   --shadow-elevation-md: 0 8px 30px rgb(0 0 0 / 0.05), 0 1px 2px rgb(0 0 0 / 0.03);
   --shadow-elevation-lg: 0 24px 60px -12px rgb(0 0 0 / 0.12), 0 2px 6px rgb(0 0 0 / 0.04);
-  --shadow-glow-brand: 0 16px 44px -8px rgb(79 70 229 / 0.38);
+  --shadow-glow-brand: 0 16px 44px -8px rgb(21 128 61 / 0.38);
   --shadow-glow-gold: 0 12px 32px -6px rgb(245 158 11 / 0.35);
-  --shadow-focus-brand: 0 0 0 4px rgb(79 70 229 / 0.16);
+  --shadow-focus-brand: 0 0 0 4px rgb(21 128 61 / 0.16);
   --shadow-focus-danger: 0 0 0 4px rgb(225 29 72 / 0.16);
 
   /* --- Easing --- */
@@ -191,11 +191,12 @@
   --ink-inverse: 255 255 255;
   --ink-onbrand: 255 255 255;
 
-  --brand-solid: 79 70 229;
-  --brand-hover: 67 56 202;
-  --brand-text: 79 70 229;
-  --brand-subtle: 238 242 255;
-  --brand-border: 199 210 254;
+  /* KIIT green — logo is #1BD15A; deepened so white text stays readable */
+  --brand-solid: 21 128 61;
+  --brand-hover: 22 101 52;
+  --brand-text: 21 128 61;
+  --brand-subtle: 240 253 244;
+  --brand-border: 187 247 208;
 
   --gold-solid: 245 158 11;
   --gold-text: 180 83 9;
@@ -212,8 +213,8 @@
   --danger-subtle: 255 241 242;
   --danger-border: 254 205 211;
 
-  --brand-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  --vault-gradient: linear-gradient(135deg, #12121a 0%, #211f31 55%, #38296b 100%);
+  --brand-gradient: linear-gradient(135deg, #14632f 0%, #1a8f47 100%);
+  --vault-gradient: linear-gradient(135deg, #0c1410 0%, #12261a 55%, #14532d 100%);
 }
 
 [data-theme='dark'],
@@ -235,11 +236,11 @@
   --ink-inverse: 9 9 11;
   --ink-onbrand: 255 255 255;
 
-  --brand-solid: 99 102 241;
-  --brand-hover: 129 140 248;
-  --brand-text: 165 180 252;
-  --brand-subtle: 29 29 50;
-  --brand-border: 43 44 90;
+  --brand-solid: 22 140 67;
+  --brand-hover: 27 170 80;
+  --brand-text: 74 222 128;
+  --brand-subtle: 16 36 24;
+  --brand-border: 22 66 38;
 
   --gold-solid: 251 191 36;
   --gold-text: 251 191 36;

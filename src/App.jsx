@@ -7,7 +7,6 @@ import ErrorBoundary from '@/components/shared/ErrorBoundary';
 // Auth pages (eager load for fast initial paint)
 import LoginPage from '@/pages/LoginPage';
 import SignupPage from '@/pages/SignupPage';
-import LandingPage from '@/pages/LandingPage';
 
 // Layout shells (eager load)
 import AdminLayout from '@/components/layout/AdminLayout';
@@ -65,15 +64,14 @@ function communityRoutes() {
 
 /**
  * Root route: authenticated users go straight to their role-appropriate
- * dashboard; a first-time visitor sees the landing page instead of being
- * bounced straight to a login form.
+ * dashboard; everyone else goes to the sign-in page.
  */
 function RootRedirect() {
   const { isAuthenticated, profile, loading } = useAuth();
 
   if (loading) return <FullScreenLoader />;
 
-  if (!isAuthenticated) return <LandingPage />;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
 
   if (profile?.role === 'admin') return <Navigate to="/admin/dashboard" replace />;
   return <Navigate to="/app/dashboard" replace />;

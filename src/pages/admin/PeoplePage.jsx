@@ -253,8 +253,8 @@ function InviteMemberSheet({ open, onClose }) {
         <div>
           <label className="block text-label-sm text-ink-primary mb-2">Role</label>
           <select name="role" value={form.role} onChange={handleChange} className={inputClass}>
-            <option value="recipient">Team member (recipient)</option>
-            <option value="admin">Admin</option>
+            <option value="recipient">Employee</option>
+            <option value="admin">HR</option>
           </select>
         </div>
       </div>

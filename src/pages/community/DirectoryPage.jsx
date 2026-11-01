@@ -20,7 +20,7 @@ function MemberCard({ member, base }) {
         <div className="min-w-0">
           <p className="truncate text-label-md text-ink-primary group-hover:text-brand-text">{member.name}</p>
           <p className="truncate text-body-sm text-ink-muted">
-            {[member.job_title, member.team].filter(Boolean).join(' · ') || (member.role === 'admin' ? 'HR' : 'Team member')}
+            {[member.job_title, member.team].filter(Boolean).join(' · ') || (member.role === 'admin' ? 'HR' : 'Employee')}
           </p>
         </div>
       </div>

@@ -82,16 +82,16 @@ function getInitials(name) {
   return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
 }
 
-export function Logo({ size = 34, showWord = true, onLight = false }) {
+export function Logo({ size = 34, showWord = true }) {
   return (
     <div className="flex items-center gap-3">
-      <span
-        className="grid shrink-0 place-items-center rounded-[10px]"
-        style={{ width: size, height: size, ...(onLight ? {} : BRAND_GRADIENT) }}
-      >
-        <Sparkles size={size * 0.53} className="text-white" />
-      </span>
-      {showWord && <span className="text-heading-md text-ink-primary">Kudos</span>}
+      <img src="/KIIT-logo-HD.webp" alt="KIIT University" className="shrink-0 object-contain" style={{ width: size, height: size }} />
+      {showWord && (
+        <span className="leading-tight">
+          <span className="block text-label-md font-semibold text-ink-primary">KIIT University</span>
+          <span className="block font-mono text-[11px] leading-4 text-ink-muted">Employee Portal</span>
+        </span>
+      )}
     </div>
   )
 }
@@ -100,7 +100,7 @@ function Sidebar({ role, activeKey, isCollapsed, onToggleCollapse, counts }) {
   const { profile } = useAuth()
   const items = NAV[role] || []
 
-  const orgName = profile?.organizations?.name || 'Acme Corp'
+  const orgName = profile?.organizations?.name || 'KIIT University'
   const orgInitial = orgName.charAt(0).toUpperCase()
 
   return (
@@ -339,7 +339,7 @@ function TopBar({ role, onGiveKudos, notifications, unreadCount, onMarkRead }) {
           <Avatar initials={initials} color={profile?.avatar_url} size="md" />
           <span className="text-left hidden lg:block">
             <span className="block text-label-sm text-ink-primary">{profile?.name || 'User'}</span>
-            <span className="block font-mono text-[11px] leading-4 text-ink-muted capitalize">{profile?.role}</span>
+            <span className="block font-mono text-[11px] leading-4 text-ink-muted">{profile?.role === 'admin' ? 'HR' : 'Employee'}</span>
           </span>
           <ChevronDown size={14} className="text-ink-muted hidden lg:block" />
         </Link>
@@ -362,7 +362,7 @@ function TopBar({ role, onGiveKudos, notifications, unreadCount, onMarkRead }) {
             style={BRAND_GRADIENT}
           >
             <Sparkles size={16} />
-            Give Kudos
+            Say Thank You !
           </button>
         )}
       </div>
@@ -420,7 +420,7 @@ function MobileTabBar({ activeKey, onGiveKudos, counts }) {
           <button
             type="button"
             onClick={onGiveKudos}
-            aria-label="Give Kudos"
+            aria-label="Say Thank You !"
             className="absolute left-1/2 top-[-20px] grid h-14 w-14 -translate-x-1/2 place-items-center rounded-full ring-4 ring-surface-nav shadow-glow-brand transition-transform duration-200 ease-smooth active:scale-95"
             style={BRAND_GRADIENT}
           >
@@ -462,7 +462,7 @@ function MobileDrawer({ open, onClose, role, activeKey, counts }) {
 
   if (!open) return null
 
-  const orgName = profile?.organizations?.name || 'Acme Corp'
+  const orgName = profile?.organizations?.name || 'KIIT University'
   const orgInitial = orgName.charAt(0).toUpperCase()
 
   return (

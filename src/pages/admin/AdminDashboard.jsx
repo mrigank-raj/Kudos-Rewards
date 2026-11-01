@@ -151,7 +151,7 @@ export default function AdminDashboard() {
   const BUDGET = {
     total: 500000,
     used: allTimeIssued,
-    resets: 'Demo target · resets yearly'
+    resets: 'Annual target · resets yearly'
   }
   const burnPct = Math.min(100, (BUDGET.used / BUDGET.total) * 100)
   const remaining = Math.max(0, BUDGET.total - BUDGET.used)
