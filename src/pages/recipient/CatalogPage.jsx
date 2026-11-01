@@ -278,7 +278,7 @@ export default function CatalogPage() {
         <div>
           <h1 className="text-display-lg text-ink-primary">Rewards catalog</h1>
           <p className="mt-1.5 text-body-md text-ink-secondary">
-            {items?.length || 0} rewards from partners. Points never expire.
+            {items?.length || 0} rewards available. Points never expire.
           </p>
         </div>
         <div className="ml-auto flex items-center gap-2.5 rounded-xl border border-stroke-subtle bg-surface-base px-4 py-2.5 shadow-elevation-sm">

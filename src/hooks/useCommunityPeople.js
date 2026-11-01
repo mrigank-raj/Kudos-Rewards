@@ -65,6 +65,26 @@ export function useOrgSkills() {
   })
 }
 
+/** Departments in use across the org (users.team is free text since 020). */
+export function useOrgDepartments() {
+  const { profile } = useAuth()
+  return useQuery({
+    queryKey: ['community', 'departments', profile?.org_id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('users')
+        .select('team')
+        .eq('org_id', profile.org_id)
+        .is('removed_at', null)
+        .not('team', 'is', null)
+      if (error) throw error
+      return [...new Set(data.map((u) => u.team))].sort()
+    },
+    enabled: !!profile?.org_id,
+    staleTime: 1000 * 60 * 10,
+  })
+}
+
 export function useUpdateCommunityProfile() {
   const queryClient = useQueryClient()
   const { profile } = useAuth()

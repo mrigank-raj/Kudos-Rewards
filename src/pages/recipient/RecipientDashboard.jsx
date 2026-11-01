@@ -176,13 +176,16 @@ export default function RecipientDashboard() {
     { icon: Trophy, title: 'Leaderboard', short: 'Rank', sub: 'View top earners', go: '/app/leaderboard' },
   ]
 
+  // transactions rows carry signed `points` and a `reason`.
   const mappedActivity = (transactions || []).slice(0, 5).map(tx => ({
     id: tx.id,
-    title: tx.type === 'earn' ? 'Earned points' : 'Redeemed reward',
-    amount: tx.type === 'earn' ? tx.amount : -tx.amount,
+    title: tx.type === 'redeem'
+      ? (tx.points > 0 ? 'Reward refunded' : 'Reward redeemed')
+      : (tx.points > 0 ? 'Points received' : 'Points deducted'),
+    amount: tx.points,
     date: new Date(tx.created_at).toLocaleDateString(),
-    icon: tx.type === 'earn' ? (/kudos|thank you/i.test(tx.description || '') ? 'Sparkles' : 'Zap') : 'Gift',
-    meta: tx.description || 'System transaction'
+    icon: tx.type === 'redeem' ? 'Gift' : (/kudos|thank you/i.test(tx.reason || '') ? 'Sparkles' : 'Zap'),
+    meta: tx.reason || tx.reward_programs?.name || 'Points update'
   }))
 
   const mappedFeed = useMemo(() => {

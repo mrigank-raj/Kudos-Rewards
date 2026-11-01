@@ -11,10 +11,10 @@ const icons = {
 };
 
 const styles = {
-  success: 'border-[var(--color-secondary-500)] bg-[var(--color-secondary-50)] text-[var(--color-secondary-700)] dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700',
-  error: 'border-[var(--color-danger-500)] bg-[var(--color-danger-50)] text-[var(--color-danger-700)] dark:bg-rose-900/30 dark:text-rose-300 dark:border-rose-700',
-  warning: 'border-[var(--color-warning-500)] bg-[var(--color-warning-50)] text-[var(--color-warning-600)] dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700',
-  info: 'border-[var(--color-primary-500)] bg-[var(--color-primary-50)] text-[var(--color-primary-700)] dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-700',
+  success: 'border-success-border bg-success-subtle text-success-text',
+  error: 'border-danger-border bg-danger-subtle text-danger-text',
+  warning: 'border-gold-border bg-gold-subtle text-gold-text',
+  info: 'border-brand-border bg-brand-subtle text-brand-text',
 };
 
 export function ToastProvider({ children }) {

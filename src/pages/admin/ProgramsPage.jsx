@@ -27,9 +27,6 @@ function ProgramSheet({ open, onClose, program, onSubmit, isLoading }) {
   const [form, setForm] = useState({
     name: program?.name || '',
     description: program?.description || '',
-    trigger_type: program?.trigger_type || 'manual',
-    rule_metric: program?.rule_metric || '',
-    rule_threshold: program?.rule_threshold || '',
     points_value: program?.points_value || '',
   })
 
@@ -39,9 +36,6 @@ function ProgramSheet({ open, onClose, program, onSubmit, isLoading }) {
       setForm({
         name: program?.name || '',
         description: program?.description || '',
-        trigger_type: program?.trigger_type || 'manual',
-        rule_metric: program?.rule_metric || '',
-        rule_threshold: program?.rule_threshold || '',
         points_value: program?.points_value || '',
       })
     }
@@ -61,10 +55,6 @@ function ProgramSheet({ open, onClose, program, onSubmit, isLoading }) {
     const errs = {}
     if (!form.name.trim()) errs.name = 'Required'
     if (!form.points_value || Number(form.points_value) <= 0) errs.points_value = 'Must be > 0'
-    if (form.trigger_type === 'rule') {
-      if (!form.rule_metric.trim()) errs.rule_metric = 'Required'
-      if (!form.rule_threshold || Number(form.rule_threshold) <= 0) errs.rule_threshold = 'Must be > 0'
-    }
     setErrors(errs)
     return Object.keys(errs).length === 0
   }
@@ -76,9 +66,11 @@ function ProgramSheet({ open, onClose, program, onSubmit, isLoading }) {
       ...(isEditing ? { id: program.id } : {}),
       name: form.name.trim(),
       description: form.description.trim(),
-      trigger_type: form.trigger_type,
-      rule_metric: form.trigger_type === 'rule' ? form.rule_metric.trim() : null,
-      rule_threshold: form.trigger_type === 'rule' ? Number(form.rule_threshold) : null,
+      // Nothing evaluates rule-based programs, so every program is awarded
+      // by HR through Credit points.
+      trigger_type: 'manual',
+      rule_metric: null,
+      rule_threshold: null,
       points_value: Number(form.points_value),
     })
   }
@@ -109,7 +101,7 @@ function ProgramSheet({ open, onClose, program, onSubmit, isLoading }) {
           <label className="block text-label-sm text-ink-primary mb-2">Program Name</label>
           <input
             name="name" value={form.name} onChange={handleChange}
-            placeholder="e.g. Spot Bonus, Sales Star"
+            placeholder="e.g. Spot Bonus, Teaching Excellence"
             className={cx(inputClass, errors.name && 'border-danger-solid')}
           />
         </div>
@@ -123,38 +115,6 @@ function ProgramSheet({ open, onClose, program, onSubmit, isLoading }) {
             className={cx(inputClass, 'py-3 resize-none h-auto')}
           />
         </div>
-
-        <div>
-          <label className="block text-label-sm text-ink-primary mb-2">Trigger Type</label>
-          <select
-            name="trigger_type" value={form.trigger_type} onChange={handleChange}
-            className={inputClass}
-          >
-            <option value="manual">Manual — admin awards points</option>
-            <option value="rule">Rule-Based — via thresholds</option>
-          </select>
-        </div>
-
-        {form.trigger_type === 'rule' && (
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-label-sm text-ink-primary mb-2">Metric</label>
-              <input
-                name="rule_metric" value={form.rule_metric} onChange={handleChange}
-                placeholder="e.g. sales_count"
-                className={cx(inputClass, errors.rule_metric && 'border-danger-solid')}
-              />
-            </div>
-            <div>
-              <label className="block text-label-sm text-ink-primary mb-2">Threshold</label>
-              <input
-                name="rule_threshold" type="number" value={form.rule_threshold} onChange={handleChange}
-                placeholder="e.g. 50"
-                className={cx(inputClass, errors.rule_threshold && 'border-danger-solid')}
-              />
-            </div>
-          </div>
-        )}
 
         <div>
           <label className="block text-label-sm text-ink-primary mb-2">Points Value</label>

@@ -52,7 +52,7 @@ const MIGRATIONS = [
   '012_community_core.sql', '013_community_messaging.sql',
   '014_community_notifications_reputation.sql', '015_community_moderation.sql',
   '016_hardening_followups.sql', '017_leaderboard_and_conversation_role.sql',
-  '018_kiit_portal.sql', '019_member_removal.sql',
+  '018_kiit_portal.sql', '019_member_removal.sql', '020_kiit_data_cleanup.sql',
 ]
 
 const TESTS = ['community_security_tests.sql', 'member_removal_tests.sql']
