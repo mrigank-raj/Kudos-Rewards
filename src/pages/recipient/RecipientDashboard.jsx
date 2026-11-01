@@ -31,13 +31,14 @@ function isAnniversaryToday(dateStr) {
 const formatPoints = (p) => (p || 0).toLocaleString()
 const signedPoints = (p) => p > 0 ? `+${p}` : `${p}`
 
-// Viewer's local clock. Morning starts at 5, so just past midnight is
-// still "evening".
+// Viewer's local clock: morning 5-12, afternoon 12-17, evening 17-21,
+// night 21-5.
 function greeting() {
   const hour = new Date().getHours()
   if (hour >= 5 && hour < 12) return 'Good morning'
   if (hour >= 12 && hour < 17) return 'Good afternoon'
-  return 'Good evening'
+  if (hour >= 17 && hour < 21) return 'Good evening'
+  return 'Good night'
 }
 
 // AvatarStack draws from initials + color, not name.

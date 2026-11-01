@@ -67,7 +67,7 @@ export default function RedemptionsPage() {
         <div>
           <h1 className="text-display-lg text-ink-primary">Redemptions</h1>
           <p className="mt-1.5 text-body-md text-ink-secondary">
-            Review and fulfil reward requests from employees.
+            Review and approve reward requests from employees.
           </p>
         </div>
       </div>
