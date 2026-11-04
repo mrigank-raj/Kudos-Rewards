@@ -1,56 +1,108 @@
-# Kudos: Employee Recognition & Rewards Platform
+# KIIT University Employee Portal
 
-**[🔴 Live Demo: kudos-rewards.vercel.app](https://kudos-rewards.vercel.app/login)**
+**Live:** [kudos-rewards.vercel.app](https://kudos-rewards.vercel.app)
 
-## Overview
-**Kudos** is a full-stack, enterprise-grade Employee Recognition and Rewards platform. Built with a strong **Product Management lens**, this project prioritizes **feasibility, scalability, and exceptional user experience**, while rigorously handling edge cases and database integrity.
+A reward, recognition and community portal for KIIT University staff. HR runs reward programmes and gives official points. Employees thank each other with **"Thank You !"** notes that can carry points, spend points in a reward shop, and help each other in a community forum.
 
-The product aims to boost employee retention, engagement, and cross-functional collaboration by providing a centralized hub where organizations can distribute reward points and employees can redeem them for tangible benefits or shout out their peers.
+Every point movement is recorded in an auditable ledger. Every rule (who can join, who can give points, who can see what) is enforced inside the database, not only in the browser.
 
-## 🎯 Value Proposition & Product Strategy
-- **For Employees**: A seamless, gamified experience to earn, track, and redeem points for meaningful rewards (e.g., gift cards, PTO). Empowers peer-to-peer recognition to build a positive culture.
-- **For Managers/Admins**: A powerful dashboard to track engagement metrics, issue spot bonuses, and manage catalog items, driving alignment with company values.
-- **For the Business**: Increases employee retention (reducing churn costs) and provides measurable data on team engagement and top performers.
+## Features
 
-## 🚀 Key Features & MVP Scope
-1. **Role-Based Workflows**: Segregated experiences for Admins (point issuance, catalog management, analytics) and Recipients (point redemption, activity feed).
-2. **Atomic Transactions**: The core points ledger is built on strictly atomic PostgreSQL RPC functions to prevent race conditions, double-spending, and negative balances.
-3. **Peer-to-Peer Recognition (Social Feed)**: Employees can attach points, company-value tags, and emoji reactions to public shoutouts, fostering a culture of continuous appreciation.
-4. **Real-time Synchronization**: The UI reflects point balances and in-app notifications instantly across multiple tabs using React Query and Supabase Realtime.
-5. **Secure Authentication**: Built on Supabase GoTrue with automated Row-Level Security (RLS) and Postgres triggers for seamless onboarding, including admin-configured pending members who are promoted automatically on signup.
-6. **Leaderboard & Badges**: A recipient-facing leaderboard and automatically-awarded achievement badges (First Kudos, Team Player, Top Earner).
-7. **Redemption Fulfillment Queue**: Admins can approve or cancel pending reward redemptions instead of them being purely simulated.
-8. **Employee Community**: Questions with accepted answers, discussions and tips, threaded replies, appreciation, bookmarks, an employee directory, private 1:1 messaging, notifications, and a community reputation (separate from redeemable points) with HR moderation and contribution insights. See the [Community guide](docs/community.md).
+### For employees
+- **Invite-only access:** only `@kiit.ac.in` emails that HR has approved can sign up.
+- **Say Thank You !:** thank a colleague publicly, with value tags (Teamwork, Innovation, Impact, Leadership) and optional points.
+- **Thank You ! wall:** an organisation-wide feed with emoji reactions.
+- **Reward shop:** 8 Indian rewards (CCD, Zomato, Amazon Pay, PVR, KIIT Hoodie, boAt, spa, extra leave day), with progress towards each.
+- **Reward requests:** redeem, then track whether HR has approved or cancelled the request; cancelled requests are refunded automatically.
+- **Points history:** a full ledger with running balance, filters, date ranges and CSV export.
+- **Leaderboard and badges:** First Thank You !, Team Player and Top Earner.
+- **Community:** questions with accepted answers, discussions and tips, threaded replies, appreciation, bookmarks and reputation.
+- **Directory and profiles:** search colleagues by name, job title, skill or department.
+- **Private messaging:** one-to-one chats with live unread counts and read receipts.
+- **Notifications:** live, for Thank You notes, points, reward updates, replies, messages and badges.
 
-## 🛠 Tech Stack
-- **Frontend**: React (Vite), Tailwind CSS, React Query (Tanstack), Lucide Icons, date-fns.
-- **Backend & Database**: Supabase (PostgreSQL), Row-Level Security (RLS), custom Stored Procedures (RPC).
-- **Deployment**: Vite build optimized for Vercel/Netlify.
+### For HR
+- **Dashboard:** members, points issued, reward requests and the live ledger.
+- **People:**
+  - add members to the approved list;
+  - set departments;
+  - give or deduct points, with confirmation for large credits;
+  - remove members, choosing to revoke or keep their points; their history is kept and their login is blocked.
+- **Programmes:** create, edit and turn reward programmes on or off.
+- **Redemptions:** approve or cancel reward requests, with a confirmation step and automatic refunds.
+- **Analytics:** points issued vs redeemed, programme breakdown, top earners, redemption rate, CSV export.
+- **Community moderation and insights:** reports, hidden content, categories, audit log, engagement metrics.
 
-## 📈 Product & Engineering Decisions
-To understand the "Why" behind the technical and product choices (e.g., why we chose an immutable ledger over direct balance updates, how we handled RLS edge cases, and the introduction of P2P Kudos), please read the [Decision Log](docs/Decision.md).
+## How it is built
 
-## 🧪 Edge Cases Handled (The "PM Lens")
-- **Double-spend prevention**: Database-level constraints ensure a user cannot redeem a reward if their balance drops below the cost during the request.
-- **Null states & Onboarding**: The app gracefully handles empty feeds, missing avatars, and first-time logins with encouraging empty states (e.g., "Be the first to recognize a colleague!").
-- **Auth Integrity**: Database triggers (`handle_new_user`) ensure that whenever a user signs up, their public profile and initial point balance are created synchronously, bypassing RLS pitfalls.
+| Layer | Technology |
+|---|---|
+| Frontend | React 19, Vite, Tailwind CSS v4 (design tokens, light and dark themes) |
+| Data fetching | TanStack React Query |
+| Database, auth, API, realtime | Supabase (PostgreSQL) |
+| Charts | Recharts |
+| Hosting | Vercel (deploys from `main`) |
+| Tests | `node:test`, PGlite (in-memory PostgreSQL) |
 
-## Running Locally
-```bash
-# Install dependencies
-npm install
+There is no custom backend server. Trusted logic runs inside PostgreSQL:
+- **Row-Level Security** on every table: users only see their own organisation's data, and only conversation participants can read private messages.
+- **Stored procedures** for every point movement (credit, debit, Thank You, redeem, refund, revoke). Each one checks permissions, locks the rows involved, and writes the balance and the ledger in one transaction.
+- **Triggers** for sign-up rules, notifications, community counters and reputation.
+- **Protected columns:** users cannot change their own role, balance, organisation or department.
 
-# Configure Supabase (public URL + anon key only)
-cp .env.example .env
+**Ledger invariant:** for every user, `points_balance = SUM(transactions.points)`.
 
-# Start the development server
-npm run dev
+## Project structure
 
-# Checks
-npm run lint
-npm run build
-npm test          # unit tests
-npm run test:db   # migrations + RLS/security tests on in-memory Postgres
+```
+src/
+  pages/            employee (recipient/), HR (admin/), shared community (community/) and auth pages
+  components/       ui/ (design system), shell/ (sidebar and top bar), community/, dashboard/, auth/
+  hooks/            data fetching and mutations (React Query + Supabase)
+  context/          auth, theme and toast providers
+  lib/              pure helpers: ledger meanings, CSV export, community utilities (unit-tested)
+supabase/
+  migrations/       001–021, applied in order
+  tests/            database security and logic tests (run on PGlite)
+docs/               architecture, decisions, edge cases, deployment, community guide
 ```
 
-*Note: You must connect your own Supabase project and run the provided SQL migrations in the `supabase/migrations` folder (in numeric order, `001`–`015`) to initialize the database. The community migrations and setup are described in [docs/community.md](docs/community.md).*
+## Running locally
+
+```bash
+npm install
+cp .env.example .env.local   # add your Supabase project URL and anon key
+npm run dev                  # http://localhost:5173
+```
+
+Apply the SQL files in `supabase/migrations/` to your Supabase project in numeric order (`001` → `021`). See [docs/Deployment-Plan.md](docs/Deployment-Plan.md) for project setup.
+
+## Tests
+
+```bash
+npm test          # unit tests (community helpers, CSV escaping)
+npm run test:db   # every migration on in-memory PostgreSQL + 57 security and logic checks
+npm run lint
+npm run build
+```
+
+`npm run test:db` needs no Docker and no Supabase project. It signs in as different users (employees, HR, another organisation) and checks what each one can and cannot do. Among other things it checks invite-only sign-up, member removal, private messages, refunds and the ledger rules.
+
+## Documentation
+
+- [Architecture](docs/Architecture.md)
+- [Decision log](docs/Decision.md)
+- [Edge cases](docs/Edge-Case.md)
+- [Deployment](docs/Deployment-Plan.md)
+- [Community module](docs/community.md)
+
+## Team
+
+Group project, KIIT University:
+
+- Akasa Patri
+- Mrigank Raj Chauhan
+- Priyanshu Pandey
+- Ranjit Singh Virdi
+- Kaustubh Gaurav Tiwari
+- Vaibhav Deep Srivastava
