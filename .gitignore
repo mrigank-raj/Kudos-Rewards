@@ -28,3 +28,21 @@ dist-ssr
 docs/ui_redesign_prompt.md
 docs/logo_prompt.md
 stitch_kudos_enterprise_redesign/
+# Group presentation document (local only)
+docs/FEATURES.md
+
+# Local secrets and tooling
+.env
+.claude/
+
+# Old Acme design prototype (not part of the app)
+kudos-redesign/
+
+# Unused asset
+public/icons.svg
+
+# Historical planning documents from the original demo
+docs/Implementation-plan.md
+docs/evals.md
+docs/handover.md
+docs/context.md
