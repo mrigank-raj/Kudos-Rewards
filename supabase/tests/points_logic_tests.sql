@@ -64,7 +64,9 @@ RESET ROLE;
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM transactions WHERE user_id = pg_temp.pid('a') AND type = 'thank_you' AND points = -1)
-       OR NOT EXISTS (SELECT 1 FROM transactions WHERE user_id = pg_temp.pid('b') AND type = 'earn' AND points = 1) THEN
+       OR NOT EXISTS (SELECT 1 FROM transactions WHERE user_id = pg_temp.pid('b') AND type = 'earn' AND points = 1)
+       -- 023: the sender's row names the receiver.
+       OR NOT EXISTS (SELECT 1 FROM transactions WHERE user_id = pg_temp.pid('a') AND type = 'thank_you' AND reason = 'Thank You ! to B') THEN
         RAISE EXCEPTION 'FAIL: Thank You ledger types';
     END IF;
     IF EXISTS (SELECT 1 FROM user_badges ub JOIN badges bd ON bd.id = ub.badge_id JOIN users u ON u.id = ub.user_id WHERE bd.key = 'top_earner' AND u.org_id = pg_temp.pid('org')) THEN
