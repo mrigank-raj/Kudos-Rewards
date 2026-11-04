@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { format, isSameDay } from 'date-fns'
-import { ArrowLeft, CheckCheck, Loader2, MessagesSquare, PenSquare, Send, ShieldCheck } from 'lucide-react'
+import { ArrowLeft, CheckCheck, Loader2, MessagesSquare, PenSquare, Send, ShieldCheck, Trash2 } from 'lucide-react'
 import { Button, Card, EmptyState, SearchInput, Sheet, cx } from '@/components/ui'
 import { CharCount, ErrorState, TimeAgo, UserAvatar } from '@/components/community/CommunityUI'
 import { useAuth } from '@/hooks/useAuth'
 import { useToast } from '@/context/ToastContext'
 import { useAreaBase } from '@/hooks/useCommunity'
 import { useDirectory, useStartConversation } from '@/hooks/useCommunityPeople'
-import { useConversationMessages, useConversations, useMarkConversationRead, useSendMessage } from '@/hooks/useMessages'
+import { useConversationMessages, useConversations, useDeleteMessage, useMarkConversationRead, useSendMessage } from '@/hooks/useMessages'
 import { LIMITS, friendlyError } from '@/lib/community'
 
 function NewConversationSheet({ open, onClose }) {
@@ -114,8 +114,10 @@ function Thread({ conversation, base }) {
   const toast = useToast()
   const query = useConversationMessages(conversation.conversation_id)
   const send = useSendMessage(conversation.conversation_id)
+  const deleteMessage = useDeleteMessage(conversation.conversation_id)
   const markRead = useMarkConversationRead()
   const [body, setBody] = useState('')
+  const [confirmingDelete, setConfirmingDelete] = useState(null)
   const bottomRef = useRef(null)
   const scrollRef = useRef(null)
   const { mutate: markReadMutate } = markRead
@@ -139,6 +141,13 @@ function Thread({ conversation, base }) {
     if (!value || send.isPending) return
     if (value.length > LIMITS.messageMax) return toast.error(`Messages are limited to ${LIMITS.messageMax.toLocaleString()} characters.`)
     send.mutate(value, { onSuccess: () => setBody(''), onError: (err) => toast.error(friendlyError(err)) })
+  }
+
+  const removeMessage = (id) => {
+    deleteMessage.mutate(id, {
+      onSuccess: () => setConfirmingDelete(null),
+      onError: (err) => toast.error(friendlyError(err)),
+    })
   }
 
   const lastMine = [...messages].reverse().find((m) => m.sender_id === profile?.id)
@@ -177,6 +186,7 @@ function Thread({ conversation, base }) {
         ) : (
           messages.map((m, i) => {
             const mine = m.sender_id === profile?.id
+            const deleted = !!m.deleted_at
             const prev = messages[i - 1]
             const newDay = !prev || !isSameDay(new Date(prev.created_at), new Date(m.created_at))
             return (
@@ -184,17 +194,47 @@ function Thread({ conversation, base }) {
                 {newDay && (
                   <p className="py-3 text-center text-[11px] font-medium uppercase tracking-wide text-ink-muted">{format(new Date(m.created_at), 'EEE d MMM')}</p>
                 )}
-                <div className={cx('flex', mine ? 'justify-end' : 'justify-start')}>
+                <div className={cx('group flex items-center gap-1.5', mine ? 'justify-end' : 'justify-start')}>
+                  {/* Own, not-yet-deleted messages: delete for both people, with a quick confirm. */}
+                  {mine && !deleted && (
+                    confirmingDelete === m.id ? (
+                      <span className="flex shrink-0 items-center gap-1 text-label-xs">
+                        <button
+                          type="button"
+                          onClick={() => removeMessage(m.id)}
+                          disabled={deleteMessage.isPending}
+                          className="rounded-lg bg-danger-subtle px-2 py-1 text-danger-text disabled:opacity-50"
+                        >
+                          Delete
+                        </button>
+                        <button type="button" onClick={() => setConfirmingDelete(null)} className="rounded-lg bg-surface-subtle px-2 py-1 text-ink-secondary">
+                          Keep
+                        </button>
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setConfirmingDelete(m.id)}
+                        aria-label="Delete message"
+                        title="Delete for everyone"
+                        className="shrink-0 rounded-lg p-1.5 text-ink-muted transition hover:text-danger-solid focus-visible:opacity-100 md:opacity-0 md:group-hover:opacity-100"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    )
+                  )}
                   <div
                     className={cx(
                       'max-w-[80%] rounded-2xl px-3.5 py-2 text-body-md whitespace-pre-wrap break-words',
-                      mine ? 'rounded-br-md text-white' : 'rounded-bl-md bg-surface-subtle text-ink-primary'
+                      deleted
+                        ? cx('border border-stroke-subtle italic text-ink-muted', mine ? 'rounded-br-md' : 'rounded-bl-md')
+                        : mine ? 'rounded-br-md text-white' : 'rounded-bl-md bg-surface-subtle text-ink-primary'
                     )}
-                    style={mine ? { backgroundImage: 'var(--brand-gradient)' } : undefined}
+                    style={mine && !deleted ? { backgroundImage: 'var(--brand-gradient)' } : undefined}
                   >
                     <span className="sr-only">{mine ? 'You' : conversation.other_name}: </span>
-                    {m.body}
-                    <span className={cx('mt-0.5 block text-right text-[10px]', mine ? 'text-white/75' : 'text-ink-muted')}>
+                    {deleted ? (mine ? 'You deleted this message' : 'This message was deleted') : m.body}
+                    <span className={cx('mt-0.5 block text-right text-[10px] not-italic', mine && !deleted ? 'text-white/75' : 'text-ink-muted')}>
                       {format(new Date(m.created_at), 'HH:mm')}
                     </span>
                   </div>

@@ -89,6 +89,7 @@ The `transactions` table is the **source of truth** for all point movements. `us
 019_member_removal.sql      — HR removes people (users.removed_at, login ban, optional point revoke); reward cancel refunds; HR can't redeem
 020_kiit_data_cleanup.sql   — Free-text departments, no rule-based programs, university wording for programs/categories
 021_points_logic.sql        — Welcome + Thank You ledger types, issued = HR credits, Top Earner rule, reward-request notifications, HR sets departments
+022_message_delete.sql      — Senders delete their own messages for everyone; preview, notification and unread counts follow
 create_user_trigger.sql     — Auto-creates public profile when auth.users row is inserted
 create_test_user.sql        — Helper for creating test users
 ```

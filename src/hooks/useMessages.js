@@ -45,7 +45,7 @@ export function useConversationMessages(conversationId) {
     queryFn: async ({ pageParam }) => {
       let query = supabase
         .from('community_messages')
-        .select('id, conversation_id, sender_id, body, created_at')
+        .select('id, conversation_id, sender_id, body, created_at, deleted_at')
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: false })
         .limit(MESSAGE_PAGE)
@@ -67,7 +67,7 @@ export function useSendMessage(conversationId) {
       const { data, error } = await supabase
         .from('community_messages')
         .insert({ conversation_id: conversationId, body })
-        .select('id, conversation_id, sender_id, body, created_at')
+        .select('id, conversation_id, sender_id, body, created_at, deleted_at')
         .single()
       if (error) throw error
       return data
@@ -79,6 +79,29 @@ export function useSendMessage(conversationId) {
         const [first, ...rest] = data.pages
         if (first.some((m) => m.id === message.id)) return data
         return { ...data, pages: [[message, ...first], ...rest] }
+      })
+      queryClient.invalidateQueries({ queryKey: ['messages', 'conversations'] })
+    },
+  })
+}
+
+/** Sender deletes their own message for both people (migration 022). */
+export function useDeleteMessage(conversationId) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (messageId) => {
+      const { error } = await supabase.rpc('community_delete_message', { p_message_id: messageId })
+      if (error) throw error
+      return messageId
+    },
+    onSuccess: (messageId) => {
+      // Show the placeholder at once; realtime/refetch reconcile.
+      queryClient.setQueryData(['messages', 'thread', conversationId], (data) => {
+        if (!data) return data
+        return {
+          ...data,
+          pages: data.pages.map((page) => page.map((m) => (m.id === messageId ? { ...m, body: '', deleted_at: new Date().toISOString() } : m))),
+        }
       })
       queryClient.invalidateQueries({ queryKey: ['messages', 'conversations'] })
     },
@@ -114,7 +137,8 @@ export function useMessagesRealtime() {
     if (!userId) return
     const channel = supabase
       .channel(`community-messages:${userId}`)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'community_messages' }, (payload) => {
+      // INSERT for new messages, UPDATE for deletions.
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'community_messages' }, (payload) => {
         const conversationId = payload.new?.conversation_id
         if (conversationId) queryClient.invalidateQueries({ queryKey: ['messages', 'thread', conversationId] })
         queryClient.invalidateQueries({ queryKey: ['messages', 'conversations'] })
