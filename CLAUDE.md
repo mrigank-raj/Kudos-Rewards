@@ -90,6 +90,7 @@ The `transactions` table is the **source of truth** for all point movements. `us
 020_kiit_data_cleanup.sql   — Free-text departments, no rule-based programs, university wording for programs/categories
 021_points_logic.sql        — Welcome + Thank You ledger types, issued = HR credits, Top Earner rule, reward-request notifications, HR sets departments
 022_message_delete.sql      — Senders delete their own messages for everyone; preview, notification and unread counts follow
+023_thank_you_recipient.sql — Sender's ledger row names the receiver ("Thank You ! to X"); existing rows back-filled
 create_user_trigger.sql     — Auto-creates public profile when auth.users row is inserted
 create_test_user.sql        — Helper for creating test users
 ```

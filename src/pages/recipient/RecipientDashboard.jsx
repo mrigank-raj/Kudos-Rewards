@@ -323,7 +323,7 @@ export default function RecipientDashboard() {
                       <div className="min-w-0">
                         <p className="truncate text-label-sm text-ink-primary">{row.title}</p>
                         <p className="truncate text-body-sm text-ink-muted">
-                          {row.meta} · {row.date}
+                          {row.meta && row.meta !== row.title ? `${row.meta} · ` : ''}{row.date}
                         </p>
                       </div>
                       <span

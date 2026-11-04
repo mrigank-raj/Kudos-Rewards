@@ -161,7 +161,7 @@ export default function HistoryPage() {
 
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-label-sm text-ink-primary md:text-label-md">{row.title}</p>
-                      {row.meta && <p className="truncate text-body-sm text-ink-muted">{row.meta}</p>}
+                      {row.meta && row.meta !== row.title && <p className="truncate text-body-sm text-ink-muted">{row.meta}</p>}
                     </div>
 
                     <span className="ml-auto hidden shrink-0 font-mono text-[11px] text-ink-muted md:block">
